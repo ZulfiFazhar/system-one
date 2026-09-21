@@ -351,10 +351,16 @@
                             <div class="text-xs font-mono text-[#555555] mb-1">Model Hub</div>
                             <div class="font-bold text-sm mb-2">convaiinnovations/laya</div>
                             <p class="text-xs text-[#555555] mb-3">Official model checkpoints, tokenizer configurations, and weight releases.</p>
-                            <a href="https://huggingface.co/convaiinnovations/laya-multilingual" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
-                                <span>laya-multilingual Card</span>
-                                <span aria-hidden="true">&nearr;</span>
-                            </a>
+                            <div class="flex flex-col gap-1.5">
+                                <a href="https://huggingface.co/convaiinnovations/laya" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                    <span>Laya Family Collection</span>
+                                    <span aria-hidden="true">&nearr;</span>
+                                </a>
+                                <a href="https://huggingface.co/convaiinnovations/laya-multilingual" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                    <span>laya-multilingual Checkpoint</span>
+                                    <span aria-hidden="true">&nearr;</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -752,9 +758,14 @@
 
                     const verdictRow = document.createElement('div');
                     verdictRow.className = 'flex items-center justify-between text-sm';
-                    verdictRow.innerHTML = '<span class="text-xs font-mono text-[#555555]">Probability:</span>' +
-                        '<span class="font-mono font-bold text-sm ' + (isTrue ? 'text-[#03aa5c]' : 'text-[#1E1E1E]') + '">' +
-                        pct + '% (' + prob.toFixed(4) + ')</span>';
+                    const probLabel = document.createElement('span');
+                    probLabel.className = 'text-xs font-mono text-[#555555]';
+                    probLabel.textContent = 'Probability:';
+                    const probVal = document.createElement('span');
+                    probVal.className = 'font-mono font-bold text-sm ' + (isTrue ? 'text-[#03aa5c]' : 'text-[#1E1E1E]');
+                    probVal.textContent = pct + '% (' + prob.toFixed(4) + ')';
+                    verdictRow.appendChild(probLabel);
+                    verdictRow.appendChild(probVal);
                     content.appendChild(verdictRow);
 
                     const progressBg = document.createElement('div');
@@ -775,9 +786,14 @@
 
                     const choiceRow = document.createElement('div');
                     choiceRow.className = 'flex items-center justify-between text-sm';
-                    choiceRow.innerHTML = '<span class="text-xs font-mono text-[#555555]">Selected Choice:</span>' +
-                        '<span class="font-mono font-bold px-2 py-0.5 border border-[#1E1E1E] bg-[#f386a1]/30 text-[#1E1E1E]">' +
-                        chosen + ' (' + conf + '% conf)</span>';
+                    const choiceLabel = document.createElement('span');
+                    choiceLabel.className = 'text-xs font-mono text-[#555555]';
+                    choiceLabel.textContent = 'Selected Choice:';
+                    const choiceVal = document.createElement('span');
+                    choiceVal.className = 'font-mono font-bold px-2 py-0.5 border border-[#1E1E1E] bg-[#f386a1]/30 text-[#1E1E1E]';
+                    choiceVal.textContent = chosen + ' (' + conf + '% conf)';
+                    choiceRow.appendChild(choiceLabel);
+                    choiceRow.appendChild(choiceVal);
                     content.appendChild(choiceRow);
 
                     if (ans.probabilities && typeof ans.probabilities === 'object') {
@@ -794,7 +810,12 @@
 
                             const labelRow = document.createElement('div');
                             labelRow.className = 'flex justify-between text-xs font-mono ' + (isChosen ? 'font-bold text-[#1E1E1E]' : 'text-[#555555]');
-                            labelRow.innerHTML = '<span>' + optKey + '</span><span>' + optPct + '%</span>';
+                            const keySpan = document.createElement('span');
+                            keySpan.textContent = optKey;
+                            const pctSpan = document.createElement('span');
+                            pctSpan.textContent = optPct + '%';
+                            labelRow.appendChild(keySpan);
+                            labelRow.appendChild(pctSpan);
                             row.appendChild(labelRow);
 
                             const barBg = document.createElement('div');
@@ -820,9 +841,14 @@
 
                     const scoreRow = document.createElement('div');
                     scoreRow.className = 'flex items-center justify-between text-sm';
-                    scoreRow.innerHTML = '<span class="text-xs font-mono text-[#555555]">Calculated Score:</span>' +
-                        '<span class="font-mono font-bold text-base px-2 py-0.5 border border-[#1E1E1E] bg-[#09aea1]/20 text-[#1E1E1E]">' +
-                        score + ' (' + conf + '% conf)</span>';
+                    const scoreLabel = document.createElement('span');
+                    scoreLabel.className = 'text-xs font-mono text-[#555555]';
+                    scoreLabel.textContent = 'Calculated Score:';
+                    const scoreVal = document.createElement('span');
+                    scoreVal.className = 'font-mono font-bold text-base px-2 py-0.5 border border-[#1E1E1E] bg-[#09aea1]/20 text-[#1E1E1E]';
+                    scoreVal.textContent = score + ' (' + conf + '% conf)';
+                    scoreRow.appendChild(scoreLabel);
+                    scoreRow.appendChild(scoreVal);
                     content.appendChild(scoreRow);
 
                     if (ans.probabilities && typeof ans.probabilities === 'object') {
@@ -839,7 +865,13 @@
 
                             const labelRow = document.createElement('div');
                             labelRow.className = 'flex justify-between text-xs font-mono text-[#555555]';
-                            labelRow.innerHTML = '<span title="' + legendDesc + '">' + legendDesc + '</span><span>' + optPct + '%</span>';
+                            const descSpan = document.createElement('span');
+                            descSpan.title = String(legendDesc);
+                            descSpan.textContent = String(legendDesc);
+                            const pctSpan = document.createElement('span');
+                            pctSpan.textContent = optPct + '%';
+                            labelRow.appendChild(descSpan);
+                            labelRow.appendChild(pctSpan);
                             row.appendChild(labelRow);
 
                             const barBg = document.createElement('div');
