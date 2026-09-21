@@ -8,14 +8,24 @@ FastAPI service yang membungkus model **Laya** (`convaiinnovations/laya`) dengan
 # Install dependencies
 uv sync
 
-# Jalankan server dengan model lokal di folder models/laya-multilingual
-uv run fastapi run app/main.py --port 8000
+# Jalankan development server (auto-reload)
+fastapi dev
+# atau via uv:
+uv run fastapi dev
+
+# Jalankan production server
+fastapi run
+# atau dengan custom port:
+uv run fastapi run --port 8000
 ```
+
+> **Catatan Auto-Download Model:**
+> Jika repositori baru di-clone dan folder `models/laya-multilingual/` belum memiliki file weights, server akan otomatis mendownload model `convaiinnovations/laya-multilingual` dari Hugging Face ke folder `models/` saat startup pertama kali. Setelah itu, server mengunci mode offline (`HF_HUB_OFFLINE=1`) sehingga setiap request tidak akan pernah menghubungi Hugging Face lagi.
 
 ### PM2
 
 ```bash
-pm2 start "uv run fastapi run app/main.py --port 20129" --name system-one
+pm2 start "uv run fastapi run --port 20129" --name system-one
 ```
 
 ## API
@@ -107,7 +117,8 @@ Semua pertanyaan dalam satu request dieksekusi **paralel** dalam satu forward pa
 | Variabel | Default | Keterangan |
 |---|---|---|
 | `LAYA_API_KEY` | — | Bearer token auth. Kosong = auth dinonaktifkan. |
-| `LAYA_MODEL_PATH` | `models/laya-multilingual` | Path lokal folder model Laya. |
+| `LAYA_MODEL_ID` | `convaiinnovations/laya-multilingual` | HF repo ID untuk auto-download saat startup pertama. |
+| `LAYA_MODEL_PATH` | `models/laya-multilingual` | Path lokal folder model Laya (offline). |
 | `LAYA_DEVICE` | `auto` | Device PyTorch: `cuda`, `cpu`, `mps`, atau `auto`. |
 | `LAYA_PRELOAD` | `true` | Preload model saat server start. |
 | `PORT` | `8000` | Port server. |
