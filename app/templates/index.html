@@ -4,8 +4,973 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System One | TypeSafe AI Compatible System 1 Decision Model</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E1E1E',
+                        surface: '#fefefe',
+                        borderDefault: '#1E1E1E',
+                        accentGreen: '#03aa5c',
+                        accentPink: '#f386a1',
+                        accentTeal: '#09aea1',
+                        subtleGray: '#dedede',
+                        textMuted: '#555555',
+                    },
+                    boxShadow: {
+                        hard: '2px 2px 0px rgba(0,0,0,0.4)',
+                        'hard-hover': '3px 3px 0px rgba(0,0,0,0.6)',
+                        'hard-active': '1px 1px 0px rgba(0,0,0,0.4)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            background-color: #fefefe;
+            color: #1E1E1E;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .brutal-card {
+            background-color: #fefefe;
+            border: 1px solid #1E1E1E;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+        }
+        .brutal-btn {
+            border: 1px solid #1E1E1E;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
+        }
+        .brutal-btn:hover:not(:disabled) {
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.6);
+        }
+        .brutal-btn:active:not(:disabled) {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+        }
+        .brutal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .brutal-input {
+            border: 1px solid #1E1E1E;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+            outline: none;
+        }
+        .brutal-input:focus {
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.8);
+        }
+    </style>
 </head>
-<body>
-    <h1>We took the opposite research direction</h1>
+<body class="min-h-screen flex flex-col bg-[#fefefe] text-[#1E1E1E] antialiased">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-[#1E1E1E] bg-[#fefefe] sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="font-extrabold text-lg tracking-tight hover:underline flex items-center gap-2">
+                    <span class="w-3 h-3 bg-[#1E1E1E] inline-block"></span>
+                    <span>System One</span>
+                </a>
+                <span class="text-xs px-2 py-0.5 border border-[#1E1E1E] font-mono bg-white text-[#1E1E1E]">v1.0</span>
+                <!-- Live Health Badge -->
+                <a href="/healthz" id="health-badge" class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#1E1E1E] text-xs font-mono bg-gray-50 text-[#1E1E1E]" title="Click to view healthz JSON">
+                    <span id="health-dot" class="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>
+                    <span id="health-text">Polling healthz...</span>
+                </a>
+            </div>
+
+            <nav class="flex items-center gap-4 text-sm font-medium">
+                <a href="#playground" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">Playground</a>
+                <a href="#model-card" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">Model Card</a>
+                <a href="#faq" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">FAQ</a>
+                <a href="/docs" target="_blank" rel="noopener noreferrer" class="brutal-btn px-3 py-1.5 bg-[#fefefe] hover:bg-gray-100 font-mono text-xs flex items-center gap-1">
+                    <span>API Docs</span>
+                    <span aria-hidden="true">&nearr;</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="border-b border-[#1E1E1E] py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fefefe]">
+            <div class="max-w-5xl mx-auto">
+                <div class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-[#f386a1]/30">
+                    Non-Autoregressive Decision Inference
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-[#1E1E1E] mb-6">
+                    We took the opposite research direction.
+                </h1>
+                <p class="text-lg sm:text-xl text-[#555555] max-w-3xl leading-relaxed mb-8">
+                    Generative models predict text sequentially token by token, accumulating latency, cost, and hallucination. System One uses a bidirectional encoder with direct decision heads to produce calibrated probabilities and structured choices in a single forward pass.
+                </p>
+
+                <div class="flex flex-wrap gap-4 mb-14">
+                    <a href="#playground" class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-[#1E1E1E] text-white font-semibold text-sm hover:bg-[#333333]">
+                        Open Interactive Playground
+                    </a>
+                    <a href="#model-card" class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-[#fefefe] text-[#1E1E1E] font-semibold text-sm hover:bg-gray-50">
+                        Explore Model Card
+                    </a>
+                </div>
+
+                <!-- Core Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="brutal-card p-5">
+                        <div class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1">~33 ms</div>
+                        <div class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2">Inference Latency</div>
+                        <p class="text-xs text-[#555555] leading-normal">Single-pass forward evaluation on batch workloads without token decoding delay.</p>
+                    </div>
+
+                    <div class="brutal-card p-5">
+                        <div class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1">322M</div>
+                        <div class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2">Backbone Weights</div>
+                        <p class="text-xs text-[#555555] leading-normal">Bidirectional mmBERT-base encoder coupled with specialized decision heads.</p>
+                    </div>
+
+                    <div class="brutal-card p-5">
+                        <div class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1">100+</div>
+                        <div class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2">Languages</div>
+                        <p class="text-xs text-[#555555] leading-normal">Native multilingual representation across Latin and non-Latin character sets.</p>
+                    </div>
+
+                    <div class="brutal-card p-5">
+                        <div class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1">0.0%</div>
+                        <div class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2">Hallucination</div>
+                        <p class="text-xs text-[#555555] leading-normal">Direct classification heads eliminate generative drifting and schema corruption.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Playground Section -->
+        <section id="playground" class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                    <div>
+                        <div class="inline-block px-2.5 py-0.5 border border-[#1E1E1E] text-xs font-mono uppercase bg-white mb-2">Live Tester</div>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Interactive Playground</h2>
+                        <p class="text-sm text-[#555555] mt-1">Execute live inference requests directly against the local POST /v1/systemone endpoint.</p>
+                    </div>
+
+                    <!-- Presets -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-mono uppercase text-[#555555] mr-1">Presets:</span>
+                        <button type="button" id="preset-billing" class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-white hover:bg-gray-100">
+                            Billing Dispute
+                        </button>
+                        <button type="button" id="preset-outage" class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-white hover:bg-gray-100">
+                            Outage Incident
+                        </button>
+                        <button type="button" id="preset-sales" class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-white hover:bg-gray-100">
+                            Sales Lead
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: Inputs -->
+                    <div class="space-y-6">
+                        <!-- Auth Bar -->
+                        <div class="brutal-card p-4 bg-white">
+                            <label for="api-key-input" class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1">
+                                Bearer API Key (Optional)
+                            </label>
+                            <p class="text-xs text-[#555555] mb-2">
+                                Stored in session storage for subsequent requests. Leave blank if local service authentication is disabled.
+                            </p>
+                            <input
+                                id="api-key-input"
+                                type="password"
+                                placeholder="e.g. secret-token-123"
+                                class="brutal-input w-full px-3 py-2 text-sm font-mono bg-white text-[#1E1E1E]"
+                                autocomplete="off"
+                            >
+                        </div>
+
+                        <!-- State Input -->
+                        <div class="brutal-card p-4 bg-white">
+                            <label for="state-input" class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1">
+                                State Context (Input Text)
+                            </label>
+                            <p class="text-xs text-[#555555] mb-2">
+                                Context string evaluated across all configured questions.
+                            </p>
+                            <textarea
+                                id="state-input"
+                                rows="5"
+                                class="brutal-input w-full p-3 text-sm font-mono bg-white text-[#1E1E1E] resize-y"
+                                placeholder="Enter context text..."
+                            ></textarea>
+                        </div>
+
+                        <!-- Questions Schema Input -->
+                        <div class="brutal-card p-4 bg-white">
+                            <div class="flex items-center justify-between mb-1">
+                                <label for="questions-input" class="block text-xs font-mono font-semibold uppercase tracking-wider">
+                                    Questions JSON Schema
+                                </label>
+                                <button
+                                    type="button"
+                                    id="reset-questions-btn"
+                                    class="text-xs font-mono text-[#555555] hover:text-[#1E1E1E] underline"
+                                >
+                                    Reset Schema
+                                </button>
+                            </div>
+                            <p class="text-xs text-[#555555] mb-2">
+                                Map of question keys to question objects (types: noul, choice, score).
+                            </p>
+                            <textarea
+                                id="questions-input"
+                                rows="12"
+                                class="brutal-input w-full p-3 text-xs font-mono bg-white text-[#1E1E1E] resize-y"
+                                spellcheck="false"
+                            ></textarea>
+                        </div>
+
+                        <!-- Run Button -->
+                        <div class="flex items-center gap-4">
+                            <button
+                                type="button"
+                                id="run-btn"
+                                class="brutal-btn min-h-[44px] flex-1 py-3 px-6 bg-[#1E1E1E] text-white font-semibold text-sm hover:bg-[#333333] flex items-center justify-center gap-2"
+                            >
+                                <svg id="run-spinner" class="hidden animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span id="run-text">Run System 1 Evaluation</span>
+                            </button>
+                        </div>
+
+                        <!-- Error Banner -->
+                        <div id="playground-error" class="hidden brutal-card p-4 bg-red-50 border-red-700 text-red-900 text-sm">
+                            <div class="font-bold mb-1 flex items-center gap-2">
+                                <span class="w-2 h-2 bg-red-700 rounded-full inline-block"></span>
+                                <span id="error-title">Request Failed</span>
+                            </div>
+                            <p id="error-message" class="text-xs font-mono whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Results Console -->
+                    <div class="brutal-card p-6 bg-white flex flex-col min-h-[500px]">
+                        <!-- Results Header -->
+                        <div class="border-b border-[#1E1E1E] pb-4 mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono font-bold uppercase tracking-wider">Evaluation Output</span>
+                                <span id="res-status" class="hidden text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-[#03aa5c]/20 text-[#1E1E1E]">200 OK</span>
+                                <span id="res-latency" class="hidden text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-gray-100 text-[#1E1E1E]">-- ms</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <span id="res-tokens" class="hidden text-xs font-mono text-[#555555]">in: 0 / out: 0 tok</span>
+                                <div class="border border-[#1E1E1E] flex text-xs font-mono">
+                                    <button type="button" id="tab-visual" class="px-2.5 py-1 bg-[#1E1E1E] text-white font-semibold">Visual</button>
+                                    <button type="button" id="tab-raw" class="px-2.5 py-1 bg-white text-[#1E1E1E] hover:bg-gray-100">JSON</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Body -->
+                        <div class="flex-grow flex flex-col">
+                            <!-- Visual Results View -->
+                            <div id="visual-results" class="space-y-4">
+                                <div id="results-empty" class="text-center py-20 text-[#555555]">
+                                    <div class="w-10 h-10 border border-[#1E1E1E] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-gray-50">
+                                        S1
+                                    </div>
+                                    <p class="text-sm font-medium">Ready for evaluation.</p>
+                                    <p class="text-xs text-[#555555] mt-1">Select a preset or enter input state and click Run System 1 Evaluation.</p>
+                                </div>
+                                <div id="results-content" class="hidden space-y-4">
+                                    <!-- Dynamic answers inserted here -->
+                                </div>
+                            </div>
+
+                            <!-- Raw JSON View -->
+                            <div id="raw-results" class="hidden flex-grow">
+                                <pre id="raw-json" class="w-full h-full p-4 border border-[#1E1E1E] bg-gray-50 font-mono text-xs overflow-auto text-[#1E1E1E] max-h-[600px]"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Model Card & Author Attribution -->
+        <section id="model-card" class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#fefefe]">
+            <div class="max-w-5xl mx-auto">
+                <div class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-[#09aea1]/20">
+                    Model Card & Attribution
+                </div>
+                <h2 class="text-3xl font-extrabold tracking-tight mb-4">
+                    Laya Multilingual Decision Backbone
+                </h2>
+                <p class="text-base text-[#555555] max-w-3xl leading-relaxed mb-8">
+                    System One runs on Laya, a non-autoregressive decision model developed by <strong>Convai Innovations</strong> and <strong>Nandha Kishor</strong>. Laya replaces generative token prediction with direct probabilistic classification heads.
+                </p>
+
+                <!-- Attribution Card -->
+                <div class="brutal-card p-6 mb-8 bg-[#fefefe]">
+                    <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#555555] mb-4">Original Creators & Upstream Repositories</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="border border-[#1E1E1E] p-4 bg-white">
+                            <div class="text-xs font-mono text-[#555555] mb-1">Organization</div>
+                            <div class="font-bold text-sm mb-2">Convai Innovations</div>
+                            <p class="text-xs text-[#555555] mb-3">Research laboratory specializing in efficient decision-first architectures.</p>
+                            <a href="https://huggingface.co/convaiinnovations" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                <span>huggingface.co/convaiinnovations</span>
+                                <span aria-hidden="true">&nearr;</span>
+                            </a>
+                        </div>
+
+                        <div class="border border-[#1E1E1E] p-4 bg-white">
+                            <div class="text-xs font-mono text-[#555555] mb-1">Author</div>
+                            <div class="font-bold text-sm mb-2">Nandha Kishor</div>
+                            <p class="text-xs text-[#555555] mb-3">Model architecture design, pretraining, and RLCD alignment implementation.</p>
+                            <a href="https://github.com/NandhaKishorM/laya" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                <span>github.com/NandhaKishorM/laya</span>
+                                <span aria-hidden="true">&nearr;</span>
+                            </a>
+                        </div>
+
+                        <div class="border border-[#1E1E1E] p-4 bg-white">
+                            <div class="text-xs font-mono text-[#555555] mb-1">Model Hub</div>
+                            <div class="font-bold text-sm mb-2">convaiinnovations/laya</div>
+                            <p class="text-xs text-[#555555] mb-3">Official model checkpoints, tokenizer configurations, and weight releases.</p>
+                            <a href="https://huggingface.co/convaiinnovations/laya-multilingual" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                <span>laya-multilingual Card</span>
+                                <span aria-hidden="true">&nearr;</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Architecture Specs Grid -->
+                <div class="brutal-card p-6 bg-white">
+                    <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#555555] mb-4">Architecture Specifications</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Backbone Architecture</div>
+                            <div class="font-bold mt-1">mmBERT-base</div>
+                            <p class="text-xs text-[#555555] mt-1">Bidirectional encoder with 22 layers, hidden dimension 768, and 256k vocabulary.</p>
+                        </div>
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Total Parameters</div>
+                            <div class="font-bold mt-1">322 Million (322M)</div>
+                            <p class="text-xs text-[#555555] mt-1">Compact footprint suitable for local edge execution and high-density server nodes.</p>
+                        </div>
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Context Window</div>
+                            <div class="font-bold mt-1">1024 Tokens</div>
+                            <p class="text-xs text-[#555555] mt-1">Up to 1024 tokens context per question with 256 tokens dedicated to instructions.</p>
+                        </div>
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Training Method</div>
+                            <div class="font-bold mt-1">RLCD Alignment</div>
+                            <p class="text-xs text-[#555555] mt-1">Reinforcement Learning from Calibrated Decisions across 15,987 updates and 4 epochs.</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-[#1E1E1E] mt-6 pt-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Multilingual Scope</div>
+                            <div class="font-bold mt-1">100+ Languages</div>
+                            <p class="text-xs text-[#555555] mt-1">Evaluated across 51 languages in the MASSIVE benchmark with superior accuracy on non-Latin scripts.</p>
+                        </div>
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Inference Throughput</div>
+                            <div class="font-bold mt-1">Up to 332 QPS</div>
+                            <p class="text-xs text-[#555555] mt-1">Batched evaluation throughput on standard hardware with ~32.8 ms single forward pass.</p>
+                        </div>
+                        <div>
+                            <div class="text-xs font-mono text-[#555555]">Open Source License</div>
+                            <div class="font-bold mt-1">Apache 2.0</div>
+                            <p class="text-xs text-[#555555] mt-1">Permissive commercial and research license for weights and deployment code.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical FAQ Section -->
+        <section id="faq" class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
+            <div class="max-w-5xl mx-auto">
+                <div class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-white">
+                    Technical Questions
+                </div>
+                <h2 class="text-3xl font-extrabold tracking-tight mb-8">Frequently Asked Questions</h2>
+
+                <div class="space-y-6">
+                    <div class="brutal-card p-6 bg-white">
+                        <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                            How does System 1 operate without autoregressive decoding?
+                        </h3>
+                        <p class="text-sm text-[#555555] leading-relaxed">
+                            Standard generative models predict text token by token in a recurrent loop. System One uses a bidirectional encoder backbone coupled with non-autoregressive decision heads. Both the state context and question instructions are processed in a single forward pass, producing deterministic classifications and calibrated probabilities without token decoding delays.
+                        </p>
+                    </div>
+
+                    <div class="brutal-card p-6 bg-white">
+                        <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                            How are the output probabilities calibrated?
+                        </h3>
+                        <p class="text-sm text-[#555555] leading-relaxed">
+                            Probabilities are calibrated through temperature scaling and Reinforcement Learning from Calibrated Decisions (RLCD). When System One returns a probability of 0.85 for a binary decision or choice category, that classification is empirically accurate approximately 85% of the time across test distributions.
+                        </p>
+                    </div>
+
+                    <div class="brutal-card p-6 bg-white">
+                        <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                            How do I integrate System One into an existing backend?
+                        </h3>
+                        <p class="text-sm text-[#555555] leading-relaxed mb-4">
+                            Send an HTTP POST request to the <code class="font-mono bg-gray-100 px-1 py-0.5 border border-gray-300 text-xs">/v1/systemone</code> endpoint with your state context and questions schema. The endpoint responds with structured JSON containing typed answers and token usage.
+                        </p>
+
+                        <div class="relative">
+                            <pre id="curl-code" class="p-4 border border-[#1E1E1E] bg-[#1E1E1E] text-white font-mono text-xs overflow-x-auto">curl -X POST "http://localhost:8000/v1/systemone" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "state": "Customer charged twice for order #8841. Requesting full refund.",
+    "questions": {
+      "is_refund": {
+        "type": "noul",
+        "instructions": "Is the customer requesting a refund?"
+      }
+    }
+  }'</pre>
+                            <button
+                                type="button"
+                                id="copy-curl-btn"
+                                class="brutal-btn min-h-[44px] absolute top-2 right-2 px-3 py-1.5 text-xs font-mono bg-white text-[#1E1E1E] hover:bg-gray-100"
+                            >
+                                Copy cURL
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="brutal-card p-6 bg-white">
+                        <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                            What question types are supported?
+                        </h3>
+                        <p class="text-sm text-[#555555] leading-relaxed">
+                            System One supports three structured question types:
+                        </p>
+                        <ul class="list-disc list-inside text-sm text-[#555555] mt-2 space-y-1">
+                            <li><strong class="text-[#1E1E1E]">noul:</strong> Binary decision returning a calibrated float between 0.0 and 1.0.</li>
+                            <li><strong class="text-[#1E1E1E]">choice:</strong> Categorical selection among named criteria options with probability distribution.</li>
+                            <li><strong class="text-[#1E1E1E]">score:</strong> Ordinal rating across ranked criteria levels with score index and confidence.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[#1E1E1E] bg-white py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#555555]">
+            <div>
+                <div class="font-extrabold text-[#1E1E1E] text-sm tracking-tight mb-1">System One</div>
+                <p>Non-autoregressive decision model service. Apache 2.0 License.</p>
+                <p class="mt-1">Model authored by Convai Innovations and Nandha Kishor.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-6 font-mono">
+                <a href="https://github.com/NandhaKishorM/laya" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">GitHub</a>
+                <a href="https://huggingface.co/convaiinnovations/laya-multilingual" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">Hugging Face</a>
+                <a href="/docs" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">OpenAPI Docs</a>
+                <a href="/healthz" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">Health Check</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        (function() {
+            // Preset Data
+            const PRESETS = {
+                billing: {
+                    state: "User: \"I was charged twice for my subscription on March 15th ($49 x 2). Please refund the duplicate transaction immediately.\"",
+                    questions: {
+                        is_refund: {
+                            type: "noul",
+                            instructions: "Is the user requesting a refund?"
+                        },
+                        category: {
+                            type: "choice",
+                            instructions: "Classify the support ticket category",
+                            criteria: {
+                                billing: "Payment, invoice, charge, or refund issues",
+                                technical: "Software bugs, downtime, or performance errors",
+                                account: "Login, password reset, or profile management"
+                            }
+                        },
+                        urgency: {
+                            type: "score",
+                            instructions: "Rate customer urgency level",
+                            criteria: [
+                                "Low: General inquiry or informational request",
+                                "Medium: Moderate issue without financial impact",
+                                "High: Financial loss, duplicate charge, or blocked account",
+                                "Critical: Security breach or system-wide disruption"
+                            ]
+                        }
+                    }
+                },
+                outage: {
+                    state: "Alert: Production PostgreSQL cluster primary node unreachable. Replica promotion failed with timeout error 504. API error rate spiked to 84%.",
+                    questions: {
+                        requires_pager: {
+                            type: "noul",
+                            instructions: "Does this alert require paging on-call engineering?"
+                        },
+                        severity: {
+                            type: "choice",
+                            instructions: "Determine the incident severity level",
+                            criteria: {
+                                sev1: "Complete outage affecting all customers",
+                                sev2: "Degraded service or partial customer impact",
+                                sev3: "Minor internal glitch with zero customer impact"
+                            }
+                        },
+                        impact_scale: {
+                            type: "score",
+                            instructions: "Score overall business impact",
+                            criteria: [
+                                "Level 1: Negligible impact",
+                                "Level 2: Minor slowdown",
+                                "Level 3: Major user-facing degradation",
+                                "Level 4: Catastrophic total outage"
+                            ]
+                        }
+                    }
+                },
+                sales: {
+                    state: "Prospect Note: \"We are an enterprise logistics firm with 12,000 drivers. We need an automated routing API to replace our legacy vendor within 30 days. Budget approved: $150k ARR.\"",
+                    questions: {
+                        is_enterprise: {
+                            type: "noul",
+                            instructions: "Is this prospect an enterprise tier lead?"
+                        },
+                        intent: {
+                            type: "choice",
+                            instructions: "Identify prospect intent stage",
+                            criteria: {
+                                ready_to_buy: "Immediate procurement with approved budget and timeline",
+                                evaluating: "Comparing vendors or running proofs of concept",
+                                exploring: "Early stage curiosity or academic research"
+                            }
+                        },
+                        qualification_score: {
+                            type: "score",
+                            instructions: "Score overall lead qualification",
+                            criteria: [
+                                "Tier 1: Low fit, no budget, long timeline",
+                                "Tier 2: Moderate fit, unconfirmed budget",
+                                "Tier 3: High fit, verified budget and urgent timeline"
+                            ]
+                        }
+                    }
+                }
+            };
+
+            let currentPresetKey = 'billing';
+
+            // DOM Elements
+            const apiKeyInput = document.getElementById('api-key-input');
+            const stateInput = document.getElementById('state-input');
+            const questionsInput = document.getElementById('questions-input');
+            const runBtn = document.getElementById('run-btn');
+            const runSpinner = document.getElementById('run-spinner');
+            const runText = document.getElementById('run-text');
+            const errorBox = document.getElementById('playground-error');
+            const errorTitle = document.getElementById('error-title');
+            const errorMessage = document.getElementById('error-message');
+            const resStatus = document.getElementById('res-status');
+            const resLatency = document.getElementById('res-latency');
+            const resTokens = document.getElementById('res-tokens');
+            const tabVisual = document.getElementById('tab-visual');
+            const tabRaw = document.getElementById('tab-raw');
+            const visualResults = document.getElementById('visual-results');
+            const rawResults = document.getElementById('raw-results');
+            const resultsEmpty = document.getElementById('results-empty');
+            const resultsContent = document.getElementById('results-content');
+            const rawJson = document.getElementById('raw-json');
+            const copyCurlBtn = document.getElementById('copy-curl-btn');
+            const resetQuestionsBtn = document.getElementById('reset-questions-btn');
+            const healthDot = document.getElementById('health-dot');
+            const healthText = document.getElementById('health-text');
+
+            // Session Storage for API Key
+            const STORAGE_KEY = 'system_one_api_key';
+            const savedApiKey = sessionStorage.getItem(STORAGE_KEY);
+            if (savedApiKey) {
+                apiKeyInput.value = savedApiKey;
+            }
+            apiKeyInput.addEventListener('input', function() {
+                const val = apiKeyInput.value.trim();
+                if (val) {
+                    sessionStorage.setItem(STORAGE_KEY, val);
+                } else {
+                    sessionStorage.removeItem(STORAGE_KEY);
+                }
+            });
+
+            // Load Preset Function
+            function loadPreset(key) {
+                currentPresetKey = key;
+                const preset = PRESETS[key];
+                if (!preset) return;
+                stateInput.value = preset.state;
+                questionsInput.value = JSON.stringify(preset.questions, null, 2);
+                hideError();
+            }
+
+            // Preset Button Event Listeners
+            document.getElementById('preset-billing').addEventListener('click', function() { loadPreset('billing'); });
+            document.getElementById('preset-outage').addEventListener('click', function() { loadPreset('outage'); });
+            document.getElementById('preset-sales').addEventListener('click', function() { loadPreset('sales'); });
+
+            // Reset Questions Button
+            resetQuestionsBtn.addEventListener('click', function() {
+                const preset = PRESETS[currentPresetKey];
+                if (preset) {
+                    questionsInput.value = JSON.stringify(preset.questions, null, 2);
+                }
+            });
+
+            // Tab Switching
+            tabVisual.addEventListener('click', function() {
+                tabVisual.classList.add('bg-[#1E1E1E]', 'text-white');
+                tabVisual.classList.remove('bg-white', 'text-[#1E1E1E]');
+                tabRaw.classList.remove('bg-[#1E1E1E]', 'text-white');
+                tabRaw.classList.add('bg-white', 'text-[#1E1E1E]');
+                visualResults.classList.remove('hidden');
+                rawResults.classList.add('hidden');
+            });
+
+            tabRaw.addEventListener('click', function() {
+                tabRaw.classList.add('bg-[#1E1E1E]', 'text-white');
+                tabRaw.classList.remove('bg-white', 'text-[#1E1E1E]');
+                tabVisual.classList.remove('bg-[#1E1E1E]', 'text-white');
+                tabVisual.classList.add('bg-white', 'text-[#1E1E1E]');
+                visualResults.classList.add('hidden');
+                rawResults.classList.remove('hidden');
+            });
+
+            // Error Display Helpers
+            function showError(title, msg) {
+                errorTitle.textContent = title;
+                errorMessage.textContent = msg;
+                errorBox.classList.remove('hidden');
+            }
+
+            function hideError() {
+                errorBox.classList.add('hidden');
+            }
+
+            // Health Polling
+            async function pollHealth() {
+                try {
+                    const resp = await fetch('/healthz');
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.status === 'ready') {
+                            healthDot.className = 'w-2 h-2 rounded-full bg-[#03aa5c] inline-block';
+                            healthText.textContent = 'Model Ready: ' + (data.model || 'laya');
+                        } else {
+                            healthDot.className = 'w-2 h-2 rounded-full bg-yellow-500 inline-block';
+                            healthText.textContent = 'Status: ' + data.status;
+                        }
+                    } else {
+                        healthDot.className = 'w-2 h-2 rounded-full bg-red-600 inline-block';
+                        healthText.textContent = 'Health HTTP ' + resp.status;
+                    }
+                } catch (e) {
+                    healthDot.className = 'w-2 h-2 rounded-full bg-red-600 inline-block';
+                    healthText.textContent = 'Service Offline';
+                }
+            }
+
+            pollHealth();
+            setInterval(pollHealth, 10000);
+
+            // Copy cURL Button
+            copyCurlBtn.addEventListener('click', function() {
+                const curlText = document.getElementById('curl-code').innerText;
+                navigator.clipboard.writeText(curlText).then(function() {
+                    const originalText = copyCurlBtn.textContent;
+                    copyCurlBtn.textContent = 'Copied!';
+                    setTimeout(function() {
+                        copyCurlBtn.textContent = originalText;
+                    }, 2000);
+                });
+            });
+
+            // Render Answer Card Helper
+            function renderAnswerCard(key, ans) {
+                const card = document.createElement('div');
+                card.className = 'border border-[#1E1E1E] p-4 bg-white shadow-hard';
+
+                const header = document.createElement('div');
+                header.className = 'flex items-center justify-between mb-3 border-b border-gray-200 pb-2';
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'font-mono font-bold text-sm text-[#1E1E1E]';
+                titleSpan.textContent = key;
+
+                const typeSpan = document.createElement('span');
+                typeSpan.className = 'text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-gray-50';
+                typeSpan.textContent = ans.type;
+
+                header.appendChild(titleSpan);
+                header.appendChild(typeSpan);
+                card.appendChild(header);
+
+                if (ans.type === 'noul') {
+                    const prob = typeof ans.noul === 'number' ? ans.noul : 0;
+                    const pct = (prob * 100).toFixed(1);
+                    const isTrue = prob >= 0.5;
+
+                    const content = document.createElement('div');
+                    content.className = 'space-y-2';
+
+                    const verdictRow = document.createElement('div');
+                    verdictRow.className = 'flex items-center justify-between text-sm';
+                    verdictRow.innerHTML = '<span class="text-xs font-mono text-[#555555]">Probability:</span>' +
+                        '<span class="font-mono font-bold text-sm ' + (isTrue ? 'text-[#03aa5c]' : 'text-[#1E1E1E]') + '">' +
+                        pct + '% (' + prob.toFixed(4) + ')</span>';
+                    content.appendChild(verdictRow);
+
+                    const progressBg = document.createElement('div');
+                    progressBg.className = 'w-full h-3 bg-gray-100 border border-[#1E1E1E] overflow-hidden';
+                    const progressFill = document.createElement('div');
+                    progressFill.className = 'h-full ' + (isTrue ? 'bg-[#03aa5c]' : 'bg-[#1E1E1E]');
+                    progressFill.style.width = pct + '%';
+                    progressBg.appendChild(progressFill);
+                    content.appendChild(progressBg);
+
+                    card.appendChild(content);
+                } else if (ans.type === 'choice') {
+                    const chosen = ans.choice || '';
+                    const conf = typeof ans.confidence === 'number' ? (ans.confidence * 100).toFixed(1) : '0.0';
+
+                    const content = document.createElement('div');
+                    content.className = 'space-y-3';
+
+                    const choiceRow = document.createElement('div');
+                    choiceRow.className = 'flex items-center justify-between text-sm';
+                    choiceRow.innerHTML = '<span class="text-xs font-mono text-[#555555]">Selected Choice:</span>' +
+                        '<span class="font-mono font-bold px-2 py-0.5 border border-[#1E1E1E] bg-[#f386a1]/30 text-[#1E1E1E]">' +
+                        chosen + ' (' + conf + '% conf)</span>';
+                    content.appendChild(choiceRow);
+
+                    if (ans.probabilities && typeof ans.probabilities === 'object') {
+                        const probContainer = document.createElement('div');
+                        probContainer.className = 'space-y-1.5 pt-1';
+
+                        for (const optKey in ans.probabilities) {
+                            const optProb = ans.probabilities[optKey];
+                            const optPct = (optProb * 100).toFixed(1);
+                            const isChosen = optKey === chosen;
+
+                            const row = document.createElement('div');
+                            row.className = 'space-y-0.5';
+
+                            const labelRow = document.createElement('div');
+                            labelRow.className = 'flex justify-between text-xs font-mono ' + (isChosen ? 'font-bold text-[#1E1E1E]' : 'text-[#555555]');
+                            labelRow.innerHTML = '<span>' + optKey + '</span><span>' + optPct + '%</span>';
+                            row.appendChild(labelRow);
+
+                            const barBg = document.createElement('div');
+                            barBg.className = 'w-full h-2 bg-gray-100 border border-gray-300';
+                            const barFill = document.createElement('div');
+                            barFill.className = 'h-full ' + (isChosen ? 'bg-[#1E1E1E]' : 'bg-gray-400');
+                            barFill.style.width = optPct + '%';
+                            barBg.appendChild(barFill);
+                            row.appendChild(barBg);
+
+                            probContainer.appendChild(row);
+                        }
+                        content.appendChild(probContainer);
+                    }
+
+                    card.appendChild(content);
+                } else if (ans.type === 'score') {
+                    const score = typeof ans.score === 'number' ? ans.score.toFixed(2) : '0';
+                    const conf = typeof ans.confidence === 'number' ? (ans.confidence * 100).toFixed(1) : '0.0';
+
+                    const content = document.createElement('div');
+                    content.className = 'space-y-3';
+
+                    const scoreRow = document.createElement('div');
+                    scoreRow.className = 'flex items-center justify-between text-sm';
+                    scoreRow.innerHTML = '<span class="text-xs font-mono text-[#555555]">Calculated Score:</span>' +
+                        '<span class="font-mono font-bold text-base px-2 py-0.5 border border-[#1E1E1E] bg-[#09aea1]/20 text-[#1E1E1E]">' +
+                        score + ' (' + conf + '% conf)</span>';
+                    content.appendChild(scoreRow);
+
+                    if (ans.probabilities && typeof ans.probabilities === 'object') {
+                        const probContainer = document.createElement('div');
+                        probContainer.className = 'space-y-1.5 pt-1';
+
+                        for (const optKey in ans.probabilities) {
+                            const optProb = ans.probabilities[optKey];
+                            const optPct = (optProb * 100).toFixed(1);
+                            const legendDesc = (ans.legend && ans.legend[optKey]) ? ans.legend[optKey] : optKey;
+
+                            const row = document.createElement('div');
+                            row.className = 'space-y-0.5';
+
+                            const labelRow = document.createElement('div');
+                            labelRow.className = 'flex justify-between text-xs font-mono text-[#555555]';
+                            labelRow.innerHTML = '<span title="' + legendDesc + '">' + legendDesc + '</span><span>' + optPct + '%</span>';
+                            row.appendChild(labelRow);
+
+                            const barBg = document.createElement('div');
+                            barBg.className = 'w-full h-2 bg-gray-100 border border-gray-300';
+                            const barFill = document.createElement('div');
+                            barFill.className = 'h-full bg-[#09aea1]';
+                            barFill.style.width = optPct + '%';
+                            barBg.appendChild(barFill);
+                            row.appendChild(barBg);
+
+                            probContainer.appendChild(row);
+                        }
+                        content.appendChild(probContainer);
+                    }
+
+                    card.appendChild(content);
+                }
+
+                return card;
+            }
+
+            // Run Evaluation Handler
+            runBtn.addEventListener('click', async function() {
+                hideError();
+
+                const state = stateInput.value.trim();
+                if (!state) {
+                    showError('Validation Error', 'State context cannot be empty.');
+                    return;
+                }
+
+                let questionsObj;
+                try {
+                    questionsObj = JSON.parse(questionsInput.value);
+                } catch (e) {
+                    showError('JSON Syntax Error in Questions', e.message);
+                    return;
+                }
+
+                if (typeof questionsObj !== 'object' || questionsObj === null || Object.keys(questionsObj).length === 0) {
+                    showError('Validation Error', 'Questions schema must be a non-empty JSON object.');
+                    return;
+                }
+
+                // UI loading state
+                runBtn.disabled = true;
+                runSpinner.classList.remove('hidden');
+                runText.textContent = 'Evaluating...';
+
+                const startTime = performance.now();
+                const apiKey = apiKeyInput.value.trim();
+
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (apiKey) {
+                    headers['Authorization'] = 'Bearer ' + apiKey;
+                }
+
+                const payload = {
+                    state: state,
+                    model: 'laya',
+                    questions: questionsObj
+                };
+
+                try {
+                    const response = await fetch('/v1/systemone', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify(payload)
+                    });
+
+                    const elapsedMs = Math.round(performance.now() - startTime);
+
+                    resStatus.textContent = response.status + ' ' + response.statusText;
+                    resStatus.classList.remove('hidden');
+                    resLatency.textContent = elapsedMs + ' ms';
+                    resLatency.classList.remove('hidden');
+
+                    if (!response.ok) {
+                        resStatus.className = 'text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-red-100 text-red-900';
+                        let errDetail = 'HTTP ' + response.status;
+                        try {
+                            const errJson = await response.json();
+                            errDetail = JSON.stringify(errJson, null, 2);
+                        } catch (err) {
+                            errDetail = await response.text();
+                        }
+                        showError('Inference Request Failed (' + response.status + ')', errDetail);
+                        rawJson.textContent = errDetail;
+                        return;
+                    }
+
+                    resStatus.className = 'text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-[#03aa5c]/20 text-[#1E1E1E]';
+
+                    const data = await response.json();
+
+                    // Update token usage
+                    if (data.usage) {
+                        resTokens.textContent = 'in: ' + (data.usage.input_tokens || 0) + ' / out: ' + (data.usage.output_tokens || 0) + ' tok';
+                        resTokens.classList.remove('hidden');
+                    }
+
+                    // Update raw JSON
+                    rawJson.textContent = JSON.stringify(data, null, 2);
+
+                    // Update visual cards
+                    resultsContent.innerHTML = '';
+                    if (data.answers && typeof data.answers === 'object') {
+                        for (const qKey in data.answers) {
+                            const card = renderAnswerCard(qKey, data.answers[qKey]);
+                            resultsContent.appendChild(card);
+                        }
+                        resultsEmpty.classList.add('hidden');
+                        resultsContent.classList.remove('hidden');
+                    }
+                } catch (netErr) {
+                    const elapsedMs = Math.round(performance.now() - startTime);
+                    resLatency.textContent = elapsedMs + ' ms';
+                    resLatency.classList.remove('hidden');
+                    showError('Network / Client Error', netErr.message || 'Could not reach /v1/systemone');
+                } finally {
+                    runBtn.disabled = false;
+                    runSpinner.classList.add('hidden');
+                    runText.textContent = 'Run System 1 Evaluation';
+                }
+            });
+
+            // Initialize with default preset
+            loadPreset('billing');
+        })();
+    </script>
 </body>
 </html>
