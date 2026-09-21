@@ -1,8 +1,11 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api import router as api_router
 from app.core.config import settings
@@ -57,5 +60,10 @@ def create_application() -> FastAPI:
 
     # Mount api routes
     app.include_router(api_router)
+
+    # Mount static public directory
+    public_dir = Path(__file__).resolve().parent.parent.parent / "public"
+    if public_dir.exists():
+        app.mount("/public", StaticFiles(directory=str(public_dir)), name="public")
 
     return app

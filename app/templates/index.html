@@ -49,100 +49,14 @@
                 },
             };
         </script>
-        <style>
-            html {
-                scroll-behavior: smooth;
-            }
-            body {
-                background-color: #fefefe;
-                color: #1e1e1e;
-                font-family:
-                    "Inter",
-                    system-ui,
-                    -apple-system,
-                    sans-serif;
-            }
-            .brutal-card {
-                background-color: #fefefe;
-                border: 1px solid #1e1e1e;
-                box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
-            }
-            .brutal-card-hover {
-                transition:
-                    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-                    box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            .brutal-card-hover:hover {
-                transform: translate(-2px, -2px);
-                box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.6);
-            }
-            .brutal-btn {
-                border: 1px solid #1e1e1e;
-                box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
-                transition:
-                    transform 0.1s cubic-bezier(0.16, 1, 0.3, 1),
-                    box-shadow 0.1s cubic-bezier(0.16, 1, 0.3, 1),
-                    background-color 0.15s ease;
-            }
-            .brutal-btn:hover:not(:disabled) {
-                transform: translate(-1px, -1px);
-                box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.6);
-            }
-            .brutal-btn:active:not(:disabled) {
-                transform: translate(1px, 1px);
-                box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4);
-            }
-            .brutal-btn:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-            }
-            .brutal-input {
-                border: 1px solid #1e1e1e;
-                box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
-                transition: box-shadow 0.15s ease;
-            }
-            .brutal-input:focus-visible {
-                outline: 2px solid #1e1e1e;
-                outline-offset: 1px;
-                box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.8);
-            }
-            .reveal-on-scroll {
-                opacity: 0;
-                transform: translateY(16px);
-                transition:
-                    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-                will-change: opacity, transform;
-            }
-            .reveal-on-scroll.revealed {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            .progress-bar-fill {
-                transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            @keyframes gentle-pulse {
-                0%,
-                100% {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-                50% {
-                    opacity: 0.5;
-                    transform: scale(1.2);
-                }
-            }
-            .live-pulse {
-                animation: gentle-pulse 2s infinite ease-in-out;
-            }
-        </style>
+        <link rel="stylesheet" href="/public/css/style.css" />
     </head>
     <body
-        class="min-h-screen flex flex-col bg-[#fefefe] text-[#1E1E1E] antialiased"
+        class="min-h-screen flex flex-col bg-[#09090b] text-[#f4f4f5] antialiased"
     >
-        <!-- Header Navigation -->
+        <!-- Header Navigation (Dark Minimalist Console Bar) -->
         <header
-            class="border-b border-[#1E1E1E] bg-[#fefefe] sticky top-0 z-40"
+            class="border-b border-[#27272a] bg-[#09090b] text-white sticky top-0 z-40"
         >
             <div
                 class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
@@ -152,18 +66,18 @@
                         href="#"
                         class="font-extrabold text-lg tracking-tight hover:underline flex items-center gap-2"
                     >
-                        <span class="w-3 h-3 bg-[#1E1E1E] inline-block"></span>
+                        <span class="w-3 h-3 bg-cyan-400 inline-block"></span>
                         <span>Zulvis System One</span>
                     </a>
                     <span
-                        class="text-xs px-2 py-0.5 border border-[#1E1E1E] font-mono bg-white text-[#1E1E1E]"
+                        class="text-xs px-2 py-0.5 border border-[#3f3f46] font-mono bg-[#18181b] text-zinc-300"
                         >v0.1</span
                     >
                     <!-- Live Health Badge -->
                     <a
                         href="/health"
                         id="health-badge"
-                        class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#1E1E1E] text-xs font-mono bg-gray-50 text-[#1E1E1E]"
+                        class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#3f3f46] text-xs font-mono bg-[#18181b] text-zinc-300"
                         title="Click to view health JSON"
                     >
                         <span
@@ -179,29 +93,29 @@
                 >
                     <a
                         href="#system-one-spec"
-                        class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-1 sm:px-2 py-1"
+                        class="hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
                         >About Jev</a
                     >
                     <a
                         href="#playground"
-                        class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-1 sm:px-2 py-1"
+                        class="hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
                         >Playground</a
                     >
                     <a
                         href="#model-card"
-                        class="hidden sm:inline hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-1 sm:px-2 py-1"
+                        class="hidden sm:inline hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
                         >Model Card</a
                     >
                     <a
                         href="#faq"
-                        class="hidden sm:inline hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1"
+                        class="hidden sm:inline hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-2 py-1"
                         >FAQ</a
                     >
                     <a
                         href="https://github.com/ZulfiFazhar/system-one"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="brutal-btn px-2.5 sm:px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs flex items-center gap-1"
+                        class="brutal-btn px-2.5 sm:px-3 py-1.5 bg-[#18181b] text-white hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs flex items-center gap-1"
                     >
                         <span>GitHub</span>
                         <span aria-hidden="true">&nearr;</span>
@@ -210,7 +124,7 @@
                         href="/docs"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="brutal-btn px-2.5 sm:px-3 py-1.5 bg-[#1E1E1E] text-white hover:bg-black font-mono text-xs flex items-center gap-1"
+                        class="brutal-btn px-2.5 sm:px-3 py-1.5 bg-white text-black hover:bg-zinc-200 border border-white font-mono text-xs flex items-center gap-1 font-semibold"
                     >
                         <span>API Docs</span>
                         <span aria-hidden="true">&nearr;</span>
@@ -220,30 +134,35 @@
         </header>
 
         <main class="flex-grow">
-            <!-- Hero Section -->
+            <!-- Hero Section (Dark Machine-Native Terminal with ASCII Orb GIF) -->
             <section
-                class="border-b border-[#1E1E1E] py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fefefe] relative overflow-hidden"
+                class="border-b border-[#27272a] py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#050505] text-white relative overflow-hidden"
             >
-                <!-- Machine-Native ASCII Decision Stream Canvas -->
-                <canvas
-                    id="ascii-canvas"
-                    class="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
-                    aria-hidden="true"
-                ></canvas>
+                <!-- Background Animated ASCII Orb GIF -->
+                <div
+                    class="absolute right-0 top-1/2 -translate-y-1/2 w-full lg:w-1/2 h-full pointer-events-none opacity-45 sm:opacity-60 lg:opacity-75 flex items-center justify-center lg:justify-end pr-0 lg:pr-12 z-0 overflow-hidden select-none"
+                >
+                    <img
+                        src="/public/cool-orb.gif"
+                        alt="TypeSafe ASCII Decision Orb"
+                        class="w-auto h-[90%] max-h-[520px] object-contain mix-blend-screen"
+                        loading="eager"
+                    />
+                </div>
 
                 <div class="max-w-5xl mx-auto relative z-10">
                     <div
-                        class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-[#f386a1]/30"
+                        class="inline-block px-3 py-1 border border-cyan-500/40 text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-cyan-950/40 text-cyan-400 shadow-hard"
                     >
                         Non-Autoregressive Decision Inference
                     </div>
                     <h1
-                        class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-[#1E1E1E] mb-6"
+                        class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white mb-6 max-w-2xl"
                     >
                         We took the opposite research direction.
                     </h1>
                     <p
-                        class="text-lg sm:text-xl text-[#555555] leading-relaxed mb-8"
+                        class="text-lg sm:text-xl text-zinc-300 max-w-2xl leading-relaxed mb-8"
                     >
                         Generative models predict text sequentially token by
                         token, accumulating latency, cost, and hallucination.
@@ -255,13 +174,13 @@
                     <div class="flex flex-wrap gap-4 mb-14">
                         <a
                             href="#playground"
-                            class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-[#1E1E1E] text-white font-semibold text-sm hover:bg-[#333333]"
+                            class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-white text-[#050505] font-semibold text-sm hover:bg-zinc-200 border border-white"
                         >
                             Open Interactive Playground
                         </a>
                         <a
                             href="#model-card"
-                            class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-[#fefefe] text-[#1E1E1E] font-semibold text-sm hover:bg-gray-50"
+                            class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-[#111111] text-white font-semibold text-sm hover:bg-[#1f1f23] border border-[#3f3f46]"
                         >
                             Explore Model Card
                         </a>
@@ -271,69 +190,77 @@
                     <div
                         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 reveal-on-scroll"
                     >
-                        <div class="brutal-card brutal-card-hover p-5">
+                        <div
+                            class="border border-[#27272a] bg-[#0c0c0e]/95 p-5 shadow-hard brutal-card-hover"
+                        >
                             <div
-                                class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1"
+                                class="text-3xl font-extrabold font-mono text-cyan-400 mb-1"
                             >
                                 ~33 ms
                             </div>
                             <div
-                                class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2"
+                                class="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-2"
                             >
                                 Inference Latency
                             </div>
-                            <p class="text-xs text-[#555555] leading-normal">
+                            <p class="text-xs text-zinc-400 leading-normal">
                                 Single-pass forward evaluation on batch
                                 workloads without token decoding delay.
                             </p>
                         </div>
 
-                        <div class="brutal-card brutal-card-hover p-5">
+                        <div
+                            class="border border-[#27272a] bg-[#0c0c0e]/95 p-5 shadow-hard brutal-card-hover"
+                        >
                             <div
-                                class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1"
+                                class="text-3xl font-extrabold font-mono text-white mb-1"
                             >
                                 322M
                             </div>
                             <div
-                                class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2"
+                                class="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-2"
                             >
                                 Backbone Weights
                             </div>
-                            <p class="text-xs text-[#555555] leading-normal">
+                            <p class="text-xs text-zinc-400 leading-normal">
                                 Bidirectional mmBERT-base encoder coupled with
                                 specialized decision heads.
                             </p>
                         </div>
 
-                        <div class="brutal-card brutal-card-hover p-5">
+                        <div
+                            class="border border-[#27272a] bg-[#0c0c0e]/95 p-5 shadow-hard brutal-card-hover"
+                        >
                             <div
-                                class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1"
+                                class="text-3xl font-extrabold font-mono text-white mb-1"
                             >
                                 100+
                             </div>
                             <div
-                                class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2"
+                                class="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-2"
                             >
                                 Languages
                             </div>
-                            <p class="text-xs text-[#555555] leading-normal">
+                            <p class="text-xs text-zinc-400 leading-normal">
                                 Native multilingual representation across Latin
                                 and non-Latin character sets.
                             </p>
                         </div>
 
-                        <div class="brutal-card brutal-card-hover p-5">
+                        <div
+                            class="border border-[#27272a] bg-[#0c0c0e]/95 p-5 shadow-hard brutal-card-hover"
+                        >
                             <div
-                                class="text-3xl font-extrabold font-mono text-[#1E1E1E] mb-1"
+                                class="text-3xl font-extrabold font-mono text-emerald-400 mb-1"
                             >
                                 0.0%
                             </div>
                             <div
-                                class="text-xs font-mono font-semibold uppercase tracking-wider text-[#555555] mb-2"
+                                class="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-2"
                             >
                                 Hallucination
                             </div>
-                            <p class="text-xs text-[#555555] leading-normal">
+                            <p class="text-xs text-zinc-400 leading-normal">
                                 Direct classification heads eliminate generative
                                 drifting and schema corruption.
                             </p>
@@ -345,27 +272,32 @@
             <!-- Foundation & System One / Jev Compatibility Section -->
             <section
                 id="system-one-spec"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#fdfafc]"
+                class="border-b border-[#27272a] py-16 px-4 sm:px-6 lg:px-8 bg-[#0c0c0e] text-white"
             >
                 <div class="max-w-5xl mx-auto reveal-on-scroll">
                     <div class="flex flex-wrap items-center gap-2 mb-4">
                         <div
-                            class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase bg-[#f386a1]/20"
+                            class="inline-block px-3 py-1 border border-pink-500/40 text-xs font-mono font-semibold tracking-wider uppercase bg-pink-950/40 text-pink-400"
                         >
                             Foundation &amp; Specification
                         </div>
                         <div
-                            class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#1E1E1E] bg-white font-mono text-[11px] text-[#555555] shadow-hard-sm"
+                            class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] font-mono text-[11px] text-zinc-300 shadow-hard-sm"
                             title="Base64 machine-native token"
                         >
-                            <span class="bg-[#1E1E1E] text-white px-1 text-[10px] font-bold">b.64</span>
+                            <span
+                                class="bg-zinc-800 text-white px-1 text-[10px] font-bold"
+                                >b.64</span
+                            >
                             <span>VHlwZVNBRkUgU1lTVEVNIE9ORQ==</span>
                         </div>
                     </div>
-                    <h2 class="text-3xl font-extrabold tracking-tight mb-4">
+                    <h2
+                        class="text-3xl font-extrabold tracking-tight mb-4 text-white"
+                    >
                         What are System One Models and Jev?
                     </h2>
-                    <p class="text-base text-[#555555] leading-relaxed mb-8">
+                    <p class="text-base text-zinc-400 leading-relaxed mb-8">
                         The System One paradigm was introduced by
                         <strong>TypeSafe AI</strong> (founded by Diogo Almeida,
                         former OpenAI research lead behind ChatGPT
@@ -377,17 +309,19 @@
                     </p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="brutal-card p-6 bg-white brutal-card-hover">
+                        <div
+                            class="brutal-card p-6 bg-[#141417] text-white border border-[#27272a] brutal-card-hover"
+                        >
                             <div
-                                class="text-xs font-mono text-[#555555] uppercase mb-1"
+                                class="text-xs font-mono text-zinc-400 uppercase mb-1"
                             >
                                 Concept
                             </div>
-                            <h3 class="text-lg font-bold mb-2">
+                            <h3 class="text-lg font-bold mb-2 text-white">
                                 System One vs Generative LLMs
                             </h3>
                             <p
-                                class="text-xs text-[#555555] leading-relaxed mb-4"
+                                class="text-xs text-zinc-400 leading-relaxed mb-4"
                             >
                                 Traditional LLMs predict one token at a time in
                                 recurrent loops. They are flexible for chat, but
@@ -399,24 +333,26 @@
                                 hallucinations.
                             </p>
                             <div
-                                class="border-t border-gray-200 pt-3 text-xs font-mono text-[#1E1E1E]"
+                                class="border-t border-zinc-800 pt-3 text-xs font-mono text-zinc-400"
                             >
                                 <strong>Origin:</strong> Daniel Kahneman,
                                 <em>Thinking, Fast and Slow</em>
                             </div>
                         </div>
 
-                        <div class="brutal-card p-6 bg-white brutal-card-hover">
+                        <div
+                            class="brutal-card p-6 bg-[#141417] text-white border border-[#27272a] brutal-card-hover"
+                        >
                             <div
-                                class="text-xs font-mono text-[#555555] uppercase mb-1"
+                                class="text-xs font-mono text-zinc-400 uppercase mb-1"
                             >
                                 TypeSafe Frontier Model
                             </div>
-                            <h3 class="text-lg font-bold mb-2">
+                            <h3 class="text-lg font-bold mb-2 text-white">
                                 Jev &amp; The Jevons Paradox
                             </h3>
                             <p
-                                class="text-xs text-[#555555] leading-relaxed mb-4"
+                                class="text-xs text-zinc-400 leading-relaxed mb-4"
                             >
                                 <strong>Jev</strong> is TypeSafe AI's flagship
                                 frontier model. Named after economist William
@@ -426,12 +362,12 @@
                                 massive demand for automated software workflows,
                                 real-time routing, and deterministic guardrails.
                             </p>
-                            <div class="border-t border-gray-200 pt-3">
+                            <div class="border-t border-zinc-800 pt-3">
                                 <a
                                     href="https://typesafe.ai/blog/introducing-system-one-models-and-jev"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="brutal-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs"
+                                    class="brutal-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1c21] text-white hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs"
                                 >
                                     <span>Read TypeSafe Announcement</span>
                                     <span aria-hidden="true">&nearr;</span>
@@ -441,26 +377,30 @@
                     </div>
 
                     <!-- SDK & Spec Compatibility Card -->
-                    <div class="brutal-card p-6 bg-[#fefefe]">
+                    <div
+                        class="brutal-card p-6 bg-[#121215] border border-[#27272a] text-white"
+                    >
                         <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-[#1E1E1E] pb-3"
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-zinc-800 pb-3"
                         >
                             <div>
-                                <h3 class="text-lg font-bold tracking-tight">
+                                <h3
+                                    class="text-lg font-bold tracking-tight text-white"
+                                >
                                     Drop-in SDK &amp; API Compatibility
                                 </h3>
-                                <p class="text-xs font-mono text-[#555555]">
+                                <p class="text-xs font-mono text-zinc-400">
                                     Compatible with TypeSafe Jev client
                                     libraries and OpenAPI schemas
                                 </p>
                             </div>
                             <span
-                                class="text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-[#03aa5c]/20 font-semibold self-start sm:self-auto"
+                                class="text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 font-semibold self-start sm:self-auto"
                                 >POST /v1/systemone</span
                             >
                         </div>
 
-                        <p class="text-sm text-[#555555] leading-relaxed mb-4">
+                        <p class="text-sm text-zinc-400 leading-relaxed mb-4">
                             This server implements the exact TypeSafe Jev API
                             contract. You can point any TypeSafe-compatible SDK
                             or standard HTTP client to this self-hosted endpoint
@@ -470,29 +410,35 @@
                         <div
                             class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono mb-4"
                         >
-                            <div class="border border-[#1E1E1E] p-3 bg-white">
-                                <div class="font-bold text-[#027a42] mb-1">
+                            <div
+                                class="border border-[#27272a] p-3 bg-[#18181b]"
+                            >
+                                <div class="font-bold text-emerald-400 mb-1">
                                     noul Question
                                 </div>
-                                <div class="text-[#555555]">
+                                <div class="text-zinc-400">
                                     Binary truth probability [0.0 - 1.0] with
                                     calibrated confidence.
                                 </div>
                             </div>
-                            <div class="border border-[#1E1E1E] p-3 bg-white">
-                                <div class="font-bold text-[#1E1E1E] mb-1">
+                            <div
+                                class="border border-[#27272a] p-3 bg-[#18181b]"
+                            >
+                                <div class="font-bold text-white mb-1">
                                     choice Question
                                 </div>
-                                <div class="text-[#555555]">
+                                <div class="text-zinc-400">
                                     Categorical routing with exact probability
                                     distribution across options.
                                 </div>
                             </div>
-                            <div class="border border-[#1E1E1E] p-3 bg-white">
-                                <div class="font-bold text-[#09aea1] mb-1">
+                            <div
+                                class="border border-[#27272a] p-3 bg-[#18181b]"
+                            >
+                                <div class="font-bold text-cyan-400 mb-1">
                                     score Question
                                 </div>
-                                <div class="text-[#555555]">
+                                <div class="text-zinc-400">
                                     Ordinal rubric evaluation returning float
                                     score, legend map, and confidence.
                                 </div>
@@ -500,9 +446,9 @@
                         </div>
 
                         <div
-                            class="bg-gray-50 border border-[#1E1E1E] p-4 text-xs font-mono text-[#1E1E1E] overflow-x-auto"
+                            class="bg-[#050505] border border-[#27272a] p-4 text-xs font-mono text-zinc-200 overflow-x-auto"
                         >
-                            <div class="text-[#555555] mb-2">
+                            <div class="text-zinc-500 mb-2">
                                 # Python example (Drop-in with TypeSafe API
                                 contract)
                             </div>
@@ -529,7 +475,7 @@ print(response.json()["answers"])</pre>
             <!-- Playground Section -->
             <section
                 id="playground"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#f8f9fb]"
+                class="border-b border-[#27272a] py-16 px-4 sm:px-6 lg:px-8 bg-[#09090b] text-white"
             >
                 <div class="max-w-7xl mx-auto reveal-on-scroll">
                     <div
@@ -537,16 +483,16 @@ print(response.json()["answers"])</pre>
                     >
                         <div>
                             <div
-                                class="inline-block px-2.5 py-0.5 border border-[#1E1E1E] text-xs font-mono uppercase bg-white mb-2"
+                                class="inline-block px-2.5 py-0.5 border border-[#3f3f46] text-xs font-mono uppercase bg-[#18181b] text-zinc-300 mb-2"
                             >
                                 Live Tester
                             </div>
                             <h2
-                                class="text-2xl sm:text-3xl font-bold tracking-tight"
+                                class="text-2xl sm:text-3xl font-bold tracking-tight text-white"
                             >
                                 Interactive Playground
                             </h2>
-                            <p class="text-sm text-[#555555] mt-1">
+                            <p class="text-sm text-zinc-400 mt-1">
                                 Execute live inference requests directly against
                                 the local POST /v1/systemone endpoint.
                             </p>
@@ -555,27 +501,27 @@ print(response.json()["answers"])</pre>
                         <!-- Presets -->
                         <div class="flex flex-wrap items-center gap-2">
                             <span
-                                class="text-xs font-mono uppercase text-[#555555] mr-1"
+                                class="text-xs font-mono uppercase text-zinc-400 mr-1"
                                 >Presets:</span
                             >
                             <button
                                 type="button"
                                 id="preset-billing"
-                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-white hover:bg-gray-100"
+                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
                             >
                                 Billing Dispute
                             </button>
                             <button
                                 type="button"
                                 id="preset-outage"
-                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-white hover:bg-gray-100"
+                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
                             >
                                 Outage Incident
                             </button>
                             <button
                                 type="button"
                                 id="preset-sales"
-                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-white hover:bg-gray-100"
+                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
                             >
                                 Sales Lead
                             </button>
@@ -586,14 +532,16 @@ print(response.json()["answers"])</pre>
                         <!-- Left: Inputs -->
                         <div class="space-y-6">
                             <!-- Auth Bar -->
-                            <div class="brutal-card p-4 bg-white">
+                            <div
+                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
+                            >
                                 <label
                                     for="api-key-input"
-                                    class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1"
+                                    class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1 text-zinc-200"
                                 >
                                     Bearer API Key (Optional)
                                 </label>
-                                <p class="text-xs text-[#555555] mb-2">
+                                <p class="text-xs text-zinc-400 mb-2">
                                     Stored in session storage. Leave blank for
                                     public access (rate limited to 10 requests
                                     per minute per IP), or enter your configured
@@ -603,58 +551,62 @@ print(response.json()["answers"])</pre>
                                     id="api-key-input"
                                     type="password"
                                     placeholder="e.g. secret-token-123"
-                                    class="brutal-input w-full px-3 py-2 text-sm font-mono bg-white text-[#1E1E1E]"
+                                    class="brutal-input w-full px-3 py-2 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] focus-visible:outline-white"
                                     autocomplete="off"
                                 />
                             </div>
 
                             <!-- State Input -->
-                            <div class="brutal-card p-4 bg-white">
+                            <div
+                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
+                            >
                                 <label
                                     for="state-input"
-                                    class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1"
+                                    class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1 text-zinc-200"
                                 >
                                     State Context (Input Text)
                                 </label>
-                                <p class="text-xs text-[#555555] mb-2">
+                                <p class="text-xs text-zinc-400 mb-2">
                                     Context string evaluated across all
                                     configured questions.
                                 </p>
                                 <textarea
                                     id="state-input"
                                     rows="5"
-                                    class="brutal-input w-full p-3 text-sm font-mono bg-white text-[#1E1E1E] resize-y"
+                                    class="brutal-input w-full p-3 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] resize-y focus-visible:outline-white"
                                     placeholder="Enter context text..."
                                 ></textarea>
                             </div>
 
                             <!-- Questions Schema Input -->
-                            <div class="brutal-card p-4 bg-white">
+                            <div
+                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
+                            >
                                 <div
                                     class="flex items-center justify-between mb-1"
                                 >
                                     <label
                                         for="questions-input"
-                                        class="block text-xs font-mono font-semibold uppercase tracking-wider"
+                                        class="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200"
                                     >
                                         Questions JSON Schema
                                     </label>
                                     <button
                                         type="button"
                                         id="reset-questions-btn"
-                                        class="text-xs font-mono text-[#555555] hover:text-[#1E1E1E] underline"
+                                        class="text-xs font-mono text-zinc-400 hover:text-white underline"
                                     >
                                         Reset Schema
                                     </button>
                                 </div>
-                                <p class="text-xs text-[#555555] mb-2">
+                                <p class="text-xs text-zinc-400 mb-2">
                                     Map of question keys to question objects
                                     (types: noul, choice, score).
                                 </p>
                                 <textarea
                                     id="questions-input"
                                     rows="12"
-                                    class="brutal-input w-full p-3 text-xs font-mono bg-white text-[#1E1E1E] resize-y"
+                                    class="brutal-input w-full p-3 text-xs font-mono bg-[#0c0c0e] text-white border border-[#27272a] resize-y focus-visible:outline-white"
                                     spellcheck="false"
                                 ></textarea>
                             </div>
@@ -664,11 +616,11 @@ print(response.json()["answers"])</pre>
                                 <button
                                     type="button"
                                     id="run-btn"
-                                    class="brutal-btn min-h-[44px] flex-1 py-3 px-6 bg-[#1E1E1E] text-white font-semibold text-sm hover:bg-[#333333] flex items-center justify-center gap-2"
+                                    class="brutal-btn min-h-[48px] flex-1 py-3 px-6 bg-white text-black font-bold text-sm hover:bg-zinc-200 border border-white flex items-center justify-center gap-2"
                                 >
                                     <svg
                                         id="run-spinner"
-                                        class="hidden animate-spin h-4 w-4 text-white"
+                                        class="hidden animate-spin h-4 w-4 text-black"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                     >
@@ -695,44 +647,44 @@ print(response.json()["answers"])</pre>
                             <!-- Error Banner -->
                             <div
                                 id="playground-error"
-                                class="hidden brutal-card p-4 bg-red-50 border-red-700 text-red-900 text-sm"
+                                class="hidden brutal-card p-4 bg-red-950/50 border border-red-500/50 text-red-200 text-sm"
                             >
                                 <div
-                                    class="font-bold mb-1 flex items-center gap-2"
+                                    class="font-bold mb-1 flex items-center gap-2 text-red-400"
                                 >
                                     <span
-                                        class="w-2 h-2 bg-red-700 rounded-full inline-block"
+                                        class="w-2 h-2 bg-red-500 rounded-full inline-block"
                                     ></span>
                                     <span id="error-title">Request Failed</span>
                                 </div>
                                 <p
                                     id="error-message"
-                                    class="text-xs font-mono whitespace-pre-wrap"
+                                    class="text-xs font-mono whitespace-pre-wrap text-red-300"
                                 ></p>
                             </div>
                         </div>
 
                         <!-- Right: Results Console -->
                         <div
-                            class="brutal-card p-6 bg-white flex flex-col min-h-[500px]"
+                            class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white flex flex-col min-h-[500px]"
                         >
                             <!-- Results Header -->
                             <div
-                                class="border-b border-[#1E1E1E] pb-4 mb-4 flex flex-wrap items-center justify-between gap-3"
+                                class="border-b border-zinc-800 pb-4 mb-4 flex flex-wrap items-center justify-between gap-3"
                             >
                                 <div class="flex items-center gap-2">
                                     <span
-                                        class="text-xs font-mono font-bold uppercase tracking-wider"
+                                        class="text-xs font-mono font-bold uppercase tracking-wider text-white"
                                         >Evaluation Output</span
                                     >
                                     <span
                                         id="res-status"
-                                        class="hidden text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-[#03aa5c]/20 text-[#1E1E1E]"
+                                        class="hidden text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
                                         >200 OK</span
                                     >
                                     <span
                                         id="res-latency"
-                                        class="hidden text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-gray-100 text-[#1E1E1E]"
+                                        class="hidden text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-zinc-300"
                                         >-- ms</span
                                     >
                                 </div>
@@ -740,23 +692,23 @@ print(response.json()["answers"])</pre>
                                 <div class="flex items-center gap-2">
                                     <span
                                         id="res-tokens"
-                                        class="hidden text-xs font-mono text-[#555555]"
+                                        class="hidden text-xs font-mono text-zinc-400"
                                         >in: 0 / out: 0 tok</span
                                     >
                                     <div
-                                        class="border border-[#1E1E1E] flex text-xs font-mono"
+                                        class="border border-[#3f3f46] flex text-xs font-mono bg-[#0c0c0e]"
                                     >
                                         <button
                                             type="button"
                                             id="tab-visual"
-                                            class="px-2.5 py-1 bg-[#1E1E1E] text-white font-semibold"
+                                            class="px-2.5 py-1 bg-white text-black font-semibold"
                                         >
                                             Visual
                                         </button>
                                         <button
                                             type="button"
                                             id="tab-raw"
-                                            class="px-2.5 py-1 bg-white text-[#1E1E1E] hover:bg-gray-100"
+                                            class="px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]"
                                         >
                                             JSON
                                         </button>
@@ -770,17 +722,19 @@ print(response.json()["answers"])</pre>
                                 <div id="visual-results" class="space-y-4">
                                     <div
                                         id="results-empty"
-                                        class="text-center py-20 text-[#555555]"
+                                        class="text-center py-20 text-zinc-400"
                                     >
                                         <div
-                                            class="w-10 h-10 border border-[#1E1E1E] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-gray-50"
+                                            class="w-10 h-10 border border-[#3f3f46] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-[#18181b] text-zinc-300"
                                         >
                                             S1
                                         </div>
-                                        <p class="text-sm font-medium">
+                                        <p
+                                            class="text-sm font-medium text-zinc-300"
+                                        >
                                             Ready for evaluation.
                                         </p>
-                                        <p class="text-xs text-[#555555] mt-1">
+                                        <p class="text-xs text-zinc-400 mt-1">
                                             Select a preset or enter input state
                                             and click Run System 1 Evaluation.
                                         </p>
@@ -797,7 +751,7 @@ print(response.json()["answers"])</pre>
                                 <div id="raw-results" class="hidden flex-grow">
                                     <pre
                                         id="raw-json"
-                                        class="w-full h-full p-4 border border-[#1E1E1E] bg-gray-50 font-mono text-xs overflow-auto text-[#1E1E1E] max-h-[600px]"
+                                        class="w-full h-full p-4 border border-[#27272a] bg-[#050505] font-mono text-xs overflow-auto text-zinc-200 max-h-[600px]"
                                     ></pre>
                                 </div>
                             </div>
@@ -809,18 +763,20 @@ print(response.json()["answers"])</pre>
             <!-- Model Card & Author Attribution -->
             <section
                 id="model-card"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#f5faf8]"
+                class="border-b border-[#27272a] py-16 px-4 sm:px-6 lg:px-8 bg-[#0c0c0e] text-white"
             >
                 <div class="max-w-5xl mx-auto reveal-on-scroll">
                     <div
-                        class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-[#09aea1]/20"
+                        class="inline-block px-3 py-1 border border-cyan-500/40 text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-cyan-950/40 text-cyan-400"
                     >
-                        Model Card & Attribution
+                        Model Card &amp; Attribution
                     </div>
-                    <h2 class="text-3xl font-extrabold tracking-tight mb-4">
+                    <h2
+                        class="text-3xl font-extrabold tracking-tight mb-4 text-white"
+                    >
                         Laya Multilingual Decision Backbone
                     </h2>
-                    <p class="text-base text-[#555555] leading-relaxed mb-8">
+                    <p class="text-base text-zinc-400 leading-relaxed mb-8">
                         System One runs on Laya, a non-autoregressive decision
                         model developed by
                         <strong>Convai Innovations</strong> and
@@ -830,28 +786,32 @@ print(response.json()["answers"])</pre>
                     </p>
 
                     <!-- Attribution Card -->
-                    <div class="brutal-card p-6 mb-8 bg-[#fefefe]">
+                    <div
+                        class="brutal-card p-6 mb-8 bg-[#121215] border border-[#27272a]"
+                    >
                         <div
-                            class="text-xs font-mono font-bold uppercase tracking-wider text-[#555555] mb-4"
+                            class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 mb-4"
                         >
-                            Project Credits, Author & Upstream Repositories
+                            Project Credits, Author &amp; Upstream Repositories
                         </div>
                         <div
-                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
                         >
                             <div
-                                class="border border-[#1E1E1E] p-4 bg-white flex flex-col justify-between brutal-card-hover"
+                                class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
                             >
                                 <div>
                                     <div
-                                        class="text-xs font-mono text-[#555555] mb-1"
+                                        class="text-xs font-mono text-zinc-400 mb-1"
                                     >
-                                        Web & Public API
+                                        Web &amp; Public API
                                     </div>
-                                    <div class="font-bold text-sm mb-2">
+                                    <div
+                                        class="font-bold text-sm mb-2 text-white"
+                                    >
                                         Zulfi Fazhar
                                     </div>
-                                    <p class="text-xs text-[#555555] mb-4">
+                                    <p class="text-xs text-zinc-400 mb-4">
                                         FastAPI service wrapper, TypeSafe Jev
                                         specification compatibility, and
                                         developer playground interface.
@@ -861,7 +821,7 @@ print(response.json()["answers"])</pre>
                                     href="https://github.com/ZulfiFazhar/system-one"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs w-full sm:w-auto"
+                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
                                 >
                                     <span>GitHub</span>
                                     <span aria-hidden="true">&nearr;</span>
@@ -869,18 +829,20 @@ print(response.json()["answers"])</pre>
                             </div>
 
                             <div
-                                class="border border-[#1E1E1E] p-4 bg-white flex flex-col justify-between brutal-card-hover"
+                                class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
                             >
                                 <div>
                                     <div
-                                        class="text-xs font-mono text-[#555555] mb-1"
+                                        class="text-xs font-mono text-zinc-400 mb-1"
                                     >
                                         Model Author
                                     </div>
-                                    <div class="font-bold text-sm mb-2">
+                                    <div
+                                        class="font-bold text-sm mb-2 text-white"
+                                    >
                                         Nandha Kishor
                                     </div>
-                                    <p class="text-xs text-[#555555] mb-4">
+                                    <p class="text-xs text-zinc-400 mb-4">
                                         Laya model architecture design,
                                         pretraining, and RLCD alignment
                                         implementation.
@@ -890,7 +852,7 @@ print(response.json()["answers"])</pre>
                                     href="https://github.com/NandhaKishorM/laya"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs w-full sm:w-auto"
+                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
                                 >
                                     <span>GitHub</span>
                                     <span aria-hidden="true">&nearr;</span>
@@ -898,18 +860,20 @@ print(response.json()["answers"])</pre>
                             </div>
 
                             <div
-                                class="border border-[#1E1E1E] p-4 bg-white flex flex-col justify-between brutal-card-hover"
+                                class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
                             >
                                 <div>
                                     <div
-                                        class="text-xs font-mono text-[#555555] mb-1"
+                                        class="text-xs font-mono text-zinc-400 mb-1"
                                     >
                                         Model Research
                                     </div>
-                                    <div class="font-bold text-sm mb-2">
+                                    <div
+                                        class="font-bold text-sm mb-2 text-white"
+                                    >
                                         Convai Innovations
                                     </div>
-                                    <p class="text-xs text-[#555555] mb-4">
+                                    <p class="text-xs text-zinc-400 mb-4">
                                         Research laboratory specializing in
                                         efficient decision-first architectures.
                                     </p>
@@ -918,7 +882,7 @@ print(response.json()["answers"])</pre>
                                     href="https://huggingface.co/convaiinnovations"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs w-full sm:w-auto"
+                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
                                 >
                                     <span>Hugging Face</span>
                                     <span aria-hidden="true">&nearr;</span>
@@ -926,18 +890,20 @@ print(response.json()["answers"])</pre>
                             </div>
 
                             <div
-                                class="border border-[#1E1E1E] p-4 bg-white flex flex-col justify-between brutal-card-hover"
+                                class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
                             >
                                 <div>
                                     <div
-                                        class="text-xs font-mono text-[#555555] mb-1"
+                                        class="text-xs font-mono text-zinc-400 mb-1"
                                     >
                                         Model Hub
                                     </div>
-                                    <div class="font-bold text-sm mb-2">
+                                    <div
+                                        class="font-bold text-sm mb-2 text-white"
+                                    >
                                         convaiinnovations/laya
                                     </div>
-                                    <p class="text-xs text-[#555555] mb-4">
+                                    <p class="text-xs text-zinc-400 mb-4">
                                         Official model checkpoints, tokenizer
                                         configurations, and weight releases.
                                     </p>
@@ -947,7 +913,7 @@ print(response.json()["answers"])</pre>
                                         href="https://huggingface.co/convaiinnovations/laya"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="brutal-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs w-full sm:w-auto"
+                                        class="brutal-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
                                     >
                                         <span>Laya Family</span>
                                         <span aria-hidden="true">&nearr;</span>
@@ -956,20 +922,53 @@ print(response.json()["answers"])</pre>
                                         href="https://huggingface.co/convaiinnovations/laya-multilingual"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="brutal-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs w-full sm:w-auto"
+                                        class="brutal-btn inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
                                     >
                                         <span>Multilingual</span>
                                         <span aria-hidden="true">&nearr;</span>
                                     </a>
                                 </div>
                             </div>
+
+                            <div
+                                class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
+                            >
+                                <div>
+                                    <div
+                                        class="text-xs font-mono text-zinc-400 mb-1"
+                                    >
+                                        ASCII Graphic
+                                    </div>
+                                    <div
+                                        class="font-bold text-sm mb-2 text-white"
+                                    >
+                                        ASCII.gg Library
+                                    </div>
+                                    <p class="text-xs text-zinc-400 mb-4">
+                                        3D ASCII loop animation asset sourced
+                                        from the open-source ASCII art community
+                                        archive.
+                                    </p>
+                                </div>
+                                <a
+                                    href="https://ascii.gg/library/6e97c526-7c5c-4baf-861e-e629450d3501"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
+                                >
+                                    <span>ascii.gg</span>
+                                    <span aria-hidden="true">&nearr;</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Technical Architecture Specs Grid -->
-                    <div class="brutal-card p-6 bg-white">
+                    <div
+                        class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white"
+                    >
                         <div
-                            class="text-xs font-mono font-bold uppercase tracking-wider text-[#555555] mb-4"
+                            class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 mb-4"
                         >
                             Architecture Specifications
                         </div>
@@ -977,43 +976,49 @@ print(response.json()["answers"])</pre>
                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm"
                         >
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Backbone Architecture
                                 </div>
-                                <div class="font-bold mt-1">mmBERT-base</div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <div class="font-bold mt-1 text-white">
+                                    mmBERT-base
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Bidirectional encoder with 22 layers, hidden
                                     dimension 768, and 256k vocabulary.
                                 </p>
                             </div>
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Total Parameters
                                 </div>
-                                <div class="font-bold mt-1">
+                                <div class="font-bold mt-1 text-white">
                                     322 Million (322M)
                                 </div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Compact footprint suitable for local edge
                                     execution and high-density server nodes.
                                 </p>
                             </div>
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Context Window
                                 </div>
-                                <div class="font-bold mt-1">1024 Tokens</div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <div class="font-bold mt-1 text-white">
+                                    1024 Tokens
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Up to 1024 tokens context per question with
                                     256 tokens dedicated to instructions.
                                 </p>
                             </div>
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Training Method
                                 </div>
-                                <div class="font-bold mt-1">RLCD Alignment</div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <div class="font-bold mt-1 text-white">
+                                    RLCD Alignment
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Reinforcement Learning from Calibrated
                                     Decisions across 15,987 updates and 4
                                     epochs.
@@ -1022,35 +1027,41 @@ print(response.json()["answers"])</pre>
                         </div>
 
                         <div
-                            class="border-t border-[#1E1E1E] mt-6 pt-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm"
+                            class="border-t border-zinc-800 mt-6 pt-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm"
                         >
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Multilingual Scope
                                 </div>
-                                <div class="font-bold mt-1">100+ Languages</div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <div class="font-bold mt-1 text-white">
+                                    100+ Languages
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Evaluated across 51 languages in the MASSIVE
                                     benchmark with superior accuracy on
                                     non-Latin scripts.
                                 </p>
                             </div>
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Inference Throughput
                                 </div>
-                                <div class="font-bold mt-1">Up to 332 QPS</div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <div class="font-bold mt-1 text-white">
+                                    Up to 332 QPS
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Batched evaluation throughput on standard
                                     hardware with ~32.8 ms single forward pass.
                                 </p>
                             </div>
                             <div>
-                                <div class="text-xs font-mono text-[#555555]">
+                                <div class="text-xs font-mono text-zinc-400">
                                     Open Source License
                                 </div>
-                                <div class="font-bold mt-1">Apache 2.0</div>
-                                <p class="text-xs text-[#555555] mt-1">
+                                <div class="font-bold mt-1 text-white">
+                                    Apache 2.0
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1">
                                     Permissive commercial and research license
                                     for weights and deployment code.
                                 </p>
@@ -1063,25 +1074,29 @@ print(response.json()["answers"])</pre>
             <!-- Technical FAQ Section -->
             <section
                 id="faq"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-white"
+                class="border-b border-[#27272a] py-16 px-4 sm:px-6 lg:px-8 bg-[#09090b] text-white"
             >
                 <div class="max-w-5xl mx-auto reveal-on-scroll">
                     <div
-                        class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-white"
+                        class="inline-block px-3 py-1 border border-[#3f3f46] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-[#18181b] text-zinc-300"
                     >
                         Technical Questions
                     </div>
-                    <h2 class="text-3xl font-extrabold tracking-tight mb-8">
+                    <h2
+                        class="text-3xl font-extrabold tracking-tight mb-8 text-white"
+                    >
                         Frequently Asked Questions
                     </h2>
 
                     <div class="space-y-6">
-                        <div class="brutal-card p-6 bg-white">
-                            <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                        <div
+                            class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white"
+                        >
+                            <h3 class="text-base font-bold text-white mb-2">
                                 How does System 1 operate without autoregressive
                                 decoding?
                             </h3>
-                            <p class="text-sm text-[#555555] leading-relaxed">
+                            <p class="text-sm text-zinc-400 leading-relaxed">
                                 Standard generative models predict text token by
                                 token in a recurrent loop. System One uses a
                                 bidirectional encoder backbone coupled with
@@ -1093,11 +1108,13 @@ print(response.json()["answers"])</pre>
                             </p>
                         </div>
 
-                        <div class="brutal-card p-6 bg-white">
-                            <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                        <div
+                            class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white"
+                        >
+                            <h3 class="text-base font-bold text-white mb-2">
                                 How are the output probabilities calibrated?
                             </h3>
-                            <p class="text-sm text-[#555555] leading-relaxed">
+                            <p class="text-sm text-zinc-400 leading-relaxed">
                                 Probabilities are calibrated through temperature
                                 scaling and Reinforcement Learning from
                                 Calibrated Decisions (RLCD). When System One
@@ -1108,17 +1125,19 @@ print(response.json()["answers"])</pre>
                             </p>
                         </div>
 
-                        <div class="brutal-card p-6 bg-white">
-                            <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                        <div
+                            class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white"
+                        >
+                            <h3 class="text-base font-bold text-white mb-2">
                                 How do I integrate System One into an existing
                                 backend?
                             </h3>
                             <p
-                                class="text-sm text-[#555555] leading-relaxed mb-4"
+                                class="text-sm text-zinc-400 leading-relaxed mb-4"
                             >
                                 Send an HTTP POST request to the
                                 <code
-                                    class="font-mono bg-gray-100 px-1 py-0.5 border border-gray-300 text-xs"
+                                    class="font-mono bg-[#0c0c0e] px-1 py-0.5 border border-[#3f3f46] text-xs text-zinc-300"
                                     >/v1/systemone</code
                                 >
                                 endpoint with your state context and questions
@@ -1129,7 +1148,7 @@ print(response.json()["answers"])</pre>
                             <div class="relative">
                                 <pre
                                     id="curl-code"
-                                    class="p-4 border border-[#1E1E1E] bg-[#1E1E1E] text-white font-mono text-xs overflow-x-auto"
+                                    class="p-4 border border-[#27272a] bg-[#050505] text-zinc-200 font-mono text-xs overflow-x-auto"
                                 >curl -X POST "<span class="api-endpoint-url">http://localhost:8000/v1/systemone</span>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1144,42 +1163,38 @@ print(response.json()["answers"])</pre>
                                 <button
                                     type="button"
                                     id="copy-curl-btn"
-                                    class="brutal-btn min-h-[44px] absolute top-2 right-2 px-3 py-1.5 text-xs font-mono bg-white text-[#1E1E1E] hover:bg-gray-100"
+                                    class="brutal-btn min-h-[44px] absolute top-2 right-2 px-3 py-1.5 text-xs font-mono bg-[#18181b] text-white border border-[#3f3f46] hover:bg-[#27272a]"
                                 >
                                     Copy cURL
                                 </button>
                             </div>
                         </div>
 
-                        <div class="brutal-card p-6 bg-white">
-                            <h3 class="text-base font-bold text-[#1E1E1E] mb-2">
+                        <div
+                            class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white"
+                        >
+                            <h3 class="text-base font-bold text-white mb-2">
                                 What question types are supported?
                             </h3>
-                            <p class="text-sm text-[#555555] leading-relaxed">
+                            <p class="text-sm text-zinc-400 leading-relaxed">
                                 System One supports three structured question
                                 types:
                             </p>
                             <ul
-                                class="list-disc list-inside text-sm text-[#555555] mt-2 space-y-1"
+                                class="list-disc list-inside text-sm text-zinc-400 mt-2 space-y-1"
                             >
                                 <li>
-                                    <strong class="text-[#1E1E1E]"
-                                        >noul:</strong
-                                    >
+                                    <strong class="text-white">noul:</strong>
                                     Binary decision returning a calibrated float
                                     between 0.0 and 1.0.
                                 </li>
                                 <li>
-                                    <strong class="text-[#1E1E1E]"
-                                        >choice:</strong
-                                    >
+                                    <strong class="text-white">choice:</strong>
                                     Categorical selection among named criteria
                                     options with probability distribution.
                                 </li>
                                 <li>
-                                    <strong class="text-[#1E1E1E]"
-                                        >score:</strong
-                                    >
+                                    <strong class="text-white">score:</strong>
                                     Ordinal rating across ranked criteria levels
                                     with score index and confidence.
                                 </li>
@@ -1190,26 +1205,26 @@ print(response.json()["answers"])</pre>
             </section>
         </main>
 
-    <!-- Footer -->
-    <footer
-        class="border-t border-[#1E1E1E] bg-[#fbfbfb] py-12 px-4 sm:px-6 lg:px-8"
-    >
+        <!-- Footer -->
+        <footer
+            class="border-t border-[#27272a] bg-[#050505] py-12 px-4 sm:px-6 lg:px-8"
+        >
             <div
-                class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#555555]"
+                class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-zinc-400"
             >
                 <div>
                     <div
-                        class="font-extrabold text-[#1E1E1E] text-sm tracking-tight mb-1"
+                        class="font-extrabold text-white text-sm tracking-tight mb-1"
                     >
                         System One
                     </div>
                     <p>
-                        Public web interface & API wrapper created by
+                        Public web interface &amp; API wrapper created by
                         <a
                             href="https://github.com/ZulfiFazhar/system-one"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="font-bold text-[#1E1E1E] underline hover:text-black"
+                            class="font-bold text-white underline hover:text-cyan-400"
                             >Zulfi Fazhar</a
                         >. Apache 2.0 License.
                     </p>
@@ -1223,800 +1238,48 @@ print(response.json()["answers"])</pre>
                         href="https://github.com/ZulfiFazhar/system-one"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="hover:text-black underline"
+                        class="hover:text-white underline text-zinc-300"
                         >GitHub (system-one)</a
                     >
                     <a
                         href="https://github.com/NandhaKishorM/laya"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="hover:text-black underline"
+                        class="hover:text-white underline text-zinc-300"
                         >GitHub (Laya Model)</a
                     >
                     <a
                         href="https://huggingface.co/convaiinnovations/laya-multilingual"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="hover:text-black underline"
+                        class="hover:text-white underline text-zinc-300"
                         >Hugging Face</a
+                    >
+                    <a
+                        href="https://ascii.gg/library/6e97c526-7c5c-4baf-861e-e629450d3501"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="hover:text-white underline text-zinc-300"
+                        >ASCII.gg (Orb Animation)</a
                     >
                     <a
                         href="/docs"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="hover:text-black underline"
+                        class="hover:text-white underline text-zinc-300"
                         >OpenAPI Docs</a
                     >
                     <a
                         href="/health"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="hover:text-black underline"
+                        class="hover:text-white underline text-zinc-300"
                         >Health Check</a
                     >
                 </div>
             </div>
         </footer>
 
-        <!-- Interactive JavaScript -->
-        <script>
-            (function () {
-                // Preset Data
-                const PRESETS = {
-                    billing: {
-                        state: 'User: "I was charged twice for my subscription on March 15th ($49 x 2). Please refund the duplicate transaction immediately."',
-                        questions: {
-                            is_refund: {
-                                type: "noul",
-                                instructions:
-                                    "Is the user requesting a refund?",
-                            },
-                            category: {
-                                type: "choice",
-                                instructions:
-                                    "Classify the support ticket category",
-                                criteria: {
-                                    billing:
-                                        "Payment, invoice, charge, or refund issues",
-                                    technical:
-                                        "Software bugs, downtime, or performance errors",
-                                    account:
-                                        "Login, password reset, or profile management",
-                                },
-                            },
-                            urgency: {
-                                type: "score",
-                                instructions: "Rate customer urgency level",
-                                criteria: [
-                                    "Low: General inquiry or informational request",
-                                    "Medium: Moderate issue without financial impact",
-                                    "High: Financial loss, duplicate charge, or blocked account",
-                                    "Critical: Security breach or system-wide disruption",
-                                ],
-                            },
-                        },
-                    },
-                    outage: {
-                        state: "Alert: Production PostgreSQL cluster primary node unreachable. Replica promotion failed with timeout error 504. API error rate spiked to 84%.",
-                        questions: {
-                            requires_pager: {
-                                type: "noul",
-                                instructions:
-                                    "Does this alert require paging on-call engineering?",
-                            },
-                            severity: {
-                                type: "choice",
-                                instructions:
-                                    "Determine the incident severity level",
-                                criteria: {
-                                    sev1: "Complete outage affecting all customers",
-                                    sev2: "Degraded service or partial customer impact",
-                                    sev3: "Minor internal glitch with zero customer impact",
-                                },
-                            },
-                            impact_scale: {
-                                type: "score",
-                                instructions: "Score overall business impact",
-                                criteria: [
-                                    "Level 1: Negligible impact",
-                                    "Level 2: Minor slowdown",
-                                    "Level 3: Major user-facing degradation",
-                                    "Level 4: Catastrophic total outage",
-                                ],
-                            },
-                        },
-                    },
-                    sales: {
-                        state: 'Prospect Note: "We are an enterprise logistics firm with 12,000 drivers. We need an automated routing API to replace our legacy vendor within 30 days. Budget approved: $150k ARR."',
-                        questions: {
-                            is_enterprise: {
-                                type: "noul",
-                                instructions:
-                                    "Is this prospect an enterprise tier lead?",
-                            },
-                            intent: {
-                                type: "choice",
-                                instructions: "Identify prospect intent stage",
-                                criteria: {
-                                    ready_to_buy:
-                                        "Immediate procurement with approved budget and timeline",
-                                    evaluating:
-                                        "Comparing vendors or running proofs of concept",
-                                    exploring:
-                                        "Early stage curiosity or academic research",
-                                },
-                            },
-                            qualification_score: {
-                                type: "score",
-                                instructions:
-                                    "Score overall lead qualification",
-                                criteria: [
-                                    "Tier 1: Low fit, no budget, long timeline",
-                                    "Tier 2: Moderate fit, unconfirmed budget",
-                                    "Tier 3: High fit, verified budget and urgent timeline",
-                                ],
-                            },
-                        },
-                    },
-                };
-
-                let currentPresetKey = "billing";
-
-                // DOM Elements
-                const apiKeyInput = document.getElementById("api-key-input");
-                const stateInput = document.getElementById("state-input");
-                const questionsInput =
-                    document.getElementById("questions-input");
-                const runBtn = document.getElementById("run-btn");
-                const runSpinner = document.getElementById("run-spinner");
-                const runText = document.getElementById("run-text");
-                const errorBox = document.getElementById("playground-error");
-                const errorTitle = document.getElementById("error-title");
-                const errorMessage = document.getElementById("error-message");
-                const resStatus = document.getElementById("res-status");
-                const resLatency = document.getElementById("res-latency");
-                const resTokens = document.getElementById("res-tokens");
-                const tabVisual = document.getElementById("tab-visual");
-                const tabRaw = document.getElementById("tab-raw");
-                const visualResults = document.getElementById("visual-results");
-                const rawResults = document.getElementById("raw-results");
-                const resultsEmpty = document.getElementById("results-empty");
-                const resultsContent =
-                    document.getElementById("results-content");
-                const rawJson = document.getElementById("raw-json");
-                const copyCurlBtn = document.getElementById("copy-curl-btn");
-                const resetQuestionsBtn = document.getElementById(
-                    "reset-questions-btn",
-                );
-                const healthDot = document.getElementById("health-dot");
-                const healthText = document.getElementById("health-text");
-
-                // Session Storage for API Key
-                const STORAGE_KEY = "system_one_api_key";
-                const savedApiKey = sessionStorage.getItem(STORAGE_KEY);
-                if (savedApiKey) {
-                    apiKeyInput.value = savedApiKey;
-                }
-                apiKeyInput.addEventListener("input", function () {
-                    const val = apiKeyInput.value.trim();
-                    if (val) {
-                        sessionStorage.setItem(STORAGE_KEY, val);
-                    } else {
-                        sessionStorage.removeItem(STORAGE_KEY);
-                    }
-                });
-
-                // Load Preset Function
-                function loadPreset(key) {
-                    currentPresetKey = key;
-                    const preset = PRESETS[key];
-                    if (!preset) return;
-                    stateInput.value = preset.state;
-                    questionsInput.value = JSON.stringify(
-                        preset.questions,
-                        null,
-                        2,
-                    );
-                    hideError();
-                }
-
-                // Preset Button Event Listeners
-                document
-                    .getElementById("preset-billing")
-                    .addEventListener("click", function () {
-                        loadPreset("billing");
-                    });
-                document
-                    .getElementById("preset-outage")
-                    .addEventListener("click", function () {
-                        loadPreset("outage");
-                    });
-                document
-                    .getElementById("preset-sales")
-                    .addEventListener("click", function () {
-                        loadPreset("sales");
-                    });
-
-                // Reset Questions Button
-                resetQuestionsBtn.addEventListener("click", function () {
-                    const preset = PRESETS[currentPresetKey];
-                    if (preset) {
-                        questionsInput.value = JSON.stringify(
-                            preset.questions,
-                            null,
-                            2,
-                        );
-                    }
-                });
-
-                // Tab Switching
-                tabVisual.addEventListener("click", function () {
-                    tabVisual.classList.add("bg-[#1E1E1E]", "text-white");
-                    tabVisual.classList.remove("bg-white", "text-[#1E1E1E]");
-                    tabRaw.classList.remove("bg-[#1E1E1E]", "text-white");
-                    tabRaw.classList.add("bg-white", "text-[#1E1E1E]");
-                    visualResults.classList.remove("hidden");
-                    rawResults.classList.add("hidden");
-                });
-
-                tabRaw.addEventListener("click", function () {
-                    tabRaw.classList.add("bg-[#1E1E1E]", "text-white");
-                    tabRaw.classList.remove("bg-white", "text-[#1E1E1E]");
-                    tabVisual.classList.remove("bg-[#1E1E1E]", "text-white");
-                    tabVisual.classList.add("bg-white", "text-[#1E1E1E]");
-                    visualResults.classList.add("hidden");
-                    rawResults.classList.remove("hidden");
-                });
-
-                // Error Display Helpers
-                function showError(title, msg) {
-                    errorTitle.textContent = title;
-                    errorMessage.textContent = msg;
-                    errorBox.classList.remove("hidden");
-                }
-
-                function hideError() {
-                    errorBox.classList.add("hidden");
-                }
-
-                // Health Polling
-                async function pollHealth() {
-                    try {
-                        const resp = await fetch("/health");
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            if (data.status === "ready") {
-                                healthDot.className =
-                                    "w-2 h-2 rounded-full bg-[#03aa5c] inline-block live-pulse";
-                                healthText.textContent =
-                                    "Model Ready: " + (data.model || "laya");
-                            } else {
-                                healthDot.className =
-                                    "w-2 h-2 rounded-full bg-yellow-500 inline-block";
-                                healthText.textContent =
-                                    "Status: " + data.status;
-                            }
-                        } else {
-                            healthDot.className =
-                                "w-2 h-2 rounded-full bg-red-600 inline-block";
-                            healthText.textContent =
-                                "Health HTTP " + resp.status;
-                        }
-                    } catch (e) {
-                        healthDot.className =
-                            "w-2 h-2 rounded-full bg-red-600 inline-block";
-                        healthText.textContent = "Service Offline";
-                    }
-                }
-
-                pollHealth();
-                setInterval(pollHealth, 10000);
-
-                // Copy cURL Button
-                copyCurlBtn.addEventListener("click", function () {
-                    const curlText =
-                        document.getElementById("curl-code").innerText;
-                    navigator.clipboard
-                        .writeText(curlText)
-                        .then(function () {
-                            const originalText = copyCurlBtn.textContent;
-                            copyCurlBtn.textContent = "Copied!";
-                            setTimeout(function () {
-                                copyCurlBtn.textContent = originalText;
-                            }, 2000);
-                        })
-                        .catch(function () {
-                            copyCurlBtn.textContent = "Failed";
-                            setTimeout(function () {
-                                copyCurlBtn.textContent = "Copy cURL";
-                            }, 2000);
-                        });
-                });
-
-                // Render Answer Card Helper
-                function renderAnswerCard(key, ans) {
-                    const card = document.createElement("div");
-                    card.className =
-                        "border border-[#1E1E1E] p-4 bg-white shadow-hard";
-
-                    const header = document.createElement("div");
-                    header.className =
-                        "flex items-center justify-between mb-3 border-b border-gray-200 pb-2";
-
-                    const titleSpan = document.createElement("span");
-                    titleSpan.className =
-                        "font-mono font-bold text-sm text-[#1E1E1E]";
-                    titleSpan.textContent = key;
-
-                    const typeSpan = document.createElement("span");
-                    typeSpan.className =
-                        "text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-gray-50";
-                    typeSpan.textContent = ans.type;
-
-                    header.appendChild(titleSpan);
-                    header.appendChild(typeSpan);
-                    card.appendChild(header);
-
-                    if (ans.type === "noul") {
-                        const prob =
-                            typeof ans.noul === "number" ? ans.noul : 0;
-                        const pct = (prob * 100).toFixed(1);
-                        const isTrue = prob >= 0.5;
-
-                        const content = document.createElement("div");
-                        content.className = "space-y-2";
-
-                        const verdictRow = document.createElement("div");
-                        verdictRow.className =
-                            "flex items-center justify-between text-sm";
-                        const probLabel = document.createElement("span");
-                        probLabel.className =
-                            "text-xs font-mono text-[#555555]";
-                        probLabel.textContent = "Probability:";
-                        const probVal = document.createElement("span");
-                        probVal.className =
-                            "font-mono font-bold text-sm " +
-                            (isTrue ? "text-[#027a42]" : "text-[#1E1E1E]");
-                        probVal.textContent =
-                            pct + "% (" + prob.toFixed(4) + ")";
-                        verdictRow.appendChild(probLabel);
-                        verdictRow.appendChild(probVal);
-                        content.appendChild(verdictRow);
-
-                        const progressBg = document.createElement("div");
-                        progressBg.className =
-                            "w-full h-3 bg-gray-100 border border-[#1E1E1E] overflow-hidden";
-                        const progressFill = document.createElement("div");
-                        progressFill.className =
-                            "h-full progress-bar-fill " +
-                            (isTrue ? "bg-[#03aa5c]" : "bg-[#1E1E1E]");
-                        progressFill.style.width = "0%";
-                        progressBg.appendChild(progressFill);
-                        content.appendChild(progressBg);
-                        requestAnimationFrame(function () {
-                            setTimeout(function () {
-                                progressFill.style.width = pct + "%";
-                            }, 50);
-                        });
-
-                        card.appendChild(content);
-                    } else if (ans.type === "choice") {
-                        const chosen = ans.choice || "";
-                        const conf =
-                            typeof ans.confidence === "number"
-                                ? (ans.confidence * 100).toFixed(1)
-                                : "0.0";
-
-                        const content = document.createElement("div");
-                        content.className = "space-y-3";
-
-                        const choiceRow = document.createElement("div");
-                        choiceRow.className =
-                            "flex items-center justify-between text-sm";
-                        const choiceLabel = document.createElement("span");
-                        choiceLabel.className =
-                            "text-xs font-mono text-[#555555]";
-                        choiceLabel.textContent = "Selected Choice:";
-                        const choiceVal = document.createElement("span");
-                        choiceVal.className =
-                            "font-mono font-bold px-2 py-0.5 border border-[#1E1E1E] bg-[#f386a1]/30 text-[#1E1E1E]";
-                        choiceVal.textContent =
-                            chosen + " (" + conf + "% conf)";
-                        choiceRow.appendChild(choiceLabel);
-                        choiceRow.appendChild(choiceVal);
-                        content.appendChild(choiceRow);
-
-                        if (
-                            ans.probabilities &&
-                            typeof ans.probabilities === "object"
-                        ) {
-                            const probContainer = document.createElement("div");
-                            probContainer.className = "space-y-1.5 pt-1";
-
-                            for (const optKey in ans.probabilities) {
-                                const optProb = ans.probabilities[optKey];
-                                const optPct = (optProb * 100).toFixed(1);
-                                const isChosen = optKey === chosen;
-
-                                const row = document.createElement("div");
-                                row.className = "space-y-0.5";
-
-                                const labelRow = document.createElement("div");
-                                labelRow.className =
-                                    "flex justify-between text-xs font-mono " +
-                                    (isChosen
-                                        ? "font-bold text-[#1E1E1E]"
-                                        : "text-[#555555]");
-                                const keySpan = document.createElement("span");
-                                keySpan.textContent = optKey;
-                                const pctSpan = document.createElement("span");
-                                pctSpan.textContent = optPct + "%";
-                                labelRow.appendChild(keySpan);
-                                labelRow.appendChild(pctSpan);
-                                row.appendChild(labelRow);
-
-                                const barBg = document.createElement("div");
-                                barBg.className =
-                                    "w-full h-2 bg-gray-100 border border-gray-300 overflow-hidden";
-                                const barFill = document.createElement("div");
-                                barFill.className =
-                                    "h-full progress-bar-fill " +
-                                    (isChosen ? "bg-[#1E1E1E]" : "bg-gray-400");
-                                barFill.style.width = "0%";
-                                barBg.appendChild(barFill);
-                                row.appendChild(barBg);
-                                (function (bf, targetPct) {
-                                    requestAnimationFrame(function () {
-                                        setTimeout(function () {
-                                            bf.style.width = targetPct + "%";
-                                        }, 50);
-                                    });
-                                })(barFill, optPct);
-
-                                probContainer.appendChild(row);
-                            }
-                            content.appendChild(probContainer);
-                        }
-
-                        card.appendChild(content);
-                    } else if (ans.type === "score") {
-                        const score =
-                            typeof ans.score === "number"
-                                ? ans.score.toFixed(2)
-                                : "0";
-                        const conf =
-                            typeof ans.confidence === "number"
-                                ? (ans.confidence * 100).toFixed(1)
-                                : "0.0";
-
-                        const content = document.createElement("div");
-                        content.className = "space-y-3";
-
-                        const scoreRow = document.createElement("div");
-                        scoreRow.className =
-                            "flex items-center justify-between text-sm";
-                        const scoreLabel = document.createElement("span");
-                        scoreLabel.className =
-                            "text-xs font-mono text-[#555555]";
-                        scoreLabel.textContent = "Calculated Score:";
-                        const scoreVal = document.createElement("span");
-                        scoreVal.className =
-                            "font-mono font-bold text-base px-2 py-0.5 border border-[#1E1E1E] bg-[#09aea1]/20 text-[#1E1E1E]";
-                        scoreVal.textContent = score + " (" + conf + "% conf)";
-                        scoreRow.appendChild(scoreLabel);
-                        scoreRow.appendChild(scoreVal);
-                        content.appendChild(scoreRow);
-
-                        if (
-                            ans.probabilities &&
-                            typeof ans.probabilities === "object"
-                        ) {
-                            const probContainer = document.createElement("div");
-                            probContainer.className = "space-y-1.5 pt-1";
-
-                            for (const optKey in ans.probabilities) {
-                                const optProb = ans.probabilities[optKey];
-                                const optPct = (optProb * 100).toFixed(1);
-                                const legendDesc =
-                                    ans.legend && ans.legend[optKey]
-                                        ? ans.legend[optKey]
-                                        : optKey;
-
-                                const row = document.createElement("div");
-                                row.className = "space-y-0.5";
-
-                                const labelRow = document.createElement("div");
-                                labelRow.className =
-                                    "flex justify-between text-xs font-mono text-[#555555]";
-                                const descSpan = document.createElement("span");
-                                descSpan.title = String(legendDesc);
-                                descSpan.textContent = String(legendDesc);
-                                const pctSpan = document.createElement("span");
-                                pctSpan.textContent = optPct + "%";
-                                labelRow.appendChild(descSpan);
-                                labelRow.appendChild(pctSpan);
-                                row.appendChild(labelRow);
-
-                                const barBg = document.createElement("div");
-                                barBg.className =
-                                    "w-full h-2 bg-gray-100 border border-gray-300 overflow-hidden";
-                                const barFill = document.createElement("div");
-                                barFill.className =
-                                    "h-full bg-[#09aea1] progress-bar-fill";
-                                barFill.style.width = "0%";
-                                barBg.appendChild(barFill);
-                                row.appendChild(barBg);
-                                (function (bf, targetPct) {
-                                    requestAnimationFrame(function () {
-                                        setTimeout(function () {
-                                            bf.style.width = targetPct + "%";
-                                        }, 50);
-                                    });
-                                })(barFill, optPct);
-
-                                probContainer.appendChild(row);
-                            }
-                            content.appendChild(probContainer);
-                        }
-
-                        card.appendChild(content);
-                    }
-
-                    return card;
-                }
-
-                // Run Evaluation Handler
-                runBtn.addEventListener("click", async function () {
-                    hideError();
-
-                    const state = stateInput.value.trim();
-                    if (!state) {
-                        showError(
-                            "Validation Error",
-                            "State context cannot be empty.",
-                        );
-                        return;
-                    }
-
-                    let questionsObj;
-                    try {
-                        questionsObj = JSON.parse(questionsInput.value);
-                    } catch (e) {
-                        showError("JSON Syntax Error in Questions", e.message);
-                        return;
-                    }
-
-                    if (
-                        typeof questionsObj !== "object" ||
-                        questionsObj === null ||
-                        Object.keys(questionsObj).length === 0
-                    ) {
-                        showError(
-                            "Validation Error",
-                            "Questions schema must be a non-empty JSON object.",
-                        );
-                        return;
-                    }
-
-                    // UI loading state
-                    runBtn.disabled = true;
-                    runSpinner.classList.remove("hidden");
-                    runText.textContent = "Evaluating...";
-
-                    const startTime = performance.now();
-                    const apiKey = apiKeyInput.value.trim();
-
-                    const headers = {
-                        "Content-Type": "application/json",
-                    };
-                    if (apiKey) {
-                        headers["Authorization"] = "Bearer " + apiKey;
-                    }
-
-                    const payload = {
-                        state: state,
-                        model: "laya",
-                        questions: questionsObj,
-                    };
-
-                    try {
-                        const response = await fetch("/v1/systemone", {
-                            method: "POST",
-                            headers: headers,
-                            body: JSON.stringify(payload),
-                        });
-
-                        const elapsedMs = Math.round(
-                            performance.now() - startTime,
-                        );
-
-                        resStatus.textContent =
-                            response.status + " " + response.statusText;
-                        resStatus.classList.remove("hidden");
-                        resLatency.textContent = elapsedMs + " ms";
-                        resLatency.classList.remove("hidden");
-
-                        if (!response.ok) {
-                            resStatus.className =
-                                "text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-red-100 text-red-900";
-                            let errDetail = "HTTP " + response.status;
-                            try {
-                                const errJson = await response.json();
-                                errDetail = JSON.stringify(errJson, null, 2);
-                            } catch (err) {
-                                errDetail = await response.text();
-                            }
-                            showError(
-                                "Inference Request Failed (" +
-                                    response.status +
-                                    ")",
-                                errDetail,
-                            );
-                            rawJson.textContent = errDetail;
-                            return;
-                        }
-
-                        resStatus.className =
-                            "text-xs font-mono px-2 py-0.5 border border-[#1E1E1E] bg-[#03aa5c]/20 text-[#1E1E1E]";
-
-                        const data = await response.json();
-
-                        // Update token usage
-                        if (data.usage) {
-                            resTokens.textContent =
-                                "in: " +
-                                (data.usage.input_tokens || 0) +
-                                " / out: " +
-                                (data.usage.output_tokens || 0) +
-                                " tok";
-                            resTokens.classList.remove("hidden");
-                        }
-
-                        // Update raw JSON
-                        rawJson.textContent = JSON.stringify(data, null, 2);
-
-                        // Update visual cards
-                        resultsContent.innerHTML = "";
-                        if (data.answers && typeof data.answers === "object") {
-                            for (const qKey in data.answers) {
-                                const card = renderAnswerCard(
-                                    qKey,
-                                    data.answers[qKey],
-                                );
-                                resultsContent.appendChild(card);
-                            }
-                            resultsEmpty.classList.add("hidden");
-                            resultsContent.classList.remove("hidden");
-                        }
-                    } catch (netErr) {
-                        const elapsedMs = Math.round(
-                            performance.now() - startTime,
-                        );
-                        resLatency.textContent = elapsedMs + " ms";
-                        resLatency.classList.remove("hidden");
-                        showError(
-                            "Network / Client Error",
-                            netErr.message || "Could not reach /v1/systemone",
-                        );
-                    } finally {
-                        runBtn.disabled = false;
-                        runSpinner.classList.add("hidden");
-                        runText.textContent = "Run System 1 Evaluation";
-                    }
-                });
-
-                // Scroll Reveal Observer
-                if ("IntersectionObserver" in window) {
-                    const scrollObserver = new IntersectionObserver(
-                        function (entries) {
-                            entries.forEach(function (entry) {
-                                if (entry.isIntersecting) {
-                                    entry.target.classList.add("revealed");
-                                    scrollObserver.unobserve(entry.target);
-                                }
-                            });
-                        },
-                        {
-                            threshold: 0.08,
-                            rootMargin: "0px 0px -40px 0px",
-                        },
-                    );
-                    document
-                        .querySelectorAll(".reveal-on-scroll")
-                        .forEach(function (el) {
-                            scrollObserver.observe(el);
-                        });
-                } else {
-                    document
-                        .querySelectorAll(".reveal-on-scroll")
-                        .forEach(function (el) {
-                            el.classList.add("revealed");
-                        });
-                }
-
-                // Sync live domain/origin to code examples
-                if (window.location && window.location.origin) {
-                    const liveEndpoint =
-                        window.location.origin + "/v1/systemone";
-                    document
-                        .querySelectorAll(".api-endpoint-url")
-                        .forEach(function (el) {
-                            el.textContent = liveEndpoint;
-                        });
-                }
-
-                // Lightweight Machine-Native ASCII Decision Stream Canvas
-                (function initAsciiStream() {
-                    const canvas = document.getElementById("ascii-canvas");
-                    if (!canvas) return;
-                    const ctx = canvas.getContext("2d");
-                    if (!ctx) return;
-
-                    const tokens = [
-                        "0.98", "0.02", "λ", "∫", "∵", "∴", "[b.64]", "noul", "choice", "score",
-                        "1.00", "0.42", "act", "calibrated", "Q_rsqrt", "state", "tensor", "0", "1", "0.85"
-                    ];
-                    let drops = [];
-
-                    function setupDrops() {
-                        const parent = canvas.parentElement;
-                        const w = (canvas.width = parent ? parent.offsetWidth : window.innerWidth);
-                        const h = (canvas.height = parent ? parent.offsetHeight : 600);
-                        const spacing = 55;
-                        const columns = Math.max(12, Math.floor(w / spacing));
-                        drops = [];
-                        for (let i = 0; i < columns; i++) {
-                            drops.push({
-                                x: i * spacing + (Math.random() * 10 - 5),
-                                y: Math.random() * h,
-                                speed: 0.5 + Math.random() * 0.7,
-                                text: tokens[Math.floor(Math.random() * tokens.length)],
-                            });
-                        }
-                    }
-
-                    setupDrops();
-                    window.addEventListener("resize", setupDrops);
-
-                    let lastTime = 0;
-                    function render(time) {
-                        const parent = canvas.parentElement;
-                        const heroHeight = parent ? parent.offsetHeight : 700;
-                        const isVisible = window.scrollY < heroHeight + 50;
-
-                        if (!isVisible) {
-                            requestAnimationFrame(render);
-                            return;
-                        }
-
-                        if (time - lastTime < 35) { // ~28 fps
-                            requestAnimationFrame(render);
-                            return;
-                        }
-                        lastTime = time;
-
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = "rgba(30, 30, 30, 0.22)";
-                        ctx.font = "12px 'JetBrains Mono', monospace";
-
-                        const h = canvas.height;
-                        for (let i = 0; i < drops.length; i++) {
-                            const d = drops[i];
-                            ctx.fillText(d.text, d.x, d.y);
-                            d.y += d.speed;
-                            if (d.y > h + 20) {
-                                d.y = -15;
-                                d.text = tokens[Math.floor(Math.random() * tokens.length)];
-                            }
-                        }
-                        requestAnimationFrame(render);
-                    }
-                    requestAnimationFrame(render);
-                })();
-
-                // Initialize with default preset
-                loadPreset("billing");
-            })();
-        </script>
+        <script src="/public/js/app.js" defer></script>
     </body>
 </html>

@@ -1,0 +1,93 @@
+html {
+    scroll-behavior: smooth;
+}
+body {
+    background-color: #09090b;
+    color: #f4f4f5;
+    font-family:
+        "Inter",
+        system-ui,
+        -apple-system,
+        sans-serif;
+}
+.brutal-card {
+    background-color: #141417;
+    border: 1px solid #27272a;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+}
+.brutal-card-hover {
+    transition:
+        transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.15s ease;
+}
+.brutal-card-hover:hover {
+    transform: translate(-2px, -2px);
+    border-color: #3f3f46;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+}
+.brutal-btn {
+    border: 1px solid #3f3f46;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    transition:
+        transform 0.1s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.1s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+.brutal-btn:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    border-color: #71717a;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+}
+.brutal-btn:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.6);
+}
+.brutal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.brutal-input {
+    border: 1px solid #27272a;
+    background-color: #0c0c0e;
+    color: #ffffff;
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+    transition:
+        box-shadow 0.15s ease,
+        border-color 0.15s ease;
+}
+.brutal-input:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 1px;
+    border-color: #52525b;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+}
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+        opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+.reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+.progress-bar-fill {
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes gentle-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+.live-pulse {
+    animation: gentle-pulse 2s infinite ease-in-out;
+}
