@@ -1,17 +1,32 @@
 import json
 from typing import Any
-from schemas import (
-    Answer,
-    ChoiceAnswer,
-    ChoiceQuestion,
-    NoulAnswer,
-    NoulQuestion,
-    Question,
-    ScoreAnswer,
-    ScoreQuestion,
-    SystemOneResponse,
-    Usage,
-)
+
+try:
+    from .schemas import (
+        Answer,
+        ChoiceAnswer,
+        ChoiceQuestion,
+        NoulAnswer,
+        NoulQuestion,
+        Question,
+        ScoreAnswer,
+        ScoreQuestion,
+        SystemOneResponse,
+        Usage,
+    )
+except ImportError:
+    from schemas import (
+        Answer,
+        ChoiceAnswer,
+        ChoiceQuestion,
+        NoulAnswer,
+        NoulQuestion,
+        Question,
+        ScoreAnswer,
+        ScoreQuestion,
+        SystemOneResponse,
+        Usage,
+    )
 
 
 def estimate_usage(state: Any, questions: dict[str, Question]) -> Usage:
@@ -38,18 +53,22 @@ def format_jev_response(
 
         if isinstance(q_spec, NoulQuestion):
             val = (
-                ans_raw.get("noul", 0.0)
+                ans_raw.get("noul")
                 if isinstance(ans_raw, dict)
-                else float(ans_raw)
+                else ans_raw
             )
+            if val is None:
+                val = 0.0
             answers[q_id] = NoulAnswer(type="noul", noul=float(val))
 
         elif isinstance(q_spec, ChoiceQuestion):
             if not isinstance(ans_raw, dict):
                 ans_raw = {"choice": str(ans_raw)}
-            choice_val = ans_raw.get("choice", "")
-            probs = ans_raw.get("probabilities", {choice_val: 1.0})
-            conf = ans_raw.get("confidence", max(probs.values()) if probs else 1.0)
+            choice_val = ans_raw.get("choice") or ""
+            probs = ans_raw.get("probabilities") or {choice_val: 1.0}
+            conf = ans_raw.get("confidence")
+            if conf is None:
+                conf = max(probs.values()) if probs else 1.0
             answers[q_id] = ChoiceAnswer(
                 type="choice",
                 choice=choice_val,
@@ -60,15 +79,19 @@ def format_jev_response(
         elif isinstance(q_spec, ScoreQuestion):
             if not isinstance(ans_raw, dict):
                 ans_raw = {"score": float(ans_raw)}
-            score_val = ans_raw.get("score", 0.0)
+            score_val = ans_raw.get("score")
+            if score_val is None:
+                score_val = 0.0
             legend = {str(idx): str(item) for idx, item in enumerate(q_spec.criteria)}
-            probs = ans_raw.get("probabilities", {})
+            probs = ans_raw.get("probabilities") or {}
             if not probs:
                 probs = {
                     str(idx): 1.0 / len(q_spec.criteria)
                     for idx in range(len(q_spec.criteria))
                 }
-            conf = ans_raw.get("confidence", max(probs.values()) if probs else 1.0)
+            conf = ans_raw.get("confidence")
+            if conf is None:
+                conf = max(probs.values()) if probs else 1.0
             answers[q_id] = ScoreAnswer(
                 type="score",
                 score=float(score_val),

@@ -118,5 +118,27 @@ def test_main_entrypoint(monkeypatch):
     import app as app_module
     with patch("uvicorn.run") as mock_run:
         app_module.main()
-        mock_run.assert_called_once()
+        mock_run.assert_called_once_with(app_module.app, host="0.0.0.0", port=8000, reload=False)
+
+
+def test_verify_api_key_constant_time(monkeypatch):
+    import secrets
+    from unittest.mock import patch
+    from fastapi import HTTPException
+    from app import verify_api_key
+    from fastapi.security import HTTPAuthorizationCredentials
+
+    monkeypatch.setenv("LAYA_API_KEY", "secret-val")
+    with patch("secrets.compare_digest", wraps=secrets.compare_digest) as mock_compare:
+        creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="secret-val")
+        verify_api_key(creds)
+        mock_compare.assert_called_with("secret-val", "secret-val")
+
+        mock_compare.reset_mock()
+        with pytest.raises(HTTPException) as exc_info:
+            bad_creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="wrong-val")
+            verify_api_key(bad_creds)
+        assert exc_info.value.status_code == 401
+        mock_compare.assert_called_with("wrong-val", "secret-val")
+
 

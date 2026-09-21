@@ -1,11 +1,17 @@
 import os
+import secrets
 from contextlib import asynccontextmanager
 from typing import Any
 from fastapi import FastAPI, Depends, HTTPException, Security, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from schemas import SystemOneRequest, SystemOneResponse
-from adapter import format_jev_response
+
+try:
+    from .schemas import SystemOneRequest, SystemOneResponse
+    from .adapter import format_jev_response
+except ImportError:
+    from schemas import SystemOneRequest, SystemOneResponse
+    from adapter import format_jev_response
 
 security = HTTPBearer(auto_error=False)
 
@@ -15,7 +21,7 @@ def verify_api_key(
     api_key = os.getenv("LAYA_API_KEY")
     if not api_key:
         return
-    if not credentials or credentials.credentials != api_key:
+    if not credentials or not secrets.compare_digest(credentials.credentials, api_key):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing or invalid API key",
@@ -100,6 +106,6 @@ def main() -> None:
     import uvicorn
     port = int(os.getenv("PORT", "8000"))
     host = os.getenv("HOST", "0.0.0.0")
-    uvicorn.run("app:app", host=host, port=port, reload=False)
+    uvicorn.run(app, host=host, port=port, reload=False)
 
 app = create_app()

@@ -82,3 +82,28 @@ def test_format_jev_response_defaults_and_edge_cases():
     assert res.answers["q_score_empty"].score == 0.0
     assert res.answers["q_score_empty"].legend == {"0": "One", "1": "Two"}
     assert res.usage.input_tokens > 0
+
+
+def test_format_jev_response_explicit_none():
+    questions = {
+        "q_noul": NoulQuestion(instructions="Bug?"),
+        "q_choice": ChoiceQuestion(instructions="Pick", criteria={"a": "A"}),
+        "q_score": ScoreQuestion(instructions="Rate", criteria=["One", "Two"]),
+    }
+    laya_answers = {
+        "q_noul": {"noul": None},
+        "q_choice": {"choice": None, "probabilities": None, "confidence": None},
+        "q_score": {"score": None, "probabilities": None, "confidence": None},
+    }
+    res = format_jev_response(
+        model_name="laya",
+        laya_answers=laya_answers,
+        questions=questions,
+        state="test",
+    )
+    assert res.answers["q_noul"].noul == 0.0
+    assert res.answers["q_choice"].choice == ""
+    assert res.answers["q_choice"].confidence == 1.0
+    assert res.answers["q_score"].score == 0.0
+    assert res.answers["q_score"].confidence == 0.5
+
