@@ -65,9 +65,10 @@
         .brutal-input {
             border: 1px solid #1E1E1E;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
-            outline: none;
         }
-        .brutal-input:focus {
+        .brutal-input:focus-visible {
+            outline: 2px solid #1E1E1E;
+            outline-offset: 1px;
             box-shadow: 3px 3px 0px rgba(0,0,0,0.8);
         }
     </style>
@@ -725,6 +726,11 @@
                     setTimeout(function() {
                         copyCurlBtn.textContent = originalText;
                     }, 2000);
+                }).catch(function() {
+                    copyCurlBtn.textContent = 'Failed';
+                    setTimeout(function() {
+                        copyCurlBtn.textContent = 'Copy cURL';
+                    }, 2000);
                 });
             });
 
@@ -762,7 +768,7 @@
                     probLabel.className = 'text-xs font-mono text-[#555555]';
                     probLabel.textContent = 'Probability:';
                     const probVal = document.createElement('span');
-                    probVal.className = 'font-mono font-bold text-sm ' + (isTrue ? 'text-[#03aa5c]' : 'text-[#1E1E1E]');
+                    probVal.className = 'font-mono font-bold text-sm ' + (isTrue ? 'text-[#027a42]' : 'text-[#1E1E1E]');
                     probVal.textContent = pct + '% (' + prob.toFixed(4) + ')';
                     verdictRow.appendChild(probLabel);
                     verdictRow.appendChild(probVal);
