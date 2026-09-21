@@ -638,6 +638,24 @@ print(response.json()["answers"])</pre>
                         </div>
                     </div>
 
+                    <!-- Playground Engine Mode Switcher -->
+                    <div class="flex flex-wrap items-center gap-2 border-b border-zinc-800 pb-4 mb-6">
+                        <button
+                            type="button"
+                            id="mode-laya-btn"
+                            class="brutal-btn min-h-[40px] px-4 py-2 text-xs font-mono font-bold bg-white text-black border border-white"
+                        >
+                            Laya (Local Engine)
+                        </button>
+                        <button
+                            type="button"
+                            id="mode-compare-btn"
+                            class="brutal-btn min-h-[40px] px-4 py-2 text-xs font-mono font-bold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white"
+                        >
+                            Compare Mode (Laya vs OpenRouter Jev)
+                        </button>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Left: Inputs -->
                         <div class="space-y-6">
@@ -666,17 +684,17 @@ print(response.json()["answers"])</pre>
                                 />
                             </div>
 
-                            <!-- OpenRouter API Key for Compare Mode -->
+                            <!-- OpenRouter API Key for Compare Mode (Only visible in Compare mode) -->
                             <div
                                 id="openrouter-auth-card"
-                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
+                                class="hidden brutal-card p-4 bg-[#141417] border border-[#27272a]"
                             >
                                 <div class="flex items-center justify-between mb-1">
                                     <label
                                         for="openrouter-key-input"
                                         class="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200"
                                     >
-                                        OpenRouter API Key (For Compare)
+                                        OpenRouter API Key (Required for Compare)
                                     </label>
                                     <span
                                         class="text-[10px] font-mono px-1.5 py-0.5 border border-cyan-500/40 bg-cyan-950/40 text-cyan-400"
@@ -845,13 +863,6 @@ print(response.json()["answers"])</pre>
                                             class="px-2.5 py-1 bg-white text-black font-semibold"
                                         >
                                             Visual
-                                        </button>
-                                        <button
-                                            type="button"
-                                            id="tab-compare"
-                                            class="px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]"
-                                        >
-                                            Compare
                                         </button>
                                         <button
                                             type="button"

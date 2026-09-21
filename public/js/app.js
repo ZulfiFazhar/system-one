@@ -89,6 +89,9 @@
     let currentPresetKey = "billing";
 
     // DOM Elements
+    const modeLayaBtn = document.getElementById("mode-laya-btn");
+    const modeCompareBtn = document.getElementById("mode-compare-btn");
+    const openrouterAuthCard = document.getElementById("openrouter-auth-card");
     const apiKeyInput = document.getElementById("api-key-input");
     const openrouterKeyInput = document.getElementById("openrouter-key-input");
     const stateInput = document.getElementById("state-input");
@@ -103,7 +106,6 @@
     const resLatency = document.getElementById("res-latency");
     const resTokens = document.getElementById("res-tokens");
     const tabVisual = document.getElementById("tab-visual");
-    const tabCompare = document.getElementById("tab-compare");
     const tabRaw = document.getElementById("tab-raw");
     const visualResults = document.getElementById("visual-results");
     const compareResults = document.getElementById("compare-results");
@@ -121,7 +123,8 @@
     const healthDot = document.getElementById("health-dot");
     const healthText = document.getElementById("health-text");
 
-    let activeTab = "visual"; // "visual" | "compare" | "raw"
+    let currentEngineMode = "laya"; // "laya" | "compare"
+    let currentViewTab = "visual"; // "visual" | "raw"
 
     // Session Storage for API Keys
     const STORAGE_KEY = "system_one_api_key";
@@ -190,33 +193,76 @@
         }
     });
 
-    // Tab Switching
-    function setTab(tab) {
-        activeTab = tab;
+    // Playground Engine Mode Switcher (Laya Local vs Compare with Jev)
+    function setEngineMode(mode) {
+        currentEngineMode = mode;
+        hideError();
+
+        const activeBtnClass = "brutal-btn min-h-[40px] px-4 py-2 text-xs font-mono font-bold bg-white text-black border border-white";
+        const inactiveBtnClass = "brutal-btn min-h-[40px] px-4 py-2 text-xs font-mono font-bold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white";
+
+        if (modeLayaBtn) modeLayaBtn.className = mode === "laya" ? activeBtnClass : inactiveBtnClass;
+        if (modeCompareBtn) modeCompareBtn.className = mode === "compare" ? activeBtnClass : inactiveBtnClass;
+
+        // OpenRouter key input is ONLY accessible/visible in compare mode
+        if (openrouterAuthCard) {
+            openrouterAuthCard.classList.toggle("hidden", mode !== "compare");
+        }
+
+        if (runText) {
+            runText.textContent = mode === "compare" ? "Run Model Comparison (Laya vs Jev)" : "Run System 1 Evaluation";
+        }
+
+        updateResultViews();
+    }
+
+    if (modeLayaBtn) {
+        modeLayaBtn.addEventListener("click", function () {
+            setEngineMode("laya");
+        });
+    }
+
+    if (modeCompareBtn) {
+        modeCompareBtn.addEventListener("click", function () {
+            setEngineMode("compare");
+        });
+    }
+
+    // View Switching (Visual vs JSON)
+    function setViewTab(tab) {
+        currentViewTab = tab;
         const activeClass = "px-2.5 py-1 bg-white text-black font-semibold";
         const inactiveClass = "px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]";
 
         tabVisual.className = tab === "visual" ? activeClass : inactiveClass;
-        if (tabCompare) tabCompare.className = tab === "compare" ? activeClass : inactiveClass;
         tabRaw.className = tab === "raw" ? activeClass : inactiveClass;
 
-        visualResults.classList.toggle("hidden", tab !== "visual");
-        if (compareResults) compareResults.classList.toggle("hidden", tab !== "compare");
-        rawResults.classList.toggle("hidden", tab !== "raw");
+        updateResultViews();
+    }
+
+    function updateResultViews() {
+        if (currentViewTab === "raw") {
+            rawResults.classList.remove("hidden");
+            visualResults.classList.add("hidden");
+            if (compareResults) compareResults.classList.add("hidden");
+        } else {
+            rawResults.classList.add("hidden");
+            if (currentEngineMode === "compare") {
+                if (compareResults) compareResults.classList.remove("hidden");
+                visualResults.classList.add("hidden");
+            } else {
+                visualResults.classList.remove("hidden");
+                if (compareResults) compareResults.classList.add("hidden");
+            }
+        }
     }
 
     tabVisual.addEventListener("click", function () {
-        setTab("visual");
+        setViewTab("visual");
     });
 
-    if (tabCompare) {
-        tabCompare.addEventListener("click", function () {
-            setTab("compare");
-        });
-    }
-
     tabRaw.addEventListener("click", function () {
-        setTab("raw");
+        setViewTab("raw");
     });
 
     // Error Display Helpers
@@ -658,7 +704,7 @@
             return;
         }
 
-        const isCompare = (activeTab === "compare");
+        const isCompare = (currentEngineMode === "compare");
         const openrouterKey = openrouterKeyInput ? openrouterKeyInput.value.trim() : "";
 
         if (isCompare && !openrouterKey) {
@@ -792,6 +838,8 @@
                 rawJson.textContent = JSON.stringify(layaData, null, 2);
             }
 
+            updateResultViews();
+
         } catch (netErr) {
             const elapsedMs = Math.round(performance.now() - startTime);
             resLatency.textContent = elapsedMs + " ms";
@@ -800,7 +848,7 @@
         } finally {
             runBtn.disabled = false;
             runSpinner.classList.add("hidden");
-            runText.textContent = "Run System 1 Evaluation";
+            runText.textContent = isCompare ? "Run Model Comparison (Laya vs Jev)" : "Run System 1 Evaluation";
         }
     });
 
