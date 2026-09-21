@@ -9,6 +9,10 @@ def test_healthz(client_no_auth):
     assert resp.status_code == 200
     assert resp.json()["status"] == "ready"
 
+    resp_alias = client_no_auth.get("/health")
+    assert resp_alias.status_code == 200
+    assert resp_alias.json()["status"] == "ready"
+
 
 def test_systemone_unauthorized(client_with_auth):
     resp = client_with_auth.post("/v1/systemone", json={

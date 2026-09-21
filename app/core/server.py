@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api import router as api_router
-from app.api.health_route import router as root_health_router
 from app.core.config import settings
 from app.services.laya_service import MockRouter
 
@@ -42,6 +41,10 @@ async def lifespan(app: FastAPI):
                     device=settings.laya_device,
                 )
             except Exception:
+                logger.warning(
+                    "Failed to initialize Laya router, falling back to MockRouter",
+                    exc_info=True,
+                )
                 app.state.router = MockRouter()
     yield
     if hasattr(app.state, "router") and hasattr(app.state.router, "unload"):
@@ -62,8 +65,6 @@ def create_application(mock_router: bool = False) -> FastAPI:
     if mock_router or settings.laya_mock_router:
         app.state.router = MockRouter()
 
-    # Mount health directly at root (/healthz) for backward compatibility
-    app.include_router(root_health_router)
     # Mount api routes
     app.include_router(api_router)
 
