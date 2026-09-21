@@ -227,7 +227,7 @@
                 <!-- Machine-Native ASCII Decision Stream Canvas -->
                 <canvas
                     id="ascii-canvas"
-                    class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07] select-none z-0"
+                    class="absolute inset-0 w-full h-full pointer-events-none select-none z-0"
                     aria-hidden="true"
                 ></canvas>
 
@@ -1952,67 +1952,66 @@ print(response.json()["answers"])</pre>
                     const ctx = canvas.getContext("2d");
                     if (!ctx) return;
 
-                    function resize() {
-                        canvas.width = canvas.offsetWidth;
-                        canvas.height = canvas.offsetHeight;
-                    }
-                    resize();
-
                     const tokens = [
                         "0.98", "0.02", "λ", "∫", "∵", "∴", "[b.64]", "noul", "choice", "score",
                         "1.00", "0.42", "act", "calibrated", "Q_rsqrt", "state", "tensor", "0", "1", "0.85"
                     ];
-                    const columns = Math.max(8, Math.floor(canvas.width / 65));
-                    const drops = [];
+                    let drops = [];
 
-                    for (let i = 0; i < columns; i++) {
-                        drops.push({
-                            x: i * 65 + Math.random() * 15,
-                            y: Math.random() * canvas.height,
-                            speed: 0.35 + Math.random() * 0.45,
-                            text: tokens[Math.floor(Math.random() * tokens.length)],
-                        });
+                    function setupDrops() {
+                        const parent = canvas.parentElement;
+                        const w = (canvas.width = parent ? parent.offsetWidth : window.innerWidth);
+                        const h = (canvas.height = parent ? parent.offsetHeight : 600);
+                        const spacing = 55;
+                        const columns = Math.max(12, Math.floor(w / spacing));
+                        drops = [];
+                        for (let i = 0; i < columns; i++) {
+                            drops.push({
+                                x: i * spacing + (Math.random() * 10 - 5),
+                                y: Math.random() * h,
+                                speed: 0.5 + Math.random() * 0.7,
+                                text: tokens[Math.floor(Math.random() * tokens.length)],
+                            });
+                        }
                     }
 
-                    let isVisible = true;
-                    if ("IntersectionObserver" in window) {
-                        const obs = new IntersectionObserver(function (entries) {
-                            isVisible = entries[0].isIntersecting;
-                        });
-                        obs.observe(canvas);
-                    }
+                    setupDrops();
+                    window.addEventListener("resize", setupDrops);
 
                     let lastTime = 0;
                     function render(time) {
+                        const parent = canvas.parentElement;
+                        const heroHeight = parent ? parent.offsetHeight : 700;
+                        const isVisible = window.scrollY < heroHeight + 50;
+
                         if (!isVisible) {
                             requestAnimationFrame(render);
                             return;
                         }
-                        if (time - lastTime < 45) {
+
+                        if (time - lastTime < 35) { // ~28 fps
                             requestAnimationFrame(render);
                             return;
                         }
                         lastTime = time;
 
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.fillStyle = "#1E1E1E";
-                        ctx.font = "11px 'JetBrains Mono', monospace";
+                        ctx.fillStyle = "rgba(30, 30, 30, 0.22)";
+                        ctx.font = "12px 'JetBrains Mono', monospace";
 
+                        const h = canvas.height;
                         for (let i = 0; i < drops.length; i++) {
                             const d = drops[i];
                             ctx.fillText(d.text, d.x, d.y);
                             d.y += d.speed;
-                            if (d.y > canvas.height + 20) {
+                            if (d.y > h + 20) {
                                 d.y = -15;
-                                d.x = i * 65 + (Math.random() * 20 - 10);
                                 d.text = tokens[Math.floor(Math.random() * tokens.length)];
                             }
                         }
                         requestAnimationFrame(render);
                     }
                     requestAnimationFrame(render);
-
-                    window.addEventListener("resize", resize);
                 })();
 
                 // Initialize with default preset
