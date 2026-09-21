@@ -14,6 +14,14 @@ def test_healthz(client_no_auth):
     assert resp_alias.json()["status"] == "ready"
 
 
+def test_home_landing_page(client_no_auth):
+    resp = client_no_auth.get("/")
+    assert resp.status_code == 200
+    assert "text/html" in resp.headers.get("content-type", "")
+    assert "System One" in resp.text
+    assert "We took the opposite research direction" in resp.text
+
+
 def test_systemone_unauthorized(client_with_auth):
     resp = client_with_auth.post("/v1/systemone", json={
         "state": "test",
