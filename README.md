@@ -9,18 +9,16 @@ FastAPI service yang membungkus model **Laya** (`convaiinnovations/laya`) dengan
 uv sync
 
 # Jalankan server (mock router, tanpa download model)
-LAYA_MOCK_ROUTER=1 uv run fastapi run src/app.py --port 8000
+LAYA_MOCK_ROUTER=1 uv run fastapi run app/main.py --port 8000
 
 # Dengan model Laya asli (download otomatis ~800MB)
-uv run fastapi run src/app.py --port 8000
+uv run fastapi run app/main.py --port 8000
 ```
 
 ### PM2
 
 ```bash
-pm2 start "uv run fastapi run src/app.py --port 20129" --name system-one
-# atau pakai binary virtualenv langsung:
-pm2 start ".venv/bin/fastapi run src/app.py --port 20129" --name system-one
+pm2 start "uv run fastapi run app/main.py --port 20129" --name system-one
 ```
 
 ## API
@@ -121,15 +119,32 @@ Semua pertanyaan dalam satu request dieksekusi **paralel** dalam satu forward pa
 ## Struktur File
 
 ```
-src/
-├── schemas.py   # Pydantic v2 request/response schema TypeSafe Jev
-├── adapter.py   # Normalisasi output Laya → format respons Jev
-└── app.py       # FastAPI app, auth, lifespan, endpoints
+app/
+├── __init__.py
+├── main.py                    # Entrypoint aplikasi FastAPI
+├── api/
+│   ├── __init__.py            # Router aggregator
+│   ├── health_route.py        # Endpoint GET /healthz dan GET /health
+│   └── systemone_route.py     # Endpoint POST /v1/systemone
+├── core/
+│   ├── __init__.py
+│   ├── config.py              # Pydantic Settings & environment
+│   ├── schema.py              # BaseResponse & standard envelopes
+│   ├── security.py            # API key auth & constant-time check
+│   └── server.py              # Lifespan, middlewares, server setup
+├── dto/
+│   ├── __init__.py            # DTO exports
+│   └── systemone_dto.py       # Pydantic v2 schemas (Jev questions/answers)
+└── services/
+    ├── __init__.py
+    ├── health.py              # Health check status
+    └── laya_service.py        # Model inference, MockRouter, JEV adapter
 
 tests/
-├── test_schemas.py
-├── test_adapter.py
-└── test_api.py
+├── conftest.py                # Pytest fixtures
+├── test_adapter.py            # Normalisasi & usage unit tests
+├── test_api.py                # End-to-end endpoint tests
+└── test_schemas.py            # DTO validation unit tests
 ```
 
 ## Testing

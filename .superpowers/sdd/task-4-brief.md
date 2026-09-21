@@ -1,32 +1,58 @@
+# Task 4 Brief: Services Implementation
+
+**Files:**
+- Create: `D:\Zulfi\Programming\FastAPI\system-one\app\services\__init__.py`
+- Create: `D:\Zulfi\Programming\FastAPI\system-one\app\services\laya_service.py`
+- Create: `D:\Zulfi\Programming\FastAPI\system-one\app\services\health.py`
+
+### Requirements
+1. Create empty `app/services/__init__.py`.
+2. Implement `app/services/laya_service.py`:
+```python
 import json
 from typing import Any
 
-try:
-    from .schemas import (
-        Answer,
-        ChoiceAnswer,
-        ChoiceQuestion,
-        NoulAnswer,
-        NoulQuestion,
-        Question,
-        ScoreAnswer,
-        ScoreQuestion,
-        SystemOneResponse,
-        Usage,
-    )
-except ImportError:
-    from schemas import (
-        Answer,
-        ChoiceAnswer,
-        ChoiceQuestion,
-        NoulAnswer,
-        NoulQuestion,
-        Question,
-        ScoreAnswer,
-        ScoreQuestion,
-        SystemOneResponse,
-        Usage,
-    )
+from app.dto.systemone_dto import (
+    Answer,
+    ChoiceAnswer,
+    ChoiceQuestion,
+    NoulAnswer,
+    NoulQuestion,
+    Question,
+    ScoreAnswer,
+    ScoreQuestion,
+    SystemOneResponse,
+    Usage,
+)
+
+
+class MockRouter:
+    def predict(
+        self, state: Any, questions: dict[str, Any], model: str | None = None
+    ) -> dict[str, Any]:
+        answers = {}
+        for q_id, q in questions.items():
+            q_type = q.type if hasattr(q, "type") else q.get("type")
+            if q_type == "noul":
+                answers[q_id] = {"noul": 0.85}
+            elif q_type == "choice":
+                crit = q.criteria if hasattr(q, "criteria") else q.get("criteria", {})
+                first_opt = next(iter(crit.keys())) if crit else "default"
+                answers[q_id] = {
+                    "choice": first_opt,
+                    "probabilities": {k: 1.0 / len(crit) for k in crit},
+                    "confidence": 0.9,
+                }
+            elif q_type == "score":
+                answers[q_id] = {
+                    "score": 1.0,
+                    "probabilities": {"0": 0.2, "1": 0.8},
+                    "confidence": 0.8,
+                }
+        return {"answers": answers, "routing": {"model": model or "laya"}}
+
+    def unload(self) -> None:
+        pass
 
 
 def estimate_usage(state: Any, questions: dict[str, Question]) -> Usage:
@@ -52,11 +78,7 @@ def format_jev_response(
             ans_raw = {}
 
         if isinstance(q_spec, NoulQuestion):
-            val = (
-                ans_raw.get("noul")
-                if isinstance(ans_raw, dict)
-                else ans_raw
-            )
+            val = ans_raw.get("noul") if isinstance(ans_raw, dict) else ans_raw
             if val is None:
                 val = 0.0
             answers[q_id] = NoulAnswer(type="noul", noul=float(val))
@@ -105,3 +127,25 @@ def format_jev_response(
         answers=answers,
         usage=estimate_usage(state, questions),
     )
+```
+
+3. Implement `app/services/health.py`:
+```python
+from typing import Any
+
+
+def check_health(app_state: Any) -> dict[str, Any]:
+    router_ready = hasattr(app_state, "router") and app_state.router is not None
+    return {
+        "status": "ready" if router_ready else "initializing",
+        "model": "laya",
+        "preloaded": True,
+    }
+```
+
+4. Verification:
+Run: `uv run python -c "from app.services.laya_service import MockRouter, format_jev_response, estimate_usage; from app.services.health import check_health; print('services ok')"`
+Expected: Output `services ok`.
+
+5. Commit:
+`git add app/services && git commit -m "feat: implement app.services laya_service and health"`

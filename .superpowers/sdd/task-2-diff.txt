@@ -1,0 +1,114 @@
+9479992 feat: implement app.core config, schema, and security
+ app/__init__.py      |  0
+ app/core/__init__.py |  0
+ app/core/config.py   | 40 ++++++++++++++++++++++++++++++++++++++++
+ app/core/schema.py   | 22 ++++++++++++++++++++++
+ app/core/security.py | 21 +++++++++++++++++++++
+ 5 files changed, 83 insertions(+)
+diff --git a/app/__init__.py b/app/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/app/core/__init__.py b/app/core/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/app/core/config.py b/app/core/config.py
+new file mode 100644
+index 0000000..6baf24e
+--- /dev/null
++++ b/app/core/config.py
+@@ -0,0 +1,40 @@
++from typing import ClassVar
++from pydantic import SecretStr
++from pydantic_settings import BaseSettings, SettingsConfigDict
++
++
++class Settings(BaseSettings):
++    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
++        env_file=".env",
++        env_file_encoding="utf-8",
++        case_sensitive=False,
++        extra="ignore",
++    )
++
++    app_name: str = "System One (Laya) API"
++    environment: str = "development"
++    version: str = "0.1.0"
++    port: int = 8000
++    host: str = "0.0.0.0"
++
++    allowed_origins: list[str] = ["*"]
++    allowed_hosts: list[str] = ["*"]
++
++    laya_api_key: SecretStr | None = None
++    laya_device: str = "auto"
++    laya_preload: bool = True
++    laya_mock_router: bool = False
++
++    log_level: str = "INFO"
++    log_format: str = "%(levelname)s - %(asctime)s - %(message)s"
++
++    @property
++    def is_production(self) -> bool:
++        return self.environment.lower() == "production"
++
++    @property
++    def is_development(self) -> bool:
++        return self.environment.lower() == "development"
++
++
++settings = Settings()
+diff --git a/app/core/schema.py b/app/core/schema.py
+new file mode 100644
+index 0000000..45a00ff
+--- /dev/null
++++ b/app/core/schema.py
+@@ -0,0 +1,22 @@
++from enum import Enum
++from typing import Any, Optional
++
++
++class StatusEnum(str, Enum):
++    SUCCESS = "success"
++    FAILED = "failed"
++    ERROR = "error"
++    WARNING = "warning"
++
++
++class BaseResponse(dict):
++    """Simple dict-like response wrapper for compatibility."""
++    pass
++
++
++def create_success_response(message: str = "Success", data: Any = None) -> dict[str, Any]:
++    return {"status": StatusEnum.SUCCESS.value, "message": message, "data": data}
++
++
++def create_error_response(message: str = "An error occurred", data: Any = None) -> dict[str, Any]:
++    return {"status": StatusEnum.FAILED.value, "message": message, "data": data}
+diff --git a/app/core/security.py b/app/core/security.py
+new file mode 100644
+index 0000000..b21be95
+--- /dev/null
++++ b/app/core/security.py
+@@ -0,0 +1,21 @@
++import secrets
++from fastapi import HTTPException, Security, status
++from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
++
++from app.core.config import settings
++
++bearer_scheme = HTTPBearer(auto_error=False)
++
++
++def verify_api_key(
++    credentials: HTTPAuthorizationCredentials | None = Security(bearer_scheme),
++) -> None:
++    if not settings.laya_api_key or not settings.laya_api_key.get_secret_value():
++        return
++
++    expected_key = settings.laya_api_key.get_secret_value()
++    if not credentials or not secrets.compare_digest(credentials.credentials, expected_key):
++        raise HTTPException(
++            status_code=status.HTTP_401_UNAUTHORIZED,
++            detail="Missing or invalid API key",
++        )
