@@ -1,8 +1,8 @@
-# Laya TypeSafe Jev API Implementation Plan
+# System One (Laya) TypeSafe Jev API Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a FastAPI service wrapping the Laya System 1 decision model to provide an HTTP API fully compatible with TypeSafe Jev (`POST /v1/systemone`).
+**Goal:** Build a FastAPI service named system-one wrapping the Laya System 1 decision model to provide an HTTP API fully compatible with TypeSafe Jev (`POST /v1/systemone`).
 
 **Architecture:** A lightweight FastAPI server preloads `laya.Router` on startup within the application lifespan. Incoming requests are authenticated, validated against TypeSafe Jev schemas (`noul`, `choice`, `score`), executed against the Laya router in a worker thread, and mapped back to the calibrated Jev response format with usage metrics.
 
@@ -33,7 +33,7 @@
 ### Task 1: TypeSafe Jev Request & Response Schemas
 
 **Files:**
-- Create: `src/laya/schemas.py`
+- Create: `src/system_one/schemas.py`
 - Test: `tests/test_schemas.py`
 
 **Interfaces:**
@@ -50,7 +50,7 @@
 # tests/test_schemas.py
 import pytest
 from pydantic import ValidationError
-from laya.schemas import (
+from system_one.schemas import (
     NoulQuestion,
     ChoiceQuestion,
     ScoreQuestion,
@@ -126,12 +126,12 @@ def test_valid_response_schema():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_schemas.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'laya.schemas'`
+Expected: FAIL with `ModuleNotFoundError: No module named 'system_one.schemas'`
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/laya/schemas.py
+# src/system_one/schemas.py
 from typing import Annotated, Any, Literal, Union
 from pydantic import BaseModel, Field
 
@@ -200,7 +200,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/laya/schemas.py tests/test_schemas.py
+git add src/system_one/schemas.py tests/test_schemas.py
 git commit -m "feat: add TypeSafe Jev request and response schemas"
 ```
 
@@ -209,12 +209,12 @@ git commit -m "feat: add TypeSafe Jev request and response schemas"
 ### Task 2: Laya Output Adapter & Response Normalizer
 
 **Files:**
-- Create: `src/laya/adapter.py`
+- Create: `src/system_one/adapter.py`
 - Test: `tests/test_adapter.py`
 
 **Interfaces:**
 - Consumes:
-  - `src/laya/schemas.py`: `Question`, `NoulQuestion`, `ChoiceQuestion`, `ScoreQuestion`, `SystemOneResponse`, `NoulAnswer`, `ChoiceAnswer`, `ScoreAnswer`, `Usage`
+  - `src/system_one/schemas.py`: `Question`, `NoulQuestion`, `ChoiceQuestion`, `ScoreQuestion`, `SystemOneResponse`, `NoulAnswer`, `ChoiceAnswer`, `ScoreAnswer`, `Usage`
 - Produces:
   - `format_jev_response(model_name: str, laya_answers: dict, questions: dict[str, Question], state: Any) -> SystemOneResponse`
   - `estimate_usage(state: Any, questions: dict[str, Question]) -> Usage`
@@ -223,13 +223,13 @@ git commit -m "feat: add TypeSafe Jev request and response schemas"
 
 ```python
 # tests/test_adapter.py
-from laya.schemas import (
+from system_one.schemas import (
     NoulQuestion,
     ChoiceQuestion,
     ScoreQuestion,
     SystemOneResponse,
 )
-from laya.adapter import format_jev_response, estimate_usage
+from system_one.adapter import format_jev_response, estimate_usage
 
 def test_format_jev_response_mapping():
     questions = {
@@ -284,15 +284,15 @@ def test_estimate_usage():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_adapter.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'laya.adapter'`
+Expected: FAIL with `ModuleNotFoundError: No module named 'system_one.adapter'`
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/laya/adapter.py
+# src/system_one/adapter.py
 import json
 from typing import Any
-from laya.schemas import (
+from system_one.schemas import (
     Answer,
     ChoiceAnswer,
     ChoiceQuestion,
@@ -369,7 +369,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/laya/adapter.py tests/test_adapter.py
+git add src/system_one/adapter.py tests/test_adapter.py
 git commit -m "feat: add Laya output adapter and response normalizer"
 ```
 
@@ -378,14 +378,14 @@ git commit -m "feat: add Laya output adapter and response normalizer"
 ### Task 3: FastAPI Application & Endpoints (`GET /healthz`, `POST /v1/systemone`)
 
 **Files:**
-- Create: `src/laya/app.py`
-- Modify: `src/laya/__init__.py`
+- Create: `src/system_one/app.py`
+- Modify: `src/system_one/__init__.py`
 - Test: `tests/test_api.py`
 
 **Interfaces:**
 - Consumes:
-  - `src/laya/schemas.py`: `SystemOneRequest`, `SystemOneResponse`
-  - `src/laya/adapter.py`: `format_jev_response`
+  - `src/system_one/schemas.py`: `SystemOneRequest`, `SystemOneResponse`
+  - `src/system_one/adapter.py`: `format_jev_response`
 - Produces:
   - `app`: FastAPI application instance
   - `create_app()`: Application factory
@@ -398,7 +398,7 @@ import os
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 import pytest
-from laya.app import create_app
+from system_one.app import create_app
 
 @pytest.fixture
 def client_no_auth():
@@ -462,20 +462,20 @@ def test_systemone_invalid_schema(client_no_auth):
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_api.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'laya.app'`
+Expected: FAIL with `ModuleNotFoundError: No module named 'system_one.app'`
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/laya/app.py
+# src/system_one/app.py
 import os
 from contextlib import asynccontextmanager
 from typing import Any
 from fastapi import FastAPI, Depends, HTTPException, Security, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from laya.schemas import SystemOneRequest, SystemOneResponse
-from laya.adapter import format_jev_response
+from system_one.schemas import SystemOneRequest, SystemOneResponse
+from system_one.adapter import format_jev_response
 
 security = HTTPBearer(auto_error=False)
 
@@ -530,7 +530,7 @@ def create_app(mock_router: bool = False) -> FastAPI:
         if hasattr(app.state, "router") and hasattr(app.state.router, "unload"):
             app.state.router.unload()
 
-    app = FastAPI(title="Laya TypeSafe Jev API", lifespan=lifespan)
+    app = FastAPI(title="System One (Laya) API", lifespan=lifespan)
 
     @app.get("/healthz")
     def healthz() -> dict[str, Any]:
@@ -563,17 +563,17 @@ def create_app(mock_router: bool = False) -> FastAPI:
 app = create_app()
 ```
 
-Modify `src/laya/__init__.py`:
+Modify `src/system_one/__init__.py`:
 ```python
-# src/laya/__init__.py
-from laya.app import app, create_app
+# src/system_one/__init__.py
+from system_one.app import app, create_app
 
 def main() -> None:
     import uvicorn
     import os
     port = int(os.getenv("PORT", "8000"))
     host = os.getenv("HOST", "0.0.0.0")
-    uvicorn.run("laya.app:app", host=host, port=port, reload=False)
+    uvicorn.run("system_one.app:app", host=host, port=port, reload=False)
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -584,6 +584,6 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/laya/app.py src/laya/__init__.py tests/test_api.py
+git add src/system_one/app.py src/system_one/__init__.py tests/test_api.py
 git commit -m "feat: add FastAPI app and endpoints with auth and lifespan"
 ```
