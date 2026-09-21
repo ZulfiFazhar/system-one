@@ -209,12 +209,12 @@ git commit -m "feat: add TypeSafe Jev request and response schemas"
 ### Task 2: Laya Output Adapter & Response Normalizer
 
 **Files:**
-- Create: `src/system_one/adapter.py`
+- Create: `src/adapter.py`
 - Test: `tests/test_adapter.py`
 
 **Interfaces:**
 - Consumes:
-  - `src/system_one/schemas.py`: `Question`, `NoulQuestion`, `ChoiceQuestion`, `ScoreQuestion`, `SystemOneResponse`, `NoulAnswer`, `ChoiceAnswer`, `ScoreAnswer`, `Usage`
+  - `src/schemas.py`: `Question`, `NoulQuestion`, `ChoiceQuestion`, `ScoreQuestion`, `SystemOneResponse`, `NoulAnswer`, `ChoiceAnswer`, `ScoreAnswer`, `Usage`
 - Produces:
   - `format_jev_response(model_name: str, laya_answers: dict, questions: dict[str, Question], state: Any) -> SystemOneResponse`
   - `estimate_usage(state: Any, questions: dict[str, Question]) -> Usage`
@@ -223,13 +223,13 @@ git commit -m "feat: add TypeSafe Jev request and response schemas"
 
 ```python
 # tests/test_adapter.py
-from system_one.schemas import (
+from schemas import (
     NoulQuestion,
     ChoiceQuestion,
     ScoreQuestion,
     SystemOneResponse,
 )
-from system_one.adapter import format_jev_response, estimate_usage
+from adapter import format_jev_response, estimate_usage
 
 def test_format_jev_response_mapping():
     questions = {
@@ -284,15 +284,15 @@ def test_estimate_usage():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_adapter.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'system_one.adapter'`
+Expected: FAIL with `ModuleNotFoundError: No module named 'adapter'`
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/system_one/adapter.py
+# src/adapter.py
 import json
 from typing import Any
-from system_one.schemas import (
+from schemas import (
     Answer,
     ChoiceAnswer,
     ChoiceQuestion,
@@ -369,7 +369,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/system_one/adapter.py tests/test_adapter.py
+git add src/adapter.py tests/test_adapter.py
 git commit -m "feat: add Laya output adapter and response normalizer"
 ```
 
@@ -378,14 +378,14 @@ git commit -m "feat: add Laya output adapter and response normalizer"
 ### Task 3: FastAPI Application & Endpoints (`GET /healthz`, `POST /v1/systemone`)
 
 **Files:**
-- Create: `src/system_one/app.py`
-- Modify: `src/system_one/__init__.py`
+- Create: `src/app.py`
+- Modify: `src/__init__.py`
 - Test: `tests/test_api.py`
 
 **Interfaces:**
 - Consumes:
-  - `src/system_one/schemas.py`: `SystemOneRequest`, `SystemOneResponse`
-  - `src/system_one/adapter.py`: `format_jev_response`
+  - `src/schemas.py`: `SystemOneRequest`, `SystemOneResponse`
+  - `src/adapter.py`: `format_jev_response`
 - Produces:
   - `app`: FastAPI application instance
   - `create_app()`: Application factory
@@ -398,7 +398,7 @@ import os
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 import pytest
-from system_one.app import create_app
+from app import create_app
 
 @pytest.fixture
 def client_no_auth():
@@ -462,20 +462,20 @@ def test_systemone_invalid_schema(client_no_auth):
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_api.py -v`
-Expected: FAIL with `ModuleNotFoundError: No module named 'system_one.app'`
+Expected: FAIL with `ModuleNotFoundError: No module named 'app'`
 
 - [ ] **Step 3: Write minimal implementation**
 
 ```python
-# src/system_one/app.py
+# src/app.py
 import os
 from contextlib import asynccontextmanager
 from typing import Any
 from fastapi import FastAPI, Depends, HTTPException, Security, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from system_one.schemas import SystemOneRequest, SystemOneResponse
-from system_one.adapter import format_jev_response
+from schemas import SystemOneRequest, SystemOneResponse
+from adapter import format_jev_response
 
 security = HTTPBearer(auto_error=False)
 
@@ -563,17 +563,17 @@ def create_app(mock_router: bool = False) -> FastAPI:
 app = create_app()
 ```
 
-Modify `src/system_one/__init__.py`:
+Modify `src/__init__.py`:
 ```python
-# src/system_one/__init__.py
-from system_one.app import app, create_app
+# src/__init__.py
+from app import app, create_app
 
 def main() -> None:
     import uvicorn
     import os
     port = int(os.getenv("PORT", "8000"))
     host = os.getenv("HOST", "0.0.0.0")
-    uvicorn.run("system_one.app:app", host=host, port=port, reload=False)
+    uvicorn.run("app:app", host=host, port=port, reload=False)
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -584,6 +584,6 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/system_one/app.py src/system_one/__init__.py tests/test_api.py
+git add src/app.py src/__init__.py tests/test_api.py
 git commit -m "feat: add FastAPI app and endpoints with auth and lifespan"
 ```
