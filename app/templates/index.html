@@ -666,6 +666,37 @@ print(response.json()["answers"])</pre>
                                 />
                             </div>
 
+                            <!-- OpenRouter API Key for Compare Mode -->
+                            <div
+                                id="openrouter-auth-card"
+                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
+                            >
+                                <div class="flex items-center justify-between mb-1">
+                                    <label
+                                        for="openrouter-key-input"
+                                        class="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200"
+                                    >
+                                        OpenRouter API Key (For Compare)
+                                    </label>
+                                    <span
+                                        class="text-[10px] font-mono px-1.5 py-0.5 border border-cyan-500/40 bg-cyan-950/40 text-cyan-400"
+                                        title="Direct browser HTTPS request"
+                                    >
+                                        Client-Side Only
+                                    </span>
+                                </div>
+                                <p class="text-xs text-zinc-400 mb-2">
+                                    Mandatory for the Compare tab to query <code class="font-mono text-zinc-300">typesafe/jev-1.13</code> on OpenRouter. Handled directly by your browser via HTTPS. Never sent to or accessible by our backend server.
+                                </p>
+                                <input
+                                    id="openrouter-key-input"
+                                    type="password"
+                                    placeholder="sk-or-v1-..."
+                                    class="brutal-input w-full px-3 py-2 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] focus-visible:outline-white"
+                                    autocomplete="off"
+                                />
+                            </div>
+
                             <!-- State Input -->
                             <div
                                 class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
@@ -817,6 +848,13 @@ print(response.json()["answers"])</pre>
                                         </button>
                                         <button
                                             type="button"
+                                            id="tab-compare"
+                                            class="px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]"
+                                        >
+                                            Compare
+                                        </button>
+                                        <button
+                                            type="button"
                                             id="tab-raw"
                                             class="px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]"
                                         >
@@ -854,6 +892,44 @@ print(response.json()["answers"])</pre>
                                         class="hidden space-y-4"
                                     >
                                         <!-- Dynamic answers inserted here -->
+                                    </div>
+                                </div>
+
+                                <!-- Compare Results View -->
+                                <div id="compare-results" class="hidden space-y-4">
+                                    <div
+                                        id="compare-empty"
+                                        class="text-center py-20 text-zinc-400"
+                                    >
+                                        <div
+                                            class="w-10 h-10 border border-[#3f3f46] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-[#18181b] text-zinc-300"
+                                        >
+                                            VS
+                                        </div>
+                                        <p class="text-sm font-medium text-zinc-300">
+                                            Laya (Local) vs TypeSafe Jev (OpenRouter)
+                                        </p>
+                                        <p class="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
+                                            Enter your OpenRouter API key on the left to benchmark both models side by side.
+                                        </p>
+                                    </div>
+                                    <div id="compare-content" class="hidden space-y-4">
+                                        <!-- Latency & Model Meta Header -->
+                                        <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                                            <div class="p-3 border border-[#27272a] bg-[#0c0c0e]">
+                                                <div class="font-bold text-cyan-400 mb-0.5">Laya Multilingual</div>
+                                                <div class="text-[11px] text-zinc-400">Self-Hosted (Local)</div>
+                                                <div id="compare-laya-latency" class="mt-2 font-bold text-zinc-200">Latency: -- ms</div>
+                                            </div>
+                                            <div class="p-3 border border-[#27272a] bg-[#0c0c0e]">
+                                                <div class="font-bold text-pink-400 mb-0.5">TypeSafe Jev (v1.13)</div>
+                                                <div class="text-[11px] text-zinc-400">OpenRouter Decisions API</div>
+                                                <div id="compare-jev-latency" class="mt-2 font-bold text-zinc-200">Latency: -- ms</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Questions Comparison Cards Container -->
+                                        <div id="compare-cards" class="space-y-4"></div>
                                     </div>
                                 </div>
 

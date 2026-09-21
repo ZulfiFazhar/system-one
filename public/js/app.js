@@ -90,6 +90,7 @@
 
     // DOM Elements
     const apiKeyInput = document.getElementById("api-key-input");
+    const openrouterKeyInput = document.getElementById("openrouter-key-input");
     const stateInput = document.getElementById("state-input");
     const questionsInput = document.getElementById("questions-input");
     const runBtn = document.getElementById("run-btn");
@@ -102,8 +103,15 @@
     const resLatency = document.getElementById("res-latency");
     const resTokens = document.getElementById("res-tokens");
     const tabVisual = document.getElementById("tab-visual");
+    const tabCompare = document.getElementById("tab-compare");
     const tabRaw = document.getElementById("tab-raw");
     const visualResults = document.getElementById("visual-results");
+    const compareResults = document.getElementById("compare-results");
+    const compareEmpty = document.getElementById("compare-empty");
+    const compareContent = document.getElementById("compare-content");
+    const compareCards = document.getElementById("compare-cards");
+    const compareLayaLatency = document.getElementById("compare-laya-latency");
+    const compareJevLatency = document.getElementById("compare-jev-latency");
     const rawResults = document.getElementById("raw-results");
     const resultsEmpty = document.getElementById("results-empty");
     const resultsContent = document.getElementById("results-content");
@@ -113,8 +121,12 @@
     const healthDot = document.getElementById("health-dot");
     const healthText = document.getElementById("health-text");
 
-    // Session Storage for API Key
+    let activeTab = "visual"; // "visual" | "compare" | "raw"
+
+    // Session Storage for API Keys
     const STORAGE_KEY = "system_one_api_key";
+    const OPENROUTER_STORAGE_KEY = "openrouter_api_key";
+
     const savedApiKey = sessionStorage.getItem(STORAGE_KEY);
     if (savedApiKey) {
         apiKeyInput.value = savedApiKey;
@@ -127,6 +139,21 @@
             sessionStorage.removeItem(STORAGE_KEY);
         }
     });
+
+    if (openrouterKeyInput) {
+        const savedORKey = sessionStorage.getItem(OPENROUTER_STORAGE_KEY);
+        if (savedORKey) {
+            openrouterKeyInput.value = savedORKey;
+        }
+        openrouterKeyInput.addEventListener("input", function () {
+            const val = openrouterKeyInput.value.trim();
+            if (val) {
+                sessionStorage.setItem(OPENROUTER_STORAGE_KEY, val);
+            } else {
+                sessionStorage.removeItem(OPENROUTER_STORAGE_KEY);
+            }
+        });
+    }
 
     // Load Preset Function
     function loadPreset(key) {
@@ -164,18 +191,32 @@
     });
 
     // Tab Switching
+    function setTab(tab) {
+        activeTab = tab;
+        const activeClass = "px-2.5 py-1 bg-white text-black font-semibold";
+        const inactiveClass = "px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]";
+
+        tabVisual.className = tab === "visual" ? activeClass : inactiveClass;
+        if (tabCompare) tabCompare.className = tab === "compare" ? activeClass : inactiveClass;
+        tabRaw.className = tab === "raw" ? activeClass : inactiveClass;
+
+        visualResults.classList.toggle("hidden", tab !== "visual");
+        if (compareResults) compareResults.classList.toggle("hidden", tab !== "compare");
+        rawResults.classList.toggle("hidden", tab !== "raw");
+    }
+
     tabVisual.addEventListener("click", function () {
-        tabVisual.className = "px-2.5 py-1 bg-white text-black font-semibold";
-        tabRaw.className = "px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]";
-        visualResults.classList.remove("hidden");
-        rawResults.classList.add("hidden");
+        setTab("visual");
     });
 
+    if (tabCompare) {
+        tabCompare.addEventListener("click", function () {
+            setTab("compare");
+        });
+    }
+
     tabRaw.addEventListener("click", function () {
-        tabRaw.className = "px-2.5 py-1 bg-white text-black font-semibold";
-        tabVisual.className = "px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]";
-        visualResults.classList.add("hidden");
-        rawResults.classList.remove("hidden");
+        setTab("raw");
     });
 
     // Error Display Helpers
@@ -429,6 +470,172 @@
         return card;
     }
 
+    function renderModelAnswerDetails(container, ans) {
+        if (!ans) {
+            const na = document.createElement("div");
+            na.className = "text-zinc-500 italic text-[11px]";
+            na.textContent = "No answer returned";
+            container.appendChild(na);
+            return;
+        }
+
+        if (ans.type === "noul") {
+            const prob = typeof ans.noul === "number" ? ans.noul : 0;
+            const pct = (prob * 100).toFixed(1);
+            const row = document.createElement("div");
+            row.className = "flex items-center justify-between text-xs";
+            row.innerHTML = `<span class="text-zinc-400">Probability:</span><span class="font-bold text-white font-mono">${pct}% (${prob.toFixed(4)})</span>`;
+            container.appendChild(row);
+
+            const barBg = document.createElement("div");
+            barBg.className = "w-full h-1.5 bg-zinc-900 border border-zinc-800 overflow-hidden mt-1";
+            const barFill = document.createElement("div");
+            barFill.className = "h-full bg-cyan-400 progress-bar-fill";
+            barFill.style.width = pct + "%";
+            barBg.appendChild(barFill);
+            container.appendChild(barBg);
+        } else if (ans.type === "choice") {
+            const chosen = ans.choice || "";
+            const conf = typeof ans.confidence === "number" ? (ans.confidence * 100).toFixed(1) : "0.0";
+            const row = document.createElement("div");
+            row.className = "flex items-center justify-between text-xs";
+            row.innerHTML = `<span class="text-zinc-400">Choice:</span><span class="font-bold text-white font-mono px-1.5 py-0.5 border border-[#3f3f46] bg-[#18181b]">${chosen} (${conf}%)</span>`;
+            container.appendChild(row);
+
+            if (ans.probabilities && typeof ans.probabilities === "object") {
+                const probList = document.createElement("div");
+                probList.className = "space-y-1 pt-1.5";
+                for (const k in ans.probabilities) {
+                    const p = ans.probabilities[k];
+                    const pct = (p * 100).toFixed(1);
+                    const isChosen = k === chosen;
+                    const item = document.createElement("div");
+                    item.className = "flex justify-between text-[11px] font-mono " + (isChosen ? "text-white font-bold" : "text-zinc-400");
+                    item.innerHTML = `<span>${k}${isChosen ? " &#10003;" : ""}:</span><span>${pct}%</span>`;
+                    probList.appendChild(item);
+                }
+                container.appendChild(probList);
+            }
+        } else if (ans.type === "score") {
+            const score = typeof ans.score === "number" ? ans.score.toFixed(2) : "0";
+            const conf = typeof ans.confidence === "number" ? (ans.confidence * 100).toFixed(1) : "0.0";
+            const row = document.createElement("div");
+            row.className = "flex items-center justify-between text-xs";
+            row.innerHTML = `<span class="text-zinc-400">Score:</span><span class="font-bold text-white font-mono">${score} (${conf}%)</span>`;
+            container.appendChild(row);
+
+            if (ans.probabilities && typeof ans.probabilities === "object") {
+                const probList = document.createElement("div");
+                probList.className = "space-y-1 pt-1.5";
+                for (const k in ans.probabilities) {
+                    const p = ans.probabilities[k];
+                    const pct = (p * 100).toFixed(1);
+                    const label = (ans.legend && ans.legend[k]) ? ans.legend[k] : k;
+                    const item = document.createElement("div");
+                    item.className = "flex justify-between text-[11px] font-mono text-zinc-400";
+                    item.innerHTML = `<span>${label}:</span><span>${pct}%</span>`;
+                    probList.appendChild(item);
+                }
+                container.appendChild(probList);
+            }
+        }
+    }
+
+    function renderCompareResults(layaData, jevData, layaElapsed, jevElapsed) {
+        if (compareLayaLatency) compareLayaLatency.textContent = "Latency: " + layaElapsed + " ms";
+        if (compareJevLatency) compareJevLatency.textContent = "Latency: " + jevElapsed + " ms";
+
+        if (!compareCards) return;
+        compareCards.innerHTML = "";
+
+        const layaAnswers = layaData.answers || {};
+        const jevAnswers = jevData.answers || {};
+        const allKeys = Array.from(new Set([...Object.keys(layaAnswers), ...Object.keys(jevAnswers)]));
+
+        if (allKeys.length === 0) {
+            compareCards.innerHTML = '<div class="text-xs font-mono text-zinc-500 italic p-4 text-center">No questions evaluated.</div>';
+            return;
+        }
+
+        for (const qKey of allKeys) {
+            const layaAns = layaAnswers[qKey];
+            const jevAns = jevAnswers[qKey];
+
+            const card = document.createElement("div");
+            card.className = "border border-[#27272a] p-4 bg-[#141417] text-white shadow-hard";
+
+            const header = document.createElement("div");
+            header.className = "flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-zinc-800 pb-2";
+
+            const titleDiv = document.createElement("div");
+            titleDiv.className = "flex items-center gap-2";
+            const keySpan = document.createElement("span");
+            keySpan.className = "font-mono font-bold text-sm text-white";
+            keySpan.textContent = qKey;
+            const typeSpan = document.createElement("span");
+            typeSpan.className = "text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-zinc-300";
+            typeSpan.textContent = (layaAns ? layaAns.type : (jevAns ? jevAns.type : "unknown"));
+            titleDiv.appendChild(keySpan);
+            titleDiv.appendChild(typeSpan);
+
+            // Calculate Agreement Badge
+            const agreeBadge = document.createElement("span");
+            agreeBadge.className = "text-xs font-mono px-2 py-0.5 border";
+
+            let isMatch = false;
+            if (layaAns && jevAns && layaAns.type === jevAns.type) {
+                if (layaAns.type === "choice") {
+                    isMatch = layaAns.choice === jevAns.choice;
+                } else if (layaAns.type === "noul") {
+                    isMatch = Math.abs((layaAns.noul || 0) - (jevAns.noul || 0)) <= 0.25;
+                } else if (layaAns.type === "score") {
+                    isMatch = Math.abs((layaAns.score || 0) - (jevAns.score || 0)) <= 0.6;
+                }
+            }
+
+            if (isMatch) {
+                agreeBadge.className += " border-emerald-500/40 bg-emerald-950/40 text-emerald-400";
+                agreeBadge.textContent = "Consensus Match";
+            } else {
+                agreeBadge.className += " border-yellow-500/40 bg-yellow-950/40 text-yellow-300";
+                agreeBadge.textContent = "Divergent Decision";
+            }
+
+            header.appendChild(titleDiv);
+            header.appendChild(agreeBadge);
+            card.appendChild(header);
+
+            // Comparison columns: Laya vs Jev
+            const grid = document.createElement("div");
+            grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono";
+
+            const layaCol = document.createElement("div");
+            layaCol.className = "p-3 border border-[#27272a] bg-[#0c0c0e] space-y-2";
+            const layaTitle = document.createElement("div");
+            layaTitle.className = "font-bold text-cyan-400 text-xs flex items-center justify-between border-b border-zinc-800 pb-1";
+            layaTitle.innerHTML = "<span>Laya Multilingual (Local)</span>";
+            layaCol.appendChild(layaTitle);
+            renderModelAnswerDetails(layaCol, layaAns);
+
+            const jevCol = document.createElement("div");
+            jevCol.className = "p-3 border border-[#27272a] bg-[#0c0c0e] space-y-2";
+            const jevTitle = document.createElement("div");
+            jevTitle.className = "font-bold text-pink-400 text-xs flex items-center justify-between border-b border-zinc-800 pb-1";
+            jevTitle.innerHTML = "<span>TypeSafe Jev (OpenRouter)</span>";
+            jevCol.appendChild(jevTitle);
+            renderModelAnswerDetails(jevCol, jevAns);
+
+            grid.appendChild(layaCol);
+            grid.appendChild(jevCol);
+            card.appendChild(grid);
+
+            compareCards.appendChild(card);
+        }
+
+        if (compareEmpty) compareEmpty.classList.add("hidden");
+        if (compareContent) compareContent.classList.remove("hidden");
+    }
+
     // Run Evaluation Handler
     runBtn.addEventListener("click", async function () {
         hideError();
@@ -451,9 +658,21 @@
             return;
         }
 
+        const isCompare = (activeTab === "compare");
+        const openrouterKey = openrouterKeyInput ? openrouterKeyInput.value.trim() : "";
+
+        if (isCompare && !openrouterKey) {
+            showError(
+                "OpenRouter Key Required",
+                "Please enter your OpenRouter API key in the field on the left to benchmark against typesafe/jev-1.13."
+            );
+            if (openrouterKeyInput) openrouterKeyInput.focus();
+            return;
+        }
+
         runBtn.disabled = true;
         runSpinner.classList.remove("hidden");
-        runText.textContent = "Evaluating...";
+        runText.textContent = isCompare ? "Running Comparison..." : "Evaluating...";
 
         const payload = {
             state: stateText,
@@ -472,6 +691,7 @@
         const startTime = performance.now();
 
         try {
+            // Step 1: Execute Laya call on this server (strictly checks rate limit)
             const response = await fetch("/v1/systemone", {
                 method: "POST",
                 headers: headers,
@@ -491,8 +711,9 @@
                 } catch (err) {
                     errDetail = await response.text();
                 }
-                showError("Inference Request Failed (" + response.status + ")", errDetail);
+                showError("Laya Inference Failed (" + response.status + ")", errDetail);
                 rawJson.textContent = errDetail;
+                // If Laya rate limits or fails, halt immediately (no comparison shown)
                 return;
             }
 
@@ -500,27 +721,77 @@
             resStatus.textContent = "200 OK";
             resStatus.classList.remove("hidden");
 
-            const data = await response.json();
+            const layaData = await response.json();
 
             // Update token usage
-            if (data.usage) {
-                resTokens.textContent = "in: " + (data.usage.input_tokens || 0) + " / out: " + (data.usage.output_tokens || 0) + " tok";
+            if (layaData.usage) {
+                resTokens.textContent = "in: " + (layaData.usage.input_tokens || 0) + " / out: " + (layaData.usage.output_tokens || 0) + " tok";
                 resTokens.classList.remove("hidden");
             }
 
-            // Update raw JSON
-            rawJson.textContent = JSON.stringify(data, null, 2);
-
-            // Update visual cards
+            // Update visual cards for Laya
             resultsContent.innerHTML = "";
-            if (data.answers && typeof data.answers === "object") {
-                for (const qKey in data.answers) {
-                    const card = renderAnswerCard(qKey, data.answers[qKey]);
+            if (layaData.answers && typeof layaData.answers === "object") {
+                for (const qKey in layaData.answers) {
+                    const card = renderAnswerCard(qKey, layaData.answers[qKey]);
                     resultsContent.appendChild(card);
                 }
                 resultsEmpty.classList.add("hidden");
                 resultsContent.classList.remove("hidden");
             }
+
+            // Step 2: If in Compare mode, query OpenRouter Decisions API directly from browser
+            if (isCompare) {
+                const jevStartTime = performance.now();
+                let jevResponse;
+                try {
+                    jevResponse = await fetch("https://openrouter.ai/api/alpha/decisions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": "Bearer " + openrouterKey,
+                            "Content-Type": "application/json",
+                            "HTTP-Referer": window.location.origin,
+                            "X-Title": "System One Benchmark",
+                        },
+                        body: JSON.stringify({
+                            model: "typesafe/jev-1.13",
+                            state: stateText,
+                            questions: parsedQuestions,
+                        }),
+                    });
+                } catch (netErr) {
+                    showError("OpenRouter Network Error", "Could not connect to OpenRouter: " + netErr.message);
+                    return;
+                }
+
+                const jevElapsedMs = Math.round(performance.now() - jevStartTime);
+
+                if (!jevResponse.ok) {
+                    let jevErr = "HTTP " + jevResponse.status;
+                    try {
+                        const errJson = await jevResponse.json();
+                        jevErr = JSON.stringify(errJson, null, 2);
+                    } catch (e) {
+                        jevErr = await jevResponse.text();
+                    }
+                    showError("OpenRouter Jev Error (" + jevResponse.status + ")", jevErr);
+                    return;
+                }
+
+                const jevData = await jevResponse.json();
+
+                // Update raw JSON view with both models
+                rawJson.textContent = JSON.stringify({
+                    laya_local: layaData,
+                    typesafe_jev_openrouter: jevData,
+                }, null, 2);
+
+                // Render side by side comparison
+                renderCompareResults(layaData, jevData, elapsedMs, jevElapsedMs);
+            } else {
+                rawJson.textContent = JSON.stringify(layaData, null, 2);
+            }
+
         } catch (netErr) {
             const elapsedMs = Math.round(performance.now() - startTime);
             resLatency.textContent = elapsedMs + " ms";
