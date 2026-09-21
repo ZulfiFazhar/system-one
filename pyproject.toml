@@ -16,7 +16,13 @@ dev = [
 ]
 
 [project.scripts]
-system-one = "system_one:main"
+system-one = "app:main"
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]

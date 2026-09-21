@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from system_one.schemas import (
+from schemas import (
     NoulQuestion,
     ChoiceQuestion,
     ScoreQuestion,
