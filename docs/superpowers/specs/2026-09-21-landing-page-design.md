@@ -56,15 +56,30 @@ Area kerja interaktif bagi developer untuk menguji endpoint inferensi `POST /v1/
    - Token usage indicator (input tokens dan output tokens).
    - Tab switch: Tampilan Visual vs Raw JSON output.
 
-### 3.4 Technical Architecture & FAQ
+### 3.4 Model Card & Author Attribution (Convai Innovations)
+Bagian khusus untuk mengatribusikan karya dan menampilkan informasi teknis model Laya:
+- **Author Attribution**: Dikembangkan oleh **Convai Innovations** (`convaiinnovations`) dan Nandha Kishor.
+- **Model Card Highlights (`convaiinnovations/laya-multilingual`)**:
+  - Backbone: mmBERT-base (bidirectional, 22 layer, hidden 768, 256k vocabulary) + decision head 2 layer terlatih khusus dari scratch.
+  - Parameter: 322 Juta (322M).
+  - Context Window: 1024 token per pertanyaan (256 dialokasikan untuk pertanyaan dan opsi).
+  - Training Method: RLCD (Reinforcement Learning from Calibrated Decisions), 15.987 update, 4 epoch.
+  - Coverage: 100+ bahasa (evaluasi pada 51 bahasa MASSIVE, peningkatan akurasi signifikan pada non-Latin scripts dibanding model bahasa Inggris).
+  - Kecepatan: ~32.8 ms untuk forward pass tunggal, hingga 332 pertanyaan/detik secara ter-batch pada T4 GPU.
+- **Tautan Eksternal**:
+  - Hugging Face Model Card: `https://huggingface.co/convaiinnovations/laya-multilingual`
+  - Laya Family Collection: `https://huggingface.co/convaiinnovations/laya`
+  - Lisensi Asli: Apache 2.0.
+
+### 3.5 Technical Architecture & FAQ
 - Pertanyaan teknis konkret:
   - *Bagaimana System 1 bekerja tanpa autoregressive decoding?*
   - *Bagaimana probabilitas dikalibrasi?*
   - *Bagaimana cara integrasi ke backend yang ada?*
 - Contoh curl request yang dapat disalin dengan tombol "Copy Curl".
 
-### 3.5 Footer
-- Versi service, status penyimpanan lokal (`models/laya-multilingual`), lisensi Apache 2.0.
+### 3.6 Footer
+- Versi service, status penyimpanan lokal (`models/laya-multilingual`), atribusi Convai Innovations, dan lisensi Apache 2.0.
 
 ## 4. Technical Implementation & Delivery Plan
 - **Backend**:
