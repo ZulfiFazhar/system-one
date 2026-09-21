@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,11 +91,15 @@
                 </a>
             </div>
 
-            <nav class="flex items-center gap-4 text-sm font-medium">
-                <a href="#playground" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">Playground</a>
-                <a href="#model-card" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">Model Card</a>
-                <a href="#faq" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">FAQ</a>
-                <a href="/docs" target="_blank" rel="noopener noreferrer" class="brutal-btn px-3 py-1.5 bg-[#fefefe] hover:bg-gray-100 font-mono text-xs flex items-center gap-1">
+            <nav class="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-medium">
+                <a href="#playground" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-1 sm:px-2 py-1">Playground</a>
+                <a href="#model-card" class="hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-1 sm:px-2 py-1">Model Card</a>
+                <a href="#faq" class="hidden sm:inline hover:underline focus-visible:ring-2 focus-visible:ring-[#1E1E1E] px-2 py-1">FAQ</a>
+                <a href="https://github.com/ZulfiFazhar/system-one" target="_blank" rel="noopener noreferrer" class="brutal-btn px-2.5 sm:px-3 py-1.5 bg-white hover:bg-gray-100 font-mono text-xs flex items-center gap-1">
+                    <span>GitHub</span>
+                    <span aria-hidden="true">&nearr;</span>
+                </a>
+                <a href="/docs" target="_blank" rel="noopener noreferrer" class="brutal-btn px-2.5 sm:px-3 py-1.5 bg-[#1E1E1E] text-white hover:bg-black font-mono text-xs flex items-center gap-1">
                     <span>API Docs</span>
                     <span aria-hidden="true">&nearr;</span>
                 </a>
@@ -189,7 +193,7 @@
                                 Bearer API Key (Optional)
                             </label>
                             <p class="text-xs text-[#555555] mb-2">
-                                Stored in session storage for subsequent requests. Leave blank if local service authentication is disabled.
+                                Stored in session storage. Leave blank for public access (rate limited to 10 requests per minute per IP), or enter your configured API key for unlimited access.
                             </p>
                             <input
                                 id="api-key-input"
@@ -326,24 +330,34 @@
 
                 <!-- Attribution Card -->
                 <div class="brutal-card p-6 mb-8 bg-[#fefefe]">
-                    <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#555555] mb-4">Original Creators & Upstream Repositories</div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="text-xs font-mono font-bold uppercase tracking-wider text-[#555555] mb-4">Project Credits, Author & Upstream Repositories</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="border border-[#1E1E1E] p-4 bg-white">
-                            <div class="text-xs font-mono text-[#555555] mb-1">Organization</div>
-                            <div class="font-bold text-sm mb-2">Convai Innovations</div>
-                            <p class="text-xs text-[#555555] mb-3">Research laboratory specializing in efficient decision-first architectures.</p>
-                            <a href="https://huggingface.co/convaiinnovations" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
-                                <span>huggingface.co/convaiinnovations</span>
+                            <div class="text-xs font-mono text-[#555555] mb-1">Web & Public API</div>
+                            <div class="font-bold text-sm mb-2">Zulfi Fazhar</div>
+                            <p class="text-xs text-[#555555] mb-3">FastAPI service wrapper, TypeSafe Jev specification compatibility, and developer playground interface.</p>
+                            <a href="https://github.com/ZulfiFazhar/system-one" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                <span>github.com/ZulfiFazhar/system-one</span>
                                 <span aria-hidden="true">&nearr;</span>
                             </a>
                         </div>
 
                         <div class="border border-[#1E1E1E] p-4 bg-white">
-                            <div class="text-xs font-mono text-[#555555] mb-1">Author</div>
+                            <div class="text-xs font-mono text-[#555555] mb-1">Model Author</div>
                             <div class="font-bold text-sm mb-2">Nandha Kishor</div>
-                            <p class="text-xs text-[#555555] mb-3">Model architecture design, pretraining, and RLCD alignment implementation.</p>
+                            <p class="text-xs text-[#555555] mb-3">Laya model architecture design, pretraining, and RLCD alignment implementation.</p>
                             <a href="https://github.com/NandhaKishorM/laya" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
                                 <span>github.com/NandhaKishorM/laya</span>
+                                <span aria-hidden="true">&nearr;</span>
+                            </a>
+                        </div>
+
+                        <div class="border border-[#1E1E1E] p-4 bg-white">
+                            <div class="text-xs font-mono text-[#555555] mb-1">Model Research</div>
+                            <div class="font-bold text-sm mb-2">Convai Innovations</div>
+                            <p class="text-xs text-[#555555] mb-3">Research laboratory specializing in efficient decision-first architectures.</p>
+                            <a href="https://huggingface.co/convaiinnovations" target="_blank" rel="noopener noreferrer" class="text-xs font-mono underline hover:text-black flex items-center gap-1">
+                                <span>huggingface.co/convaiinnovations</span>
                                 <span aria-hidden="true">&nearr;</span>
                             </a>
                         </div>
@@ -493,12 +507,13 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#555555]">
             <div>
                 <div class="font-extrabold text-[#1E1E1E] text-sm tracking-tight mb-1">System One</div>
-                <p>Non-autoregressive decision model service. Apache 2.0 License.</p>
+                <p>Public web interface & API wrapper created by <a href="https://github.com/ZulfiFazhar/system-one" target="_blank" rel="noopener noreferrer" class="font-bold text-[#1E1E1E] underline hover:text-black">Zulfi Fazhar</a>. Apache 2.0 License.</p>
                 <p class="mt-1">Model authored by Convai Innovations and Nandha Kishor.</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-6 font-mono">
-                <a href="https://github.com/NandhaKishorM/laya" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">GitHub</a>
+                <a href="https://github.com/ZulfiFazhar/system-one" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">GitHub (system-one)</a>
+                <a href="https://github.com/NandhaKishorM/laya" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">GitHub (Laya Model)</a>
                 <a href="https://huggingface.co/convaiinnovations/laya-multilingual" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">Hugging Face</a>
                 <a href="/docs" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">OpenAPI Docs</a>
                 <a href="/healthz" target="_blank" rel="noopener noreferrer" class="hover:text-black underline">Health Check</a>

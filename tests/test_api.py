@@ -22,12 +22,38 @@ def test_home_landing_page(client_no_auth):
     assert "We took the opposite research direction" in resp.text
 
 
-def test_systemone_unauthorized(client_with_auth):
-    resp = client_with_auth.post("/v1/systemone", json={
-        "state": "test",
+def test_systemone_public_access_and_rate_limit(client_with_auth, monkeypatch):
+    from app.core.config import settings
+    from app.core.security import reset_rate_limits
+
+    reset_rate_limits()
+    monkeypatch.setattr(settings, "rate_limit_requests", 2)
+    monkeypatch.setattr(settings, "rate_limit_window_seconds", 60)
+
+    # 1st request without key (public access) -> 200 OK
+    resp1 = client_with_auth.post("/v1/systemone", json={
+        "state": "test public 1",
         "questions": {"q": {"type": "noul", "instructions": "test"}}
     })
-    assert resp.status_code == 401
+    assert resp1.status_code == 200
+
+    # 2nd request without key -> 200 OK
+    resp2 = client_with_auth.post("/v1/systemone", json={
+        "state": "test public 2",
+        "questions": {"q": {"type": "noul", "instructions": "test"}}
+    })
+    assert resp2.status_code == 200
+
+    # 3rd request exceeds limit -> 429 Too Many Requests
+    resp3 = client_with_auth.post("/v1/systemone", json={
+        "state": "test public 3",
+        "questions": {"q": {"type": "noul", "instructions": "test"}}
+    })
+    assert resp3.status_code == 429
+    assert "Public rate limit exceeded" in resp3.json()["detail"]
+    assert "Retry-After" in resp3.headers
+
+    reset_rate_limits()
 
 
 def test_systemone_authorized(client_with_auth):
@@ -114,21 +140,24 @@ def test_lifespan_lifecycle(test_app):
 
 def test_verify_api_key_constant_time(monkeypatch):
     import secrets
-    from unittest.mock import patch
+    from unittest.mock import MagicMock, patch
     from fastapi import HTTPException
     from fastapi.security import HTTPAuthorizationCredentials
     from app.core.config import settings
     from app.core.security import verify_api_key
 
+    mock_request = MagicMock()
+    mock_request.client.host = "127.0.0.1"
+
     monkeypatch.setattr(settings, "laya_api_key", SecretStr("secret-val"))
     with patch("secrets.compare_digest", wraps=secrets.compare_digest) as mock_compare:
         creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="secret-val")
-        verify_api_key(creds)
+        verify_api_key(mock_request, creds)
         mock_compare.assert_called_with("secret-val", "secret-val")
 
         mock_compare.reset_mock()
         with pytest.raises(HTTPException) as exc_info:
             bad_creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="wrong-val")
-            verify_api_key(bad_creds)
+            verify_api_key(mock_request, bad_creds)
         assert exc_info.value.status_code == 401
         mock_compare.assert_called_with("wrong-val", "secret-val")

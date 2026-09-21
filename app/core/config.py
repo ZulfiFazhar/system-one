@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     laya_device: str = "auto"
     laya_preload: bool = True
 
+    # Public Rate Limiting (when no API key is provided)
+    rate_limit_enabled: bool = True
+    rate_limit_requests: int = 10
+    rate_limit_window_seconds: int = 60
+
     log_level: str = "INFO"
     log_format: str = " ▕  %(levelname)s - %(asctime)s - %(message)s"
 

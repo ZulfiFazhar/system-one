@@ -116,11 +116,14 @@ Semua pertanyaan dalam satu request dieksekusi **paralel** dalam satu forward pa
 
 | Variabel | Default | Keterangan |
 |---|---|---|
-| `LAYA_API_KEY` | — | Bearer token auth. Kosong = auth dinonaktifkan. |
+| `LAYA_API_KEY` | — | Bearer token auth untuk bypass rate limit. |
 | `LAYA_MODEL_ID` | `convaiinnovations/laya-multilingual` | HF repo ID untuk auto-download saat startup pertama. |
 | `LAYA_MODEL_PATH` | `models/laya-multilingual` | Path lokal folder model Laya (offline). |
 | `LAYA_DEVICE` | `auto` | Device PyTorch: `cuda`, `cpu`, `mps`, atau `auto`. |
 | `LAYA_PRELOAD` | `true` | Preload model saat server start. |
+| `RATE_LIMIT_ENABLED` | `true` | Aktifkan rate limiting IP untuk request publik tanpa API key. |
+| `RATE_LIMIT_REQUESTS` | `10` | Maksimum request publik per IP dalam window. |
+| `RATE_LIMIT_WINDOW_SECONDS` | `60` | Durasi window rate limiting dalam detik. |
 | `PORT` | `8000` | Port server. |
 | `HOST` | `0.0.0.0` | Host binding. |
 
@@ -173,6 +176,11 @@ uv run pytest -v
 | `convaiinnovations/laya-typed-decisions` | ModernBERT-large | 421M | Typed-decisions workflows (akurasi 0.766) |
 
 Router otomatis mendeteksi skrip/bahasa dan memilih checkpoint optimal.
+
+## Credits & Attribution
+
+- **Public Web UI & API Wrapper**: Dibuat dan dikembangkan oleh [Zulfi Fazhar](https://github.com/ZulfiFazhar/system-one).
+- **Model Laya & Checkpoint Multilingual**: Diteliti dan dirilis oleh [Convai Innovations](https://huggingface.co/convaiinnovations) dan [Nandha Kishor](https://github.com/NandhaKishorM/laya).
 
 ## Lisensi
 
