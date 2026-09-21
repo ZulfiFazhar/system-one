@@ -222,9 +222,16 @@
         <main class="flex-grow">
             <!-- Hero Section -->
             <section
-                class="border-b border-[#1E1E1E] py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fefefe]"
+                class="border-b border-[#1E1E1E] py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#fefefe] relative overflow-hidden"
             >
-                <div class="max-w-5xl mx-auto">
+                <!-- Machine-Native ASCII Decision Stream Canvas -->
+                <canvas
+                    id="ascii-canvas"
+                    class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07] select-none z-0"
+                    aria-hidden="true"
+                ></canvas>
+
+                <div class="max-w-5xl mx-auto relative z-10">
                     <div
                         class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-6 bg-[#f386a1]/30"
                     >
@@ -338,13 +345,22 @@
             <!-- Foundation & System One / Jev Compatibility Section -->
             <section
                 id="system-one-spec"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-white"
+                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#fdfafc]"
             >
                 <div class="max-w-5xl mx-auto reveal-on-scroll">
-                    <div
-                        class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase mb-4 bg-[#f386a1]/20"
-                    >
-                        Foundation &amp; Specification
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        <div
+                            class="inline-block px-3 py-1 border border-[#1E1E1E] text-xs font-mono font-semibold tracking-wider uppercase bg-[#f386a1]/20"
+                        >
+                            Foundation &amp; Specification
+                        </div>
+                        <div
+                            class="inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#1E1E1E] bg-white font-mono text-[11px] text-[#555555] shadow-hard-sm"
+                            title="Base64 machine-native token"
+                        >
+                            <span class="bg-[#1E1E1E] text-white px-1 text-[10px] font-bold">b.64</span>
+                            <span>VHlwZVNBRkUgU1lTVEVNIE9ORQ==</span>
+                        </div>
                     </div>
                     <h2 class="text-3xl font-extrabold tracking-tight mb-4">
                         What are System One Models and Jev?
@@ -513,7 +529,7 @@ print(response.json()["answers"])</pre>
             <!-- Playground Section -->
             <section
                 id="playground"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-gray-50/50"
+                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#f8f9fb]"
             >
                 <div class="max-w-7xl mx-auto reveal-on-scroll">
                     <div
@@ -793,7 +809,7 @@ print(response.json()["answers"])</pre>
             <!-- Model Card & Author Attribution -->
             <section
                 id="model-card"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#fefefe]"
+                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-[#f5faf8]"
             >
                 <div class="max-w-5xl mx-auto reveal-on-scroll">
                     <div
@@ -1047,7 +1063,7 @@ print(response.json()["answers"])</pre>
             <!-- Technical FAQ Section -->
             <section
                 id="faq"
-                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-gray-50/50"
+                class="border-b border-[#1E1E1E] py-16 px-4 sm:px-6 lg:px-8 bg-white"
             >
                 <div class="max-w-5xl mx-auto reveal-on-scroll">
                     <div
@@ -1174,10 +1190,10 @@ print(response.json()["answers"])</pre>
             </section>
         </main>
 
-        <!-- Footer -->
-        <footer
-            class="border-t border-[#1E1E1E] bg-white py-12 px-4 sm:px-6 lg:px-8"
-        >
+    <!-- Footer -->
+    <footer
+        class="border-t border-[#1E1E1E] bg-[#fbfbfb] py-12 px-4 sm:px-6 lg:px-8"
+    >
             <div
                 class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#555555]"
             >
@@ -1928,6 +1944,76 @@ print(response.json()["answers"])</pre>
                             el.textContent = liveEndpoint;
                         });
                 }
+
+                // Lightweight Machine-Native ASCII Decision Stream Canvas
+                (function initAsciiStream() {
+                    const canvas = document.getElementById("ascii-canvas");
+                    if (!canvas) return;
+                    const ctx = canvas.getContext("2d");
+                    if (!ctx) return;
+
+                    function resize() {
+                        canvas.width = canvas.offsetWidth;
+                        canvas.height = canvas.offsetHeight;
+                    }
+                    resize();
+
+                    const tokens = [
+                        "0.98", "0.02", "λ", "∫", "∵", "∴", "[b.64]", "noul", "choice", "score",
+                        "1.00", "0.42", "act", "calibrated", "Q_rsqrt", "state", "tensor", "0", "1", "0.85"
+                    ];
+                    const columns = Math.max(8, Math.floor(canvas.width / 65));
+                    const drops = [];
+
+                    for (let i = 0; i < columns; i++) {
+                        drops.push({
+                            x: i * 65 + Math.random() * 15,
+                            y: Math.random() * canvas.height,
+                            speed: 0.35 + Math.random() * 0.45,
+                            text: tokens[Math.floor(Math.random() * tokens.length)],
+                        });
+                    }
+
+                    let isVisible = true;
+                    if ("IntersectionObserver" in window) {
+                        const obs = new IntersectionObserver(function (entries) {
+                            isVisible = entries[0].isIntersecting;
+                        });
+                        obs.observe(canvas);
+                    }
+
+                    let lastTime = 0;
+                    function render(time) {
+                        if (!isVisible) {
+                            requestAnimationFrame(render);
+                            return;
+                        }
+                        if (time - lastTime < 45) {
+                            requestAnimationFrame(render);
+                            return;
+                        }
+                        lastTime = time;
+
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = "#1E1E1E";
+                        ctx.font = "11px 'JetBrains Mono', monospace";
+
+                        for (let i = 0; i < drops.length; i++) {
+                            const d = drops[i];
+                            ctx.fillText(d.text, d.x, d.y);
+                            d.y += d.speed;
+                            if (d.y > canvas.height + 20) {
+                                d.y = -15;
+                                d.x = i * 65 + (Math.random() * 20 - 10);
+                                d.text = tokens[Math.floor(Math.random() * tokens.length)];
+                            }
+                        }
+                        requestAnimationFrame(render);
+                    }
+                    requestAnimationFrame(render);
+
+                    window.addEventListener("resize", resize);
+                })();
 
                 // Initialize with default preset
                 loadPreset("billing");
