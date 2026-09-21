@@ -191,24 +191,34 @@
 
     // Health Polling
     async function pollHealth() {
+        const mobileDot = document.getElementById("mobile-health-dot");
+        const mobileText = document.getElementById("mobile-health-text");
         try {
             const resp = await fetch("/health");
             if (resp.ok) {
                 const data = await resp.json();
                 if (data.status === "ready") {
-                    healthDot.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block live-pulse";
-                    healthText.textContent = "Model Ready: " + (data.model || "laya");
+                    if (healthDot) healthDot.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block live-pulse";
+                    if (healthText) healthText.textContent = "Model Ready: " + (data.model || "laya");
+                    if (mobileDot) mobileDot.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block live-pulse";
+                    if (mobileText) mobileText.textContent = "Ready";
                 } else {
-                    healthDot.className = "w-2 h-2 rounded-full bg-yellow-400 inline-block";
-                    healthText.textContent = "Status: " + data.status;
+                    if (healthDot) healthDot.className = "w-2 h-2 rounded-full bg-yellow-400 inline-block";
+                    if (healthText) healthText.textContent = "Status: " + data.status;
+                    if (mobileDot) mobileDot.className = "w-2 h-2 rounded-full bg-yellow-400 inline-block";
+                    if (mobileText) mobileText.textContent = "Wait";
                 }
             } else {
-                healthDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
-                healthText.textContent = "Health HTTP " + resp.status;
+                if (healthDot) healthDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                if (healthText) healthText.textContent = "Health HTTP " + resp.status;
+                if (mobileDot) mobileDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                if (mobileText) mobileText.textContent = "Error";
             }
         } catch (e) {
-            healthDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
-            healthText.textContent = "Service Offline";
+            if (healthDot) healthDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+            if (healthText) healthText.textContent = "Service Offline";
+            if (mobileDot) mobileDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+            if (mobileText) mobileText.textContent = "Offline";
         }
     }
 
@@ -553,6 +563,39 @@
         const liveEndpoint = window.location.origin + "/v1/systemone";
         document.querySelectorAll(".api-endpoint-url").forEach(function (el) {
             el.textContent = liveEndpoint;
+        });
+    }
+
+    // Mobile Navigation Drawer Toggle
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const menuIconOpen = document.getElementById("menu-icon-open");
+    const menuIconClose = document.getElementById("menu-icon-close");
+
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener("click", function () {
+            const isClosed = mobileMenu.classList.contains("hidden");
+            if (isClosed) {
+                mobileMenu.classList.remove("hidden");
+                mobileMenuBtn.setAttribute("aria-expanded", "true");
+                if (menuIconOpen) menuIconOpen.classList.add("hidden");
+                if (menuIconClose) menuIconClose.classList.remove("hidden");
+            } else {
+                mobileMenu.classList.add("hidden");
+                mobileMenuBtn.setAttribute("aria-expanded", "false");
+                if (menuIconOpen) menuIconOpen.classList.remove("hidden");
+                if (menuIconClose) menuIconClose.classList.add("hidden");
+            }
+        });
+
+        // Close menu on mobile link click
+        document.querySelectorAll(".mobile-nav-link").forEach(function (link) {
+            link.addEventListener("click", function () {
+                mobileMenu.classList.add("hidden");
+                mobileMenuBtn.setAttribute("aria-expanded", "false");
+                if (menuIconOpen) menuIconOpen.classList.remove("hidden");
+                if (menuIconClose) menuIconClose.classList.add("hidden");
+            });
         });
     }
 

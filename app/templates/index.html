@@ -61,23 +61,25 @@
             <div
                 class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
             >
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                     <a
                         href="#"
-                        class="font-extrabold text-lg tracking-tight hover:underline flex items-center gap-2"
+                        class="font-extrabold text-base sm:text-lg tracking-tight hover:underline flex items-center gap-2 truncate"
                     >
-                        <span class="w-3 h-3 bg-cyan-400 inline-block"></span>
-                        <span>Zulvis System One</span>
+                        <span
+                            class="w-3 h-3 bg-cyan-400 inline-block shrink-0"
+                        ></span>
+                        <span class="truncate">Zulvis System One</span>
                     </a>
                     <span
-                        class="text-xs px-2 py-0.5 border border-[#3f3f46] font-mono bg-[#18181b] text-zinc-300"
+                        class="text-xs px-2 py-0.5 border border-[#3f3f46] font-mono bg-[#18181b] text-zinc-300 shrink-0"
                         >v0.1</span
                     >
-                    <!-- Live Health Badge -->
+                    <!-- Live Health Badge (Desktop) -->
                     <a
                         href="/health"
                         id="health-badge"
-                        class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#3f3f46] text-xs font-mono bg-[#18181b] text-zinc-300"
+                        class="hidden lg:inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#3f3f46] text-xs font-mono bg-[#18181b] text-zinc-300 shrink-0"
                         title="Click to view health JSON"
                     >
                         <span
@@ -88,13 +90,14 @@
                     </a>
                 </div>
 
+                <!-- Desktop Navigation (md and up) -->
                 <nav
-                    class="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm font-medium"
+                    class="hidden md:flex items-center gap-3 lg:gap-4 text-xs sm:text-sm font-medium"
                 >
                     <a
                         href="#system-one-spec"
                         class="hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
-                        >About Jev</a
+                        >About System One</a
                     >
                     <a
                         href="#playground"
@@ -103,12 +106,12 @@
                     >
                     <a
                         href="#model-card"
-                        class="hidden sm:inline hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
+                        class="hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
                         >Model Card</a
                     >
                     <a
                         href="#faq"
-                        class="hidden sm:inline hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-2 py-1"
+                        class="hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-2 py-1"
                         >FAQ</a
                     >
                     <a
@@ -130,6 +133,113 @@
                         <span aria-hidden="true">&nearr;</span>
                     </a>
                 </nav>
+
+                <!-- Mobile Controls (< md) -->
+                <div class="flex items-center gap-2 md:hidden">
+                    <a
+                        href="/health"
+                        id="mobile-health-badge"
+                        class="inline-flex items-center gap-1.5 px-2 py-1 border border-[#3f3f46] text-xs font-mono bg-[#18181b] text-zinc-300 min-h-[36px]"
+                        title="Health Status"
+                    >
+                        <span
+                            id="mobile-health-dot"
+                            class="w-2 h-2 rounded-full bg-yellow-500 inline-block"
+                        ></span>
+                        <span
+                            id="mobile-health-text"
+                            class="hidden xs:inline text-[11px]"
+                            >Health</span
+                        >
+                    </a>
+                    <button
+                        type="button"
+                        id="mobile-menu-btn"
+                        class="brutal-btn p-2 min-h-[44px] min-w-[44px] flex items-center justify-center bg-[#18181b] text-white border border-[#3f3f46] hover:bg-[#27272a] focus-visible:ring-2 focus-visible:ring-white"
+                        aria-label="Toggle navigation menu"
+                        aria-expanded="false"
+                    >
+                        <svg
+                            id="menu-icon-open"
+                            class="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"
+                            />
+                        </svg>
+                        <svg
+                            id="menu-icon-close"
+                            class="hidden w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Drawer -->
+            <div
+                id="mobile-menu"
+                class="hidden md:hidden border-t border-[#27272a] bg-[#0c0c0e] px-4 py-4 space-y-2.5 font-mono text-xs"
+            >
+                <a
+                    href="#system-one-spec"
+                    class="mobile-nav-link block py-2 px-3 border border-[#27272a] bg-[#141417] text-zinc-200 hover:bg-[#1f1f23] hover:text-white"
+                >
+                    About System One
+                </a>
+                <a
+                    href="#playground"
+                    class="mobile-nav-link block py-2 px-3 border border-[#27272a] bg-[#141417] text-zinc-200 hover:bg-[#1f1f23] hover:text-white"
+                >
+                    Playground
+                </a>
+                <a
+                    href="#model-card"
+                    class="mobile-nav-link block py-2 px-3 border border-[#27272a] bg-[#141417] text-zinc-200 hover:bg-[#1f1f23] hover:text-white"
+                >
+                    Model Card &amp; Attribution
+                </a>
+                <a
+                    href="#faq"
+                    class="mobile-nav-link block py-2 px-3 border border-[#27272a] bg-[#141417] text-zinc-200 hover:bg-[#1f1f23] hover:text-white"
+                >
+                    Technical FAQ
+                </a>
+                <div class="pt-2 grid grid-cols-2 gap-2">
+                    <a
+                        href="https://github.com/ZulfiFazhar/system-one"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="brutal-btn min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[#18181b] text-white hover:bg-[#27272a] border border-[#3f3f46]"
+                    >
+                        <span>GitHub</span>
+                        <span aria-hidden="true">&nearr;</span>
+                    </a>
+                    <a
+                        href="/docs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="brutal-btn min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white text-black hover:bg-zinc-200 border border-white font-semibold"
+                    >
+                        <span>API Docs</span>
+                        <span aria-hidden="true">&nearr;</span>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -795,7 +905,7 @@ print(response.json()["answers"])</pre>
                             Project Credits, Author &amp; Upstream Repositories
                         </div>
                         <div
-                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
                         >
                             <div
                                 class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
@@ -928,37 +1038,6 @@ print(response.json()["answers"])</pre>
                                         <span aria-hidden="true">&nearr;</span>
                                     </a>
                                 </div>
-                            </div>
-
-                            <div
-                                class="border border-[#27272a] p-4 bg-[#141417] text-white flex flex-col justify-between brutal-card-hover"
-                            >
-                                <div>
-                                    <div
-                                        class="text-xs font-mono text-zinc-400 mb-1"
-                                    >
-                                        ASCII Graphic
-                                    </div>
-                                    <div
-                                        class="font-bold text-sm mb-2 text-white"
-                                    >
-                                        ASCII.gg Library
-                                    </div>
-                                    <p class="text-xs text-zinc-400 mb-4">
-                                        3D ASCII loop animation asset sourced
-                                        from the open-source ASCII art community
-                                        archive.
-                                    </p>
-                                </div>
-                                <a
-                                    href="https://ascii.gg/library/6e97c526-7c5c-4baf-861e-e629450d3501"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="brutal-btn mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#18181b] hover:bg-[#27272a] border border-[#3f3f46] font-mono text-xs w-full sm:w-auto text-zinc-200"
-                                >
-                                    <span>ascii.gg</span>
-                                    <span aria-hidden="true">&nearr;</span>
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -1261,20 +1340,6 @@ print(response.json()["answers"])</pre>
                         rel="noopener noreferrer"
                         class="hover:text-white underline text-zinc-300"
                         >ASCII.gg (Orb Animation)</a
-                    >
-                    <a
-                        href="/docs"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="hover:text-white underline text-zinc-300"
-                        >OpenAPI Docs</a
-                    >
-                    <a
-                        href="/health"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="hover:text-white underline text-zinc-300"
-                        >Health Check</a
                     >
                 </div>
             </div>
