@@ -1,5 +1,6 @@
 import json
 from typing import Any
+import tiktoken
 
 from app.dto.systemone_dto import (
     Answer,
@@ -14,12 +15,39 @@ from app.dto.systemone_dto import (
     Usage,
 )
 
+_TIKTOKEN_ENCODER = None
+
+
+def get_token_encoder():
+    global _TIKTOKEN_ENCODER
+    if _TIKTOKEN_ENCODER is None:
+        try:
+            _TIKTOKEN_ENCODER = tiktoken.get_encoding("cl100k_base")
+        except Exception:
+            _TIKTOKEN_ENCODER = None
+    return _TIKTOKEN_ENCODER
+
+
+def count_tokens(text: str) -> int:
+    enc = get_token_encoder()
+    if enc is not None:
+        return len(enc.encode(text, disallowed_special=()))
+    return max(1, len(text) // 4)
+
 
 def estimate_usage(state: Any, questions: dict[str, Question]) -> Usage:
-    # ponytail: naive char-count token estimation (~4 chars/token). upgrade to tiktoken when exact billing needed.
     state_str = state if isinstance(state, str) else json.dumps(state)
-    q_str = "".join(str(q.instructions) for q in questions.values())
-    in_tokens = max(1, (len(state_str) + len(q_str)) // 4)
+    q_parts: list[str] = []
+    for q in questions.values():
+        q_parts.append(str(q.instructions))
+        if hasattr(q, "criteria") and q.criteria:
+            if isinstance(q.criteria, (dict, list)):
+                q_parts.append(json.dumps(q.criteria))
+            else:
+                q_parts.append(str(q.criteria))
+
+    full_input = state_str + " " + " ".join(q_parts)
+    in_tokens = max(1, count_tokens(full_input))
     out_tokens = max(1, len(questions) * 4)
     return Usage(input_tokens=in_tokens, output_tokens=out_tokens)
 

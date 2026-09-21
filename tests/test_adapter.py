@@ -52,10 +52,27 @@ def test_format_jev_response_mapping():
 
 
 def test_estimate_usage():
-    questions = {"q1": NoulQuestion(instructions="Test?")}
-    usage = estimate_usage("Short text state", questions)
-    assert usage.input_tokens > 0
-    assert usage.output_tokens > 0
+    import tiktoken
+    enc = tiktoken.get_encoding("cl100k_base")
+    questions = {"q1": NoulQuestion(instructions="Is this a critical bug?")}
+    usage = estimate_usage("Server crashed unexpectedly with code 500.", questions)
+    expected_tokens = len(enc.encode("Server crashed unexpectedly with code 500. Is this a critical bug?"))
+    assert usage.input_tokens == expected_tokens
+    assert usage.output_tokens == 4
+
+
+def test_estimate_usage_complex_criteria():
+    import tiktoken
+    enc = tiktoken.get_encoding("cl100k_base")
+    questions = {
+        "dept": ChoiceQuestion(
+            instructions="Which team?",
+            criteria={"billing": "Payment and refunds", "tech": "Server outage"},
+        )
+    }
+    usage = estimate_usage("Payment issue", questions)
+    assert usage.input_tokens > 5
+    assert usage.output_tokens == 4
 
 
 def test_format_jev_response_defaults_and_edge_cases():
