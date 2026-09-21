@@ -1,5 +1,7 @@
 from typing import Any
+
 from fastapi import APIRouter, Request
+
 from app.services.health import check_health
 
 router = APIRouter()
