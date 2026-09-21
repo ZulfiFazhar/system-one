@@ -1,26 +1,14 @@
-import os
-from unittest.mock import MagicMock
-from fastapi.testclient import TestClient
 import pytest
-from app import create_app
+from fastapi.testclient import TestClient
+from pydantic import SecretStr
+from app.core.server import create_application
 
-@pytest.fixture
-def client_no_auth():
-    os.environ.pop("LAYA_API_KEY", None)
-    app = create_app(mock_router=True)
-    return TestClient(app)
-
-@pytest.fixture
-def client_with_auth():
-    os.environ["LAYA_API_KEY"] = "secret-token-123"
-    app = create_app(mock_router=True)
-    yield TestClient(app)
-    os.environ.pop("LAYA_API_KEY", None)
 
 def test_healthz(client_no_auth):
     resp = client_no_auth.get("/healthz")
     assert resp.status_code == 200
     assert resp.json()["status"] == "ready"
+
 
 def test_systemone_unauthorized(client_with_auth):
     resp = client_with_auth.post("/v1/systemone", json={
@@ -28,6 +16,7 @@ def test_systemone_unauthorized(client_with_auth):
         "questions": {"q": {"type": "noul", "instructions": "test"}}
     })
     assert resp.status_code == 401
+
 
 def test_systemone_authorized_mock(client_with_auth):
     resp = client_with_auth.post(
@@ -49,6 +38,7 @@ def test_systemone_authorized_mock(client_with_auth):
     assert "is_refund" in data["answers"]
     assert data["answers"]["is_refund"]["type"] == "noul"
 
+
 def test_systemone_invalid_schema(client_no_auth):
     resp = client_no_auth.post("/v1/systemone", json={
         "state": "test",
@@ -56,7 +46,7 @@ def test_systemone_invalid_schema(client_no_auth):
             "invalid_score": {
                 "type": "score",
                 "instructions": "rate",
-                "criteria": ["only one"]  # requires min 2
+                "criteria": ["only one"]
             }
         }
     })
@@ -106,29 +96,22 @@ def test_systemone_multi_question(client_no_auth):
 
 
 def test_lifespan_lifecycle():
-    app = create_app(mock_router=True)
+    app = create_application(mock_router=True)
     with TestClient(app) as client:
         resp = client.get("/healthz")
         assert resp.status_code == 200
         assert hasattr(app.state, "router")
 
 
-def test_main_entrypoint(monkeypatch):
-    from unittest.mock import patch
-    import app as app_module
-    with patch("uvicorn.run") as mock_run:
-        app_module.main()
-        mock_run.assert_called_once_with(app_module.app, host="0.0.0.0", port=8000, reload=False)
-
-
 def test_verify_api_key_constant_time(monkeypatch):
     import secrets
     from unittest.mock import patch
     from fastapi import HTTPException
-    from app import verify_api_key
     from fastapi.security import HTTPAuthorizationCredentials
+    from app.core.config import settings
+    from app.core.security import verify_api_key
 
-    monkeypatch.setenv("LAYA_API_KEY", "secret-val")
+    monkeypatch.setattr(settings, "laya_api_key", SecretStr("secret-val"))
     with patch("secrets.compare_digest", wraps=secrets.compare_digest) as mock_compare:
         creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="secret-val")
         verify_api_key(creds)
@@ -140,5 +123,3 @@ def test_verify_api_key_constant_time(monkeypatch):
             verify_api_key(bad_creds)
         assert exc_info.value.status_code == 401
         mock_compare.assert_called_with("wrong-val", "secret-val")
-
-

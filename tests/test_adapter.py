@@ -1,10 +1,10 @@
-from schemas import (
+from app.dto import (
     ChoiceQuestion,
     NoulQuestion,
     ScoreQuestion,
     SystemOneResponse,
 )
-from adapter import estimate_usage, format_jev_response
+from app.services.laya_service import estimate_usage, format_jev_response
 
 
 def test_format_jev_response_mapping():
@@ -106,4 +106,3 @@ def test_format_jev_response_explicit_none():
     assert res.answers["q_choice"].confidence == 1.0
     assert res.answers["q_score"].score == 0.0
     assert res.answers["q_score"].confidence == 0.5
-

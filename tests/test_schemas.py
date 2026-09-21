@@ -1,16 +1,17 @@
 import pytest
 from pydantic import ValidationError
-from schemas import (
-    NoulQuestion,
+from app.dto import (
+    ChoiceAnswer,
     ChoiceQuestion,
+    NoulAnswer,
+    NoulQuestion,
+    ScoreAnswer,
     ScoreQuestion,
     SystemOneRequest,
     SystemOneResponse,
-    NoulAnswer,
-    ChoiceAnswer,
-    ScoreAnswer,
     Usage,
 )
+
 
 def test_valid_request_schema():
     data = {
@@ -39,6 +40,7 @@ def test_valid_request_schema():
     assert req.model == "laya"
     assert len(req.questions) == 3
 
+
 def test_score_requires_at_least_two_levels():
     with pytest.raises(ValidationError):
         ScoreQuestion(
@@ -46,6 +48,7 @@ def test_score_requires_at_least_two_levels():
             instructions="Invalid score",
             criteria=["Only One"],
         )
+
 
 def test_valid_response_schema():
     resp_data = {
