@@ -29,7 +29,22 @@ def setup_middlewares(app: FastAPI) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Enforce offline mode to prevent any requests to Hugging Face
+    weights_path = os.path.join(settings.laya_model_path, "model.safetensors")
+    if not os.path.exists(weights_path):
+        logger.info(
+            "Local model weights not found at '%s'. Auto-downloading '%s' from Hugging Face...",
+            settings.laya_model_path,
+            settings.laya_model_id,
+        )
+        from huggingface_hub import snapshot_download
+
+        snapshot_download(
+            repo_id=settings.laya_model_id,
+            local_dir=settings.laya_model_path,
+        )
+        logger.info("Auto-download complete.")
+
+    # Enforce offline mode to prevent any subsequent requests to Hugging Face
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
