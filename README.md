@@ -2,6 +2,17 @@
 
 FastAPI service yang membungkus model **Laya** (`convaiinnovations/laya`) dengan API kompatibel **TypeSafe Jev** (`POST /v1/systemone`). Kirim `state` dan `questions`, terima keputusan terstruktur dengan probabilitas yang dikalibrasi — tanpa teks generatif, tanpa parsing.
 
+## Apa itu System One & TypeSafe Jev?
+
+Paradigma **System One Model** diperkenalkan oleh [TypeSafe AI](https://typesafe.ai/) (didirikan oleh Diogo Almeida, mantan periset OpenAI yang memimpin riset instruction-following ChatGPT).
+
+- **Asal Nama**: Terinspirasi dari buku Daniel Kahneman, *Thinking, Fast and Slow*, yang membedakan antara berpikir cepat/intuitif (System 1) dan penalaran bertahap (System 2).
+- **Jev & Paradoks Jevons**: Model flagship TypeSafe dinamai dari ekonom William Stanley Jevons. Ketika latensi dan biaya keputusan turun hingga ratusan kali lipat, pemanfaatan otomasi keputusan deterministik dalam software meningkat drastis.
+- **Perbedaan dengan LLM Generatif**: Model generatif memprediksi token teks berurutan yang rawan halusinasi dan latensi tinggi. Sebaliknya, model System One mengeksekusi keputusan paralel langsung pada state program (`noul`, `choice`, `score`) dalam satu forward pass (~33ms) dengan probabilitas terkalibrasi dan **0% halusinasi**.
+- **Kompatibilitas SDK & Spec**: Service ini mengimplementasikan kontrak API TypeSafe Jev (`POST /v1/systemone`) secara drop-in, sehingga client/SDK TypeSafe dapat langsung diarahkan ke endpoint lokal ini.
+
+Baca selengkapnya di [Introducing System One Models & Jev (TypeSafe AI Blog)](https://typesafe.ai/blog/introducing-system-one-models-and-jev).
+
 ## Quickstart
 
 ```bash
