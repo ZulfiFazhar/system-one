@@ -1,5 +1,4 @@
 import logging
-import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +6,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api import router as api_router
 from app.core.config import settings
+from app.services.laya_service import load_laya_model
 
 logger = logging.getLogger(__name__)
 
@@ -29,37 +29,18 @@ def setup_middlewares(app: FastAPI) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    weights_path = os.path.join(settings.laya_model_path, "model.safetensors")
-    if not os.path.exists(weights_path):
+    should_preload = settings.laya_preload and not settings.laya_lazy_load
+
+    if should_preload:
+        load_laya_model(app.state)
+    else:
         logger.info(
-            "Local model weights not found at '%s'. Auto-downloading '%s' from Hugging Face...",
-            settings.laya_model_path,
-            settings.laya_model_id,
+            "Lazy loading active (LAYA_LAZY_LOAD=true). Model will load upon first inference request."
         )
-        from huggingface_hub import snapshot_download
 
-        snapshot_download(
-            repo_id=settings.laya_model_id,
-            local_dir=settings.laya_model_path,
-        )
-        logger.info("Auto-download complete.")
-
-    # Enforce offline mode to prevent any subsequent requests to Hugging Face
-    os.environ["HF_HUB_OFFLINE"] = "1"
-    os.environ["TRANSFORMERS_OFFLINE"] = "1"
-
-    if not hasattr(app.state, "router") or app.state.router is None:
-        import laya
-
-        device = None if settings.laya_device == "auto" else settings.laya_device
-        logger.info("Loading Laya model from local path: %s", settings.laya_model_path)
-        app.state.router = laya.load(
-            settings.laya_model_path,
-            device=device,
-        )
-        logger.info("Laya model loaded successfully from local directory")
     yield
-    if hasattr(app.state, "router") and hasattr(app.state.router, "unload"):
+
+    if hasattr(app.state, "router") and hasattr(app.state.router, "unload") and app.state.router:
         app.state.router.unload()
 
 

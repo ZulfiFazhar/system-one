@@ -153,7 +153,7 @@
                         class="font-extrabold text-lg tracking-tight hover:underline flex items-center gap-2"
                     >
                         <span class="w-3 h-3 bg-[#1E1E1E] inline-block"></span>
-                        <span>System One</span>
+                        <span>Zulvis System One</span>
                     </a>
                     <span
                         class="text-xs px-2 py-0.5 border border-[#1E1E1E] font-mono bg-white text-[#1E1E1E]"
@@ -164,13 +164,13 @@
                         href="/health"
                         id="health-badge"
                         class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 border border-[#1E1E1E] text-xs font-mono bg-gray-50 text-[#1E1E1E]"
-                        title="Click to view healthz JSON"
+                        title="Click to view health JSON"
                     >
                         <span
                             id="health-dot"
                             class="w-2 h-2 rounded-full bg-yellow-500 inline-block"
                         ></span>
-                        <span id="health-text">Polling healthz...</span>
+                        <span id="health-text">Polling health...</span>
                     </a>
                 </div>
 
@@ -236,7 +236,7 @@
                         We took the opposite research direction.
                     </h1>
                     <p
-                        class="text-lg sm:text-xl text-[#555555] max-w-3xl leading-relaxed mb-8"
+                        class="text-lg sm:text-xl text-[#555555] leading-relaxed mb-8"
                     >
                         Generative models predict text sequentially token by
                         token, accumulating latency, cost, and hallucination.
@@ -349,9 +349,7 @@
                     <h2 class="text-3xl font-extrabold tracking-tight mb-4">
                         What are System One Models and Jev?
                     </h2>
-                    <p
-                        class="text-base text-[#555555] max-w-3xl leading-relaxed mb-8"
-                    >
+                    <p class="text-base text-[#555555] leading-relaxed mb-8">
                         The System One paradigm was introduced by
                         <strong>TypeSafe AI</strong> (founded by Diogo Almeida,
                         former OpenAI research lead behind ChatGPT
@@ -1234,7 +1232,7 @@ print(response.json()["answers"])</pre>
                         >OpenAPI Docs</a
                     >
                     <a
-                        href="/healthz"
+                        href="/health"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="hover:text-black underline"
@@ -1468,7 +1466,7 @@ print(response.json()["answers"])</pre>
                 // Health Polling
                 async function pollHealth() {
                     try {
-                        const resp = await fetch("/healthz");
+                        const resp = await fetch("/health");
                         if (resp.ok) {
                             const data = await resp.json();
                             if (data.status === "ready") {

@@ -3,7 +3,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from app.core.security import verify_api_key
 from app.dto.systemone_dto import SystemOneRequest, SystemOneResponse
-from app.services.laya_service import format_jev_response
+from app.services.laya_service import format_jev_response, get_or_load_router
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ router = APIRouter()
     dependencies=[Depends(verify_api_key)],
 )
 async def systemone(req: SystemOneRequest, request: Request) -> SystemOneResponse:
-    router_instance = getattr(request.app.state, "router", None)
+    router_instance = await get_or_load_router(request.app.state)
     if router_instance is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

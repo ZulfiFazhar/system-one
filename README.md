@@ -41,10 +41,10 @@ pm2 start "uv run fastapi run --port 20129" --name system-one
 
 ## API
 
-### `GET /healthz`
+### `GET /health`
 
 ```bash
-curl http://localhost:8000/healthz
+curl http://localhost:8000/health
 ```
 
 ```json
@@ -132,6 +132,7 @@ Semua pertanyaan dalam satu request dieksekusi **paralel** dalam satu forward pa
 | `LAYA_MODEL_PATH` | `models/laya-multilingual` | Path lokal folder model Laya (offline). |
 | `LAYA_DEVICE` | `auto` | Device PyTorch: `cuda`, `cpu`, `mps`, atau `auto`. |
 | `LAYA_PRELOAD` | `true` | Preload model saat server start. |
+| `LAYA_LAZY_LOAD` | `false` | Muat model saat request pertama (berguna di development server). |
 | `RATE_LIMIT_ENABLED` | `true` | Aktifkan rate limiting IP untuk request publik tanpa API key. |
 | `RATE_LIMIT_REQUESTS` | `10` | Maksimum request publik per IP dalam window. |
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Durasi window rate limiting dalam detik. |
@@ -149,7 +150,7 @@ app/
 ├── main.py                    # Entrypoint aplikasi FastAPI
 ├── api/
 │   ├── __init__.py            # Router aggregator
-│   ├── health_route.py        # Endpoint GET /healthz dan GET /health
+│   ├── health_route.py        # Endpoint GET /health
 │   └── systemone_route.py     # Endpoint POST /v1/systemone
 ├── core/
 │   ├── __init__.py

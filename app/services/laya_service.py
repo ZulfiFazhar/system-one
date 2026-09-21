@@ -1,7 +1,13 @@
+import asyncio
 import json
+import logging
+import os
 from typing import Any
+
+from fastapi.concurrency import run_in_threadpool
 import tiktoken
 
+from app.core.config import settings
 from app.dto.systemone_dto import (
     Answer,
     ChoiceAnswer,
@@ -14,6 +20,55 @@ from app.dto.systemone_dto import (
     SystemOneResponse,
     Usage,
 )
+
+logger = logging.getLogger(__name__)
+_LOAD_LOCK = asyncio.Lock()
+
+
+def ensure_model_weights() -> None:
+    weights_path = os.path.join(settings.laya_model_path, "model.safetensors")
+    if not os.path.exists(weights_path):
+        logger.info(
+            "Local model weights not found at '%s'. Auto-downloading '%s' from Hugging Face...",
+            settings.laya_model_path,
+            settings.laya_model_id,
+        )
+        from huggingface_hub import snapshot_download
+
+        snapshot_download(
+            repo_id=settings.laya_model_id,
+            local_dir=settings.laya_model_path,
+        )
+        logger.info("Auto-download complete.")
+
+    os.environ["HF_HUB_OFFLINE"] = "1"
+    os.environ["TRANSFORMERS_OFFLINE"] = "1"
+
+
+def load_laya_model(app_state: Any):
+    if not hasattr(app_state, "router") or app_state.router is None:
+        ensure_model_weights()
+        import laya
+
+        device = None if settings.laya_device == "auto" else settings.laya_device
+        logger.info("Loading Laya model from local path: %s", settings.laya_model_path)
+        app_state.router = laya.load(
+            settings.laya_model_path,
+            device=device,
+        )
+        logger.info("Laya model loaded successfully from local directory")
+    return app_state.router
+
+
+async def get_or_load_router(app_state: Any):
+    if hasattr(app_state, "router") and app_state.router is not None:
+        return app_state.router
+
+    async with _LOAD_LOCK:
+        if hasattr(app_state, "router") and app_state.router is not None:
+            return app_state.router
+        return await run_in_threadpool(load_laya_model, app_state)
+
 
 _TIKTOKEN_ENCODER = None
 

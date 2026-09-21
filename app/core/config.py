@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     laya_model_path: str = "models/laya-multilingual"
     laya_device: str = "auto"
     laya_preload: bool = True
+    laya_lazy_load: bool = False
 
     # Public Rate Limiting (when no API key is provided)
     rate_limit_enabled: bool = True
