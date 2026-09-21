@@ -69,6 +69,7 @@ Bagian khusus untuk mengatribusikan karya dan menampilkan informasi teknis model
 - **Tautan Eksternal**:
   - Hugging Face Model Card: `https://huggingface.co/convaiinnovations/laya-multilingual`
   - Laya Family Collection: `https://huggingface.co/convaiinnovations/laya`
+  - GitHub Repository: `https://github.com/NandhaKishorM/laya` (Author: Nandha Kishor / Convai Innovations)
   - Lisensi Asli: Apache 2.0.
 
 ### 3.5 Technical Architecture & FAQ
@@ -79,7 +80,7 @@ Bagian khusus untuk mengatribusikan karya dan menampilkan informasi teknis model
 - Contoh curl request yang dapat disalin dengan tombol "Copy Curl".
 
 ### 3.6 Footer
-- Versi service, status penyimpanan lokal (`models/laya-multilingual`), atribusi Convai Innovations, dan lisensi Apache 2.0.
+- Versi service, status penyimpanan lokal (`models/laya-multilingual`), atribusi Convai Innovations, tautan GitHub (`https://github.com/NandhaKishorM/laya`), tautan Hugging Face, dan lisensi Apache 2.0.
 
 ## 4. Technical Implementation & Delivery Plan
 - **Backend**:
