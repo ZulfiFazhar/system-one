@@ -17,6 +17,7 @@ Sistem desain mematuhi aturan ketat **Anti-Slop (Mode DURING)** dan token pada `
   - Font: `Inter` untuk body/heading, `JetBrains Mono` untuk kode, metrik, angka, dan JSON.
   - Tracking: `-0.02em` pada judul, tight hierarchy.
 - **Anti-Slop Constraints**:
+  - **Language**: English (US) exclusively across all copy, headings, playground controls, preset scenarios, model card information, and FAQ.
   - Dilarang memakai karakter em dash (—) pada seluruh teks antarmuka.
   - Dilarang memakai AI marketing buzzwords ("revolutionary", "seamless", "next generation", "cutting edge").
   - Dilarang menggunakan testimonial atau metrik palsu. Data teknis didasarkan pada spesifikasi model aktual (322M parameter mmBERT-base, ~33ms batch latency, 100+ bahasa).
