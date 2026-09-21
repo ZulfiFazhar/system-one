@@ -15,35 +15,6 @@ from app.dto.systemone_dto import (
 )
 
 
-class MockRouter:
-    def predict(
-        self, state: Any, questions: dict[str, Any], model: str | None = None
-    ) -> dict[str, Any]:
-        answers = {}
-        for q_id, q in questions.items():
-            q_type = q.type if hasattr(q, "type") else q.get("type")
-            if q_type == "noul":
-                answers[q_id] = {"noul": 0.85}
-            elif q_type == "choice":
-                crit = q.criteria if hasattr(q, "criteria") else q.get("criteria", {})
-                first_opt = next(iter(crit.keys())) if crit else "default"
-                answers[q_id] = {
-                    "choice": first_opt,
-                    "probabilities": {k: 1.0 / len(crit) for k in crit},
-                    "confidence": 0.9,
-                }
-            elif q_type == "score":
-                answers[q_id] = {
-                    "score": 1.0,
-                    "probabilities": {"0": 0.2, "1": 0.8},
-                    "confidence": 0.8,
-                }
-        return {"answers": answers, "routing": {"model": model or "laya"}}
-
-    def unload(self) -> None:
-        pass
-
-
 def estimate_usage(state: Any, questions: dict[str, Question]) -> Usage:
     # ponytail: naive char-count token estimation (~4 chars/token). upgrade to tiktoken when exact billing needed.
     state_str = state if isinstance(state, str) else json.dumps(state)

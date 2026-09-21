@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 .env
+
+# Models
+models/
+
+.superpowers
+docs/superpowers

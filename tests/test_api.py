@@ -22,7 +22,7 @@ def test_systemone_unauthorized(client_with_auth):
     assert resp.status_code == 401
 
 
-def test_systemone_authorized_mock(client_with_auth):
+def test_systemone_authorized(client_with_auth):
     resp = client_with_auth.post(
         "/v1/systemone",
         headers={"Authorization": "Bearer secret-token-123"},
@@ -99,12 +99,9 @@ def test_systemone_multi_question(client_no_auth):
     assert "usage" in data
 
 
-def test_lifespan_lifecycle():
-    app = create_application(mock_router=True)
-    with TestClient(app) as client:
-        resp = client.get("/healthz")
-        assert resp.status_code == 200
-        assert hasattr(app.state, "router")
+def test_lifespan_lifecycle(test_app):
+    assert hasattr(test_app.state, "router")
+    assert test_app.state.router is not None
 
 
 def test_verify_api_key_constant_time(monkeypatch):

@@ -21,9 +21,9 @@ class Settings(BaseSettings):
     allowed_hosts: list[str] = ["*"]
 
     laya_api_key: SecretStr | None = None
+    laya_model_path: str = "models/laya-multilingual"
     laya_device: str = "auto"
     laya_preload: bool = True
-    laya_mock_router: bool = False
 
     log_level: str = "INFO"
     log_format: str = "%(levelname)s - %(asctime)s - %(message)s"

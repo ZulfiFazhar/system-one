@@ -8,10 +8,7 @@ FastAPI service yang membungkus model **Laya** (`convaiinnovations/laya`) dengan
 # Install dependencies
 uv sync
 
-# Jalankan server (mock router, tanpa download model)
-LAYA_MOCK_ROUTER=1 uv run fastapi run app/main.py --port 8000
-
-# Dengan model Laya asli (download otomatis ~800MB)
+# Jalankan server dengan model lokal di folder models/laya-multilingual
 uv run fastapi run app/main.py --port 8000
 ```
 
@@ -110,15 +107,18 @@ Semua pertanyaan dalam satu request dieksekusi **paralel** dalam satu forward pa
 | Variabel | Default | Keterangan |
 |---|---|---|
 | `LAYA_API_KEY` | — | Bearer token auth. Kosong = auth dinonaktifkan. |
+| `LAYA_MODEL_PATH` | `models/laya-multilingual` | Path lokal folder model Laya. |
 | `LAYA_DEVICE` | `auto` | Device PyTorch: `cuda`, `cpu`, `mps`, atau `auto`. |
-| `LAYA_PRELOAD` | `true` | Preload semua checkpoint saat server start. |
-| `LAYA_MOCK_ROUTER` | — | Set `1` atau `true` untuk pakai mock router (dev/test). |
-| `PORT` | `8000` | Port server (untuk `main()` entrypoint). |
+| `LAYA_PRELOAD` | `true` | Preload model saat server start. |
+| `PORT` | `8000` | Port server. |
 | `HOST` | `0.0.0.0` | Host binding. |
 
 ## Struktur File
 
 ```
+models/
+└── laya-multilingual/          # Weights model lokal (offline)
+
 app/
 ├── __init__.py
 ├── main.py                    # Entrypoint aplikasi FastAPI
@@ -138,7 +138,7 @@ app/
 └── services/
     ├── __init__.py
     ├── health.py              # Health check status
-    └── laya_service.py        # Model inference, MockRouter, JEV adapter
+    └── laya_service.py        # Token estimation & JEV adapter
 
 tests/
 ├── conftest.py                # Pytest fixtures
