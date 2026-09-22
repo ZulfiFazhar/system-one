@@ -1,0 +1,34 @@
+# Git and IDE
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Local model weights (mounted via volume)
+models/
+
+# Environment files
+.env
+.env.*
+
+# Documentation, specs, plans, and tests
+docs/
+tests/
+.superpowers/
+*.md
