@@ -1,14 +1,11 @@
 services:
   system-one:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/zulfifazhar/system-one:latest
     container_name: system-one-api
     ports:
       - "8000:8000"
-    environment:
-      - LAYA_DEVICE=cpu
-      - LAYA_MODEL_PATH=/app/models/laya-multilingual
+    env_file:
+      - .env
     volumes:
       - ./models:/app/models
     restart: unless-stopped
