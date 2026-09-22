@@ -8,7 +8,7 @@ ENV UV_COMPILE_BYTECODE=1 \
 
 # Install dependencies with CPU-only PyTorch wheel to keep image minimal
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev --no-install-project --find-links https://download.pytorch.org/whl/cpu
+RUN uv sync --frozen --no-dev --no-install-project
 
 # Stage 2: Runtime
 FROM python:3.12-slim AS runtime
@@ -23,22 +23,18 @@ ENV PYTHONUNBUFFERED=1 \
 RUN groupadd -g 10001 appuser && \
     useradd -u 10001 -g appuser -s /bin/sh -m appuser
 
-# Copy virtual environment from builder
-COPY --from=builder /app/.venv /app/.venv
-
 # Prepare models directory with proper permissions
 RUN mkdir -p /app/models && chown -R appuser:appuser /app
 
-# Copy application source and static assets
-COPY app/ ./app/
-COPY public/ ./public/
+# Copy virtual environment from builder with correct ownership
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+
+# Copy application source and static assets with correct ownership
+COPY --chown=appuser:appuser app/ ./app/
+COPY --chown=appuser:appuser public/ ./public/
 
 USER appuser
 
 EXPOSE 8000
-
-# Lightweight healthcheck using stdlib python without extra curl dependency
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
 CMD ["fastapi", "run", "--port", "8000"]

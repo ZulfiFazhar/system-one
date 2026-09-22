@@ -10,6 +10,7 @@ dependencies = [
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
     "tiktoken>=0.14.0",
+    "torch>=2.0.0",
 ]
 
 [dependency-groups]
@@ -20,6 +21,16 @@ dev = [
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.fastapi]
 entrypoint = "app.main:app"
