@@ -1252,6 +1252,7 @@
 
                 keyForm.classList.add("hidden");
                 rawKeyDisplay.value = res.raw_key;
+                sessionStorage.setItem("saved_key_" + res.key_prefix, res.raw_key);
                 keyCallout.classList.remove("hidden");
                 showToast("Key generated successfully", "success");
                 loadKeys();
@@ -1531,6 +1532,20 @@
             if (authMode === "__custom__") {
                 const customKey = document.getElementById("pg-custom-key-input").value.trim();
                 if (customKey) headers["Authorization"] = "Bearer " + customKey;
+            } else if (authMode) {
+                const cachedRaw = sessionStorage.getItem("saved_key_" + authMode);
+                if (cachedRaw) {
+                    headers["Authorization"] = "Bearer " + cachedRaw;
+                } else {
+                    const entered = prompt(`Enter secret key token for "${authMode}" (starts with sk_live_...):`);
+                    if (entered && entered.trim()) {
+                        sessionStorage.setItem("saved_key_" + authMode, entered.trim());
+                        headers["Authorization"] = "Bearer " + entered.trim();
+                    } else {
+                        showToast("Request cancelled: API key required", "info");
+                        return;
+                    }
+                }
             }
 
             sendBtn.disabled = true;
@@ -1670,7 +1685,7 @@
                     bodyHtml = `
                         <div class="flex items-center justify-between text-xs font-mono">
                             <span class="text-zinc-300">Predicted Score:</span>
-                            <span class="font-bold text-cyan-400 text-sm">${score}</span>
+                            <span class="font-bold text-cyan-400 text-sm">${escapeHtml(String(score))}</span>
                         </div>
                         ${label ? `<div class="text-[11px] font-mono text-zinc-400">${escapeHtml(label)}</div>` : ''}
                     `;

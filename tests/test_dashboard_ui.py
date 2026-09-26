@@ -103,3 +103,9 @@ def test_admin_ui_authenticated_returns_html(client):
     # Essential script tags / CDNs
     assert "cdn.tailwindcss.com" in html
     assert "chart.js" in html.lower()
+
+
+def test_admin_ui_trailing_slash_redirect(client):
+    resp = client.get("/admin/", auth=ADMIN_AUTH, follow_redirects=True)
+    assert resp.status_code == 200
+    assert "Admin Dashboard" in resp.text
