@@ -130,6 +130,22 @@ def get_api_key_by_hash(key_hash: str, db_path: str | None = None) -> dict | Non
         conn.close()
 
 
+def get_api_key_by_id(key_id: int, db_path: str | None = None) -> dict | None:
+    conn = get_db_connection(db_path)
+    try:
+        row = conn.execute(
+            """
+            SELECT id, key_prefix, name, rate_limit, is_active, created_at, last_used_at
+            FROM api_keys
+            WHERE id = ?
+            """,
+            (key_id,),
+        ).fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
 _UNSET = object()
 
 
@@ -303,6 +319,53 @@ def get_overview_metrics(db_path: str | None = None) -> dict:
         }
     finally:
         conn.close()
+
+
+def get_overview_hourly_buckets(db_path: str | None = None) -> list[dict]:
+    now = time.time()
+    cutoff_24h = now - (24 * 3600)
+    conn = get_db_connection(db_path)
+    try:
+        rows_24h = conn.execute(
+            """
+            SELECT timestamp, input_tokens, output_tokens, status_code
+            FROM request_logs
+            WHERE timestamp >= ?
+            """,
+            (cutoff_24h,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    current_hour_epoch = int(now // 3600) * 3600
+    buckets: list[dict] = []
+    bucket_map: dict[int, dict] = {}
+    for i in range(23, -1, -1):
+        bucket_ts = current_hour_epoch - (i * 3600)
+        hour_label = time.strftime("%Y-%m-%d %H:00", time.gmtime(bucket_ts))
+        b = {
+            "hour": hour_label,
+            "timestamp": bucket_ts,
+            "requests": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "errors": 0,
+        }
+        buckets.append(b)
+        bucket_map[bucket_ts] = b
+
+    for r in rows_24h:
+        ts = r["timestamp"]
+        bucket_ts = int(ts // 3600) * 3600
+        if bucket_ts in bucket_map:
+            b = bucket_map[bucket_ts]
+            b["requests"] += 1
+            b["input_tokens"] += r["input_tokens"] or 0
+            b["output_tokens"] += r["output_tokens"] or 0
+            if r["status_code"] >= 400:
+                b["errors"] += 1
+
+    return buckets
 
 
 def get_key_activity(key_id: int, db_path: str | None = None) -> dict | None:

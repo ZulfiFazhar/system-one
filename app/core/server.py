@@ -1,4 +1,5 @@
 import logging
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -36,6 +37,7 @@ def setup_middlewares(app: FastAPI) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.start_time = time.time()
     init_db()
     refresh_security_caches()
     prune_old_logs(30)

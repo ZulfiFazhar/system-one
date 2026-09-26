@@ -75,57 +75,11 @@ def _get_memory_rss_mb() -> float:
     return 0.0
 
 
-def _get_overview_hourly_buckets() -> list[HourlyBucketDTO]:
-    now = time.time()
-    cutoff_24h = now - (24 * 3600)
-    conn = db.get_db_connection()
-    try:
-        rows_24h = conn.execute(
-            """
-            SELECT timestamp, input_tokens, output_tokens, status_code
-            FROM request_logs
-            WHERE timestamp >= ?
-            """,
-            (cutoff_24h,),
-        ).fetchall()
-    finally:
-        conn.close()
-
-    current_hour_epoch = int(now // 3600) * 3600
-    buckets: list[dict] = []
-    bucket_map: dict[int, dict] = {}
-    for i in range(23, -1, -1):
-        bucket_ts = current_hour_epoch - (i * 3600)
-        hour_label = time.strftime("%Y-%m-%d %H:00", time.gmtime(bucket_ts))
-        b = {
-            "hour": hour_label,
-            "timestamp": bucket_ts,
-            "requests": 0,
-            "input_tokens": 0,
-            "output_tokens": 0,
-            "errors": 0,
-        }
-        buckets.append(b)
-        bucket_map[bucket_ts] = b
-
-    for r in rows_24h:
-        ts = r["timestamp"]
-        bucket_ts = int(ts // 3600) * 3600
-        if bucket_ts in bucket_map:
-            b = bucket_map[bucket_ts]
-            b["requests"] += 1
-            b["input_tokens"] += r["input_tokens"] or 0
-            b["output_tokens"] += r["output_tokens"] or 0
-            if r["status_code"] >= 400:
-                b["errors"] += 1
-
-    return [HourlyBucketDTO(**b) for b in buckets]
-
-
 @router.get("/overview", response_model=OverviewDTO)
 def get_overview() -> OverviewDTO:
     metrics = db.get_overview_metrics()
-    metrics["timeseries_24h"] = _get_overview_hourly_buckets()
+    buckets = db.get_overview_hourly_buckets()
+    metrics["timeseries_24h"] = [HourlyBucketDTO(**b) for b in buckets]
     return OverviewDTO(**metrics)
 
 
@@ -162,20 +116,14 @@ def list_keys() -> list[KeyResponseDTO]:
 @router.post("/keys", response_model=KeyCreateResponseDTO, status_code=status.HTTP_201_CREATED)
 def create_key(body: KeyCreateDTO) -> KeyCreateResponseDTO:
     key_id, raw_key, prefix = db.create_api_key(body.name, body.rate_limit)
-    conn = db.get_db_connection()
-    try:
-        row = conn.execute(
-            """
-            SELECT id, key_prefix, name, rate_limit, is_active, created_at, last_used_at
-            FROM api_keys WHERE id = ?
-            """,
-            (key_id,),
-        ).fetchone()
-        row_dict = dict(row)
-        row_dict["raw_key"] = raw_key
-        return KeyCreateResponseDTO(**row_dict)
-    finally:
-        conn.close()
+    row_dict = db.get_api_key_by_id(key_id)
+    if not row_dict:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve created key",
+        )
+    row_dict["raw_key"] = raw_key
+    return KeyCreateResponseDTO(**row_dict)
 
 
 @router.patch("/keys/{key_id}", response_model=KeyActionResponseDTO)

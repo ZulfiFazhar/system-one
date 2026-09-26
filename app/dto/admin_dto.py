@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class HourlyBucketDTO(BaseModel):
@@ -37,13 +37,13 @@ class HealthDTO(BaseModel):
 
 
 class KeyCreateDTO(BaseModel):
-    name: str
-    rate_limit: int | None = None
+    name: str = Field(..., min_length=1, max_length=128)
+    rate_limit: int | None = Field(None, gt=0)
 
 
 class KeyUpdateDTO(BaseModel):
     is_active: bool | None = None
-    rate_limit: int | None = None
+    rate_limit: int | None = Field(None, gt=0)
 
 
 class KeyResponseDTO(BaseModel):
@@ -98,13 +98,13 @@ class KeyActivityResponseDTO(BaseModel):
 
 
 class SettingsUpdateDTO(BaseModel):
-    rate_limit_requests: int
-    rate_limit_window_seconds: int
+    rate_limit_requests: int = Field(..., gt=0)
+    rate_limit_window_seconds: int = Field(..., gt=0)
 
 
 class BlocklistCreateDTO(BaseModel):
-    ip_address: str
-    reason: str = ""
+    ip_address: str = Field(..., min_length=1, max_length=64)
+    reason: str = Field("", max_length=256)
 
 
 class BlocklistItemDTO(BaseModel):
