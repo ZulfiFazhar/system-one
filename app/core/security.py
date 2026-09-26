@@ -149,7 +149,7 @@ def verify_admin_session_token(token: str) -> str | None:
         expected_sig = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
         if not secrets.compare_digest(sig, expected_sig):
             return None
-        username, exp_str, salt = payload.split(":", 2)
+        username, exp_str, salt = payload.rsplit(":", 2)
         if time.time() > float(exp_str):
             return None
         return username
