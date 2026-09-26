@@ -83,30 +83,6 @@ def test_logging_middleware_systemone_tokens_and_api_key(client, temp_db):
     assert log["latency_ms"] >= 0.0
 
 
-def test_logging_middleware_systemone_direct_path(client, temp_db):
-    key_id, raw_key, _ = db.create_api_key("Direct Route Key", db_path=temp_db)
-    payload = {
-        "state": "Direct route billing check",
-        "questions": {
-            "check": {
-                "type": "noul",
-                "instructions": "Is this a billing check?",
-            }
-        },
-    }
-    headers = {"Authorization": f"Bearer {raw_key}"}
-
-    resp = client.post("/systemone", json=payload, headers=headers)
-    assert resp.status_code == 200
-
-    rows, total = db.get_request_logs(api_key_id=key_id, db_path=temp_db)
-    assert total == 1
-    log = rows[0]
-    assert log["endpoint"] == "/systemone"
-    assert log["input_tokens"] > 0
-    assert log["output_tokens"] > 0
-
-
 def test_logging_error_does_not_crash_response(client, temp_db, monkeypatch):
     def faulty_record(*args, **kwargs):
         raise sqlite3.OperationalError("disk failure mock")

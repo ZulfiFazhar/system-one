@@ -8,7 +8,6 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api import router as api_router
-from app.api.systemone_route import router as systemone_router
 from app.core.config import settings
 from app.core.db import init_db, prune_old_logs
 from app.core.middleware import DashboardLoggingMiddleware
@@ -69,7 +68,6 @@ def create_application() -> FastAPI:
 
     # Mount api routes
     app.include_router(api_router)
-    app.include_router(systemone_router, tags=["systemone"])
 
     # Mount static public directory
     public_dir = Path(__file__).resolve().parent.parent.parent / "public"
