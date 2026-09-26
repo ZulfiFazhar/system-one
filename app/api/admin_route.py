@@ -1,12 +1,13 @@
 import math
 import os
-from pathlib import Path
 import time
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse
 
-from app.core.config import settings
 from app.core import db
+from app.core.config import settings
 from app.core.security import refresh_security_caches, verify_admin_credentials
 from app.dto.admin_dto import (
     BlocklistActionResponseDTO,
@@ -30,7 +31,9 @@ router = APIRouter(dependencies=[Depends(verify_admin_credentials)])
 admin_ui_router = APIRouter(dependencies=[Depends(verify_admin_credentials)])
 _MODULE_START_TIME = time.time()
 
-DASHBOARD_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "templates" / "dashboard.html"
+DASHBOARD_TEMPLATE_PATH = (
+    Path(__file__).resolve().parent.parent / "templates" / "dashboard.html"
+)
 _DASHBOARD_TEMPLATE_CACHE: str | None = None
 
 
@@ -50,6 +53,7 @@ def _get_memory_rss_mb() -> float:
     # ponytail: process RSS via ctypes/resource/psutil fallback covers Windows/Unix without mandatory heavy deps.
     try:
         import psutil
+
         return round(psutil.Process().memory_info().rss / (1024 * 1024), 2)
     except Exception:
         pass
@@ -86,7 +90,9 @@ def _get_memory_rss_mb() -> float:
         import sys
 
         rusage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        return round(rusage / (1024 * 1024) if sys.platform == "darwin" else rusage / 1024, 2)
+        return round(
+            rusage / (1024 * 1024) if sys.platform == "darwin" else rusage / 1024, 2
+        )
     except Exception:
         pass
 
@@ -104,8 +110,7 @@ def get_overview() -> OverviewDTO:
 @router.get("/health", response_model=HealthDTO)
 def get_health(request: Request) -> HealthDTO:
     model_loaded = (
-        hasattr(request.app.state, "router")
-        and request.app.state.router is not None
+        hasattr(request.app.state, "router") and request.app.state.router is not None
     )
     start_time = getattr(request.app.state, "start_time", None) or _MODULE_START_TIME
     uptime = max(0.0, round(time.time() - start_time, 2))
@@ -131,7 +136,9 @@ def list_keys() -> list[KeyResponseDTO]:
     return [KeyResponseDTO(**k) for k in keys]
 
 
-@router.post("/keys", response_model=KeyCreateResponseDTO, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/keys", response_model=KeyCreateResponseDTO, status_code=status.HTTP_201_CREATED
+)
 def create_key(body: KeyCreateDTO) -> KeyCreateResponseDTO:
     key_id, raw_key, prefix = db.create_api_key(body.name, body.rate_limit)
     row_dict = db.get_api_key_by_id(key_id)
@@ -234,7 +241,11 @@ def get_blocklist() -> list[BlocklistItemDTO]:
     return [BlocklistItemDTO(**b) for b in blocked]
 
 
-@router.post("/blocklist", response_model=BlocklistActionResponseDTO, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/blocklist",
+    response_model=BlocklistActionResponseDTO,
+    status_code=status.HTTP_201_CREATED,
+)
 def add_blocked_ip(body: BlocklistCreateDTO) -> BlocklistActionResponseDTO:
     added = db.add_blocked_ip(body.ip_address, body.reason)
     if not added:
