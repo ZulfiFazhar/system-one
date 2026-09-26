@@ -56,6 +56,9 @@ class KeyResponseDTO(BaseModel):
     is_active: bool
     created_at: str | None = None
     last_used_at: str | None = None
+    total_requests: int = 0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
 
 
 class KeyCreateResponseDTO(KeyResponseDTO):
@@ -88,6 +91,10 @@ class LogsResponseDTO(BaseModel):
 class KeyActivityResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    key_id: int
+    name: str
+    key_prefix: str
+    is_active: bool
     total_requests: int
     total_input_tokens: int
     total_output_tokens: int

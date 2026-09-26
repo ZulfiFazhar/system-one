@@ -920,13 +920,13 @@
                 }
 
                 // Update KPIs
-                document.getElementById("kpi-total-requests").textContent = overview.total_requests.toLocaleString();
-                document.getElementById("kpi-error-rate").textContent = overview.error_rate.toFixed(1) + "%";
-                document.getElementById("kpi-avg-latency").textContent = overview.avg_latency_ms.toFixed(1) + " ms";
-                document.getElementById("kpi-total-tokens").textContent = (overview.total_input_tokens + overview.total_output_tokens).toLocaleString();
-                document.getElementById("kpi-token-breakdown").textContent = `In: ${overview.total_input_tokens.toLocaleString()} | Out: ${overview.total_output_tokens.toLocaleString()}`;
-                document.getElementById("kpi-active-keys").textContent = overview.active_keys_count.toLocaleString();
-                document.getElementById("kpi-blocked-ips").textContent = overview.blocked_ips_count.toLocaleString();
+                document.getElementById("kpi-total-requests").textContent = (overview.total_requests ?? 0).toLocaleString();
+                document.getElementById("kpi-error-rate").textContent = (overview.error_rate_pct ?? overview.error_rate ?? 0).toFixed(1) + "%";
+                document.getElementById("kpi-avg-latency").textContent = (overview.avg_latency_ms ?? 0).toFixed(1) + " ms";
+                document.getElementById("kpi-total-tokens").textContent = ((overview.total_input_tokens ?? 0) + (overview.total_output_tokens ?? 0)).toLocaleString();
+                document.getElementById("kpi-token-breakdown").textContent = `In: ${(overview.total_input_tokens ?? 0).toLocaleString()} | Out: ${(overview.total_output_tokens ?? 0).toLocaleString()}`;
+                document.getElementById("kpi-active-keys").textContent = (overview.active_keys ?? overview.active_keys_count ?? 0).toLocaleString();
+                document.getElementById("kpi-blocked-ips").textContent = (overview.blocked_ips_count ?? overview.blocked_ips ?? 0).toLocaleString();
 
                 // Update Diagnostics
                 const diagStatus = document.getElementById("diag-model-status");
@@ -955,8 +955,8 @@
             const ctx = document.getElementById("overview-traffic-chart").getContext("2d");
             
             const labels = timeseries.map(b => b.hour.substring(11, 16) || b.hour);
-            const successfulData = timeseries.map(b => b.successful_requests);
-            const failedData = timeseries.map(b => b.failed_requests);
+            const successfulData = timeseries.map(b => Math.max(0, (b.requests || 0) - (b.errors || 0)));
+            const failedData = timeseries.map(b => b.errors || 0);
 
             if (trafficChartInstance) {
                 trafficChartInstance.destroy();
@@ -1035,8 +1035,8 @@
                         <td class="py-3 px-4 text-cyan-400 font-bold">${escapeHtml(k.key_prefix)}</td>
                         <td class="py-3 px-4 font-semibold text-white">${escapeHtml(k.name)}</td>
                         <td class="py-3 px-4">${rateLimitStr}</td>
-                        <td class="py-3 px-4 text-zinc-200">${k.total_requests.toLocaleString()}</td>
-                        <td class="py-3 px-4 text-zinc-400">In: ${k.total_input_tokens.toLocaleString()} / Out: ${k.total_output_tokens.toLocaleString()}</td>
+                        <td class="py-3 px-4 text-zinc-200">${(k.total_requests ?? 0).toLocaleString()}</td>
+                        <td class="py-3 px-4 text-zinc-400">In: ${(k.total_input_tokens ?? 0).toLocaleString()} / Out: ${(k.total_output_tokens ?? 0).toLocaleString()}</td>
                         <td class="py-3 px-4">${statusBadge}</td>
                         <td class="py-3 px-4 text-zinc-400">${formatDate(k.created_at)}</td>
                         <td class="py-3 px-4 text-zinc-400">${formatDate(k.last_used_at)}</td>
@@ -1102,18 +1102,18 @@
             drawer.classList.remove("hidden");
             try {
                 const act = await apiFetch(`/api/admin/keys/${keyId}/activity`);
-                document.getElementById("drawer-key-name").textContent = act.name;
-                document.getElementById("drawer-key-prefix").textContent = "Prefix: " + act.key_prefix;
+                document.getElementById("drawer-key-name").textContent = act.name || "API Key";
+                document.getElementById("drawer-key-prefix").textContent = "Prefix: " + (act.key_prefix || "");
                 const statusEl = document.getElementById("drawer-key-status");
                 statusEl.textContent = act.is_active ? "ACTIVE" : "REVOKED";
                 statusEl.className = act.is_active 
                     ? "px-2 py-0.5 text-[10px] font-mono border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 font-bold"
                     : "px-2 py-0.5 text-[10px] font-mono border border-zinc-700 bg-zinc-800 text-zinc-400 font-bold";
 
-                document.getElementById("drawer-total-requests").textContent = act.total_requests.toLocaleString();
-                document.getElementById("drawer-total-tokens").textContent = (act.total_input_tokens + act.total_output_tokens).toLocaleString();
-                document.getElementById("drawer-avg-latency").textContent = act.avg_latency_ms.toFixed(1) + " ms";
-                document.getElementById("drawer-error-rate").textContent = act.error_rate.toFixed(1) + "%";
+                document.getElementById("drawer-total-requests").textContent = (act.total_requests ?? 0).toLocaleString();
+                document.getElementById("drawer-total-tokens").textContent = ((act.total_input_tokens ?? 0) + (act.total_output_tokens ?? 0)).toLocaleString();
+                document.getElementById("drawer-avg-latency").textContent = (act.avg_latency_ms ?? 0).toFixed(1) + " ms";
+                document.getElementById("drawer-error-rate").textContent = (act.error_rate_pct ?? act.error_rate ?? 0).toFixed(1) + "%";
 
                 // Render Drawer Chart
                 renderDrawerChart(act.timeseries_24h || []);
@@ -1145,8 +1145,8 @@
         function renderDrawerChart(timeseries) {
             const ctx = document.getElementById("drawer-activity-chart").getContext("2d");
             const labels = timeseries.map(b => b.hour.substring(11, 16) || b.hour);
-            const reqs = timeseries.map(b => b.total_requests);
-            const tokens = timeseries.map(b => b.total_tokens);
+            const reqs = timeseries.map(b => b.requests ?? b.total_requests ?? 0);
+            const tokens = timeseries.map(b => (b.input_tokens ?? 0) + (b.output_tokens ?? 0) || (b.total_tokens ?? 0));
 
             if (drawerChartInstance) {
                 drawerChartInstance.destroy();
@@ -1296,7 +1296,7 @@
                     tr.innerHTML = `
                         <td class="py-2.5 px-3 text-rose-400 font-bold">${escapeHtml(b.ip_address)}</td>
                         <td class="py-2.5 px-3 text-zinc-300">${escapeHtml(b.reason || "None")}</td>
-                        <td class="py-2.5 px-3 text-zinc-400">${formatDate(b.blocked_at)}</td>
+                        <td class="py-2.5 px-3 text-zinc-400">${formatDate(b.created_at || b.blocked_at)}</td>
                         <td class="py-2.5 px-3 text-right">
                             <button type="button" class="unblock-btn brutal-btn px-2.5 py-1 bg-[#18181b] text-zinc-200 hover:text-white text-[11px]" data-ip="${escapeHtml(b.ip_address)}">
                                 Unblock

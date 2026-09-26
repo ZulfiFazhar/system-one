@@ -104,9 +104,15 @@ def list_api_keys(db_path: str | None = None) -> list[dict]:
     try:
         rows = conn.execute(
             """
-            SELECT id, key_prefix, name, rate_limit, is_active, created_at, last_used_at
-            FROM api_keys
-            ORDER BY id DESC
+            SELECT 
+                k.id, k.key_prefix, k.name, k.rate_limit, k.is_active, k.created_at, k.last_used_at,
+                COUNT(l.id) AS total_requests,
+                COALESCE(SUM(l.input_tokens), 0) AS total_input_tokens,
+                COALESCE(SUM(l.output_tokens), 0) AS total_output_tokens
+            FROM api_keys k
+            LEFT JOIN request_logs l ON k.id = l.api_key_id
+            GROUP BY k.id
+            ORDER BY k.id DESC
             """
         ).fetchall()
         return [dict(r) for r in rows]
@@ -372,7 +378,7 @@ def get_key_activity(key_id: int, db_path: str | None = None) -> dict | None:
     conn = get_db_connection(db_path)
     try:
         key_row = conn.execute(
-            "SELECT id FROM api_keys WHERE id = ?", (key_id,)
+            "SELECT id, name, key_prefix, is_active FROM api_keys WHERE id = ?", (key_id,)
         ).fetchone()
         if not key_row:
             return None
@@ -453,6 +459,10 @@ def get_key_activity(key_id: int, db_path: str | None = None) -> dict | None:
                     b["errors"] += 1
 
         return {
+            "key_id": key_row["id"],
+            "name": key_row["name"],
+            "key_prefix": key_row["key_prefix"],
+            "is_active": bool(key_row["is_active"]),
             "total_requests": total_requests,
             "total_input_tokens": total_input_tokens,
             "total_output_tokens": total_output_tokens,
