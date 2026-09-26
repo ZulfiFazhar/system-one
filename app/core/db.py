@@ -101,60 +101,67 @@ def create_api_key(
 
 def list_api_keys(db_path: str | None = None) -> list[dict]:
     conn = get_db_connection(db_path)
-    rows = conn.execute(
-        """
-        SELECT id, key_prefix, name, rate_limit, is_active, created_at, last_used_at
-        FROM api_keys
-        ORDER BY id DESC
-        """
-    ).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, key_prefix, name, rate_limit, is_active, created_at, last_used_at
+            FROM api_keys
+            ORDER BY id DESC
+            """
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
 
 
 def get_api_key_by_hash(key_hash: str, db_path: str | None = None) -> dict | None:
     conn = get_db_connection(db_path)
-    row = conn.execute(
-        """
-        SELECT id, key_hash, key_prefix, name, rate_limit, is_active, created_at, last_used_at
-        FROM api_keys
-        WHERE key_hash = ?
-        """,
-        (key_hash,),
-    ).fetchone()
-    conn.close()
-    return dict(row) if row else None
+    try:
+        row = conn.execute(
+            """
+            SELECT id, key_hash, key_prefix, name, rate_limit, is_active, created_at, last_used_at
+            FROM api_keys
+            WHERE key_hash = ?
+            """,
+            (key_hash,),
+        ).fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+_UNSET = object()
 
 
 def update_api_key(
     key_id: int,
     is_active: bool | None = None,
-    rate_limit: int | None = None,
+    rate_limit: int | None | object = _UNSET,
     db_path: str | None = None,
 ) -> bool:
     conn = get_db_connection(db_path)
-    fields = []
-    params = []
-    if is_active is not None:
-        fields.append("is_active = ?")
-        params.append(1 if is_active else 0)
-    if rate_limit is not None:
-        fields.append("rate_limit = ?")
-        params.append(rate_limit)
+    try:
+        fields = []
+        params = []
+        if is_active is not None:
+            fields.append("is_active = ?")
+            params.append(1 if is_active else 0)
+        if rate_limit is not _UNSET:
+            fields.append("rate_limit = ?")
+            params.append(rate_limit)
 
-    if not fields:
-        row = conn.execute("SELECT id FROM api_keys WHERE id = ?", (key_id,)).fetchone()
+        if not fields:
+            row = conn.execute("SELECT id FROM api_keys WHERE id = ?", (key_id,)).fetchone()
+            return row is not None
+
+        params.append(key_id)
+        with conn:
+            cur = conn.execute(
+                f"UPDATE api_keys SET {', '.join(fields)} WHERE id = ?", params
+            )
+            return cur.rowcount > 0
+    finally:
         conn.close()
-        return row is not None
-
-    params.append(key_id)
-    with conn:
-        cur = conn.execute(
-            f"UPDATE api_keys SET {', '.join(fields)} WHERE id = ?", params
-        )
-        rowcount = cur.rowcount
-    conn.close()
-    return rowcount > 0
 
 
 def delete_api_key(key_id: int, db_path: str | None = None) -> bool:
@@ -255,141 +262,144 @@ def get_request_logs(
 
 def get_overview_metrics(db_path: str | None = None) -> dict:
     conn = get_db_connection(db_path)
-    row = conn.execute(
-        """
-        SELECT
-            COUNT(*) as total_requests,
-            COALESCE(SUM(input_tokens), 0) as total_input_tokens,
-            COALESCE(SUM(output_tokens), 0) as total_output_tokens,
-            COALESCE(AVG(latency_ms), 0.0) as avg_latency_ms,
-            COALESCE(SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END), 0) as error_count
-        FROM request_logs
-        """
-    ).fetchone()
+    try:
+        row = conn.execute(
+            """
+            SELECT
+                COUNT(*) as total_requests,
+                COALESCE(SUM(input_tokens), 0) as total_input_tokens,
+                COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+                COALESCE(AVG(latency_ms), 0.0) as avg_latency_ms,
+                COALESCE(SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END), 0) as error_count
+            FROM request_logs
+            """
+        ).fetchone()
 
-    total_requests = row["total_requests"] if row else 0
-    total_input_tokens = row["total_input_tokens"] if row else 0
-    total_output_tokens = row["total_output_tokens"] if row else 0
-    avg_latency_ms = round(float(row["avg_latency_ms"]), 2) if row else 0.0
-    error_count = row["error_count"] if row else 0
-    error_rate_pct = (
-        round((error_count / total_requests) * 100.0, 2) if total_requests > 0 else 0.0
-    )
+        total_requests = row["total_requests"] if row else 0
+        total_input_tokens = row["total_input_tokens"] if row else 0
+        total_output_tokens = row["total_output_tokens"] if row else 0
+        avg_latency_ms = round(float(row["avg_latency_ms"]), 2) if row else 0.0
+        error_count = row["error_count"] if row else 0
+        error_rate_pct = (
+            round((error_count / total_requests) * 100.0, 2) if total_requests > 0 else 0.0
+        )
 
-    active_keys_row = conn.execute(
-        "SELECT COUNT(*) FROM api_keys WHERE is_active = 1"
-    ).fetchone()
-    active_keys = active_keys_row[0] if active_keys_row else 0
+        active_keys_row = conn.execute(
+            "SELECT COUNT(*) FROM api_keys WHERE is_active = 1"
+        ).fetchone()
+        active_keys = active_keys_row[0] if active_keys_row else 0
 
-    blocked_row = conn.execute("SELECT COUNT(*) FROM ip_blocklist").fetchone()
-    blocked_ips_count = blocked_row[0] if blocked_row else 0
+        blocked_row = conn.execute("SELECT COUNT(*) FROM ip_blocklist").fetchone()
+        blocked_ips_count = blocked_row[0] if blocked_row else 0
 
-    conn.close()
-    return {
-        "total_requests": total_requests,
-        "total_input_tokens": total_input_tokens,
-        "total_output_tokens": total_output_tokens,
-        "avg_latency_ms": avg_latency_ms,
-        "error_rate_pct": error_rate_pct,
-        "active_keys": active_keys,
-        "blocked_ips_count": blocked_ips_count,
-    }
+        return {
+            "total_requests": total_requests,
+            "total_input_tokens": total_input_tokens,
+            "total_output_tokens": total_output_tokens,
+            "avg_latency_ms": avg_latency_ms,
+            "error_rate_pct": error_rate_pct,
+            "active_keys": active_keys,
+            "blocked_ips_count": blocked_ips_count,
+        }
+    finally:
+        conn.close()
 
 
 def get_key_activity(key_id: int, db_path: str | None = None) -> dict | None:
     conn = get_db_connection(db_path)
-    key_row = conn.execute(
-        "SELECT id FROM api_keys WHERE id = ?", (key_id,)
-    ).fetchone()
-    if not key_row:
-        conn.close()
-        return None
+    try:
+        key_row = conn.execute(
+            "SELECT id FROM api_keys WHERE id = ?", (key_id,)
+        ).fetchone()
+        if not key_row:
+            return None
 
-    row = conn.execute(
-        """
-        SELECT
-            COUNT(*) as total_requests,
-            COALESCE(SUM(input_tokens), 0) as total_input_tokens,
-            COALESCE(SUM(output_tokens), 0) as total_output_tokens,
-            COALESCE(AVG(latency_ms), 0.0) as avg_latency_ms,
-            COALESCE(SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END), 0) as error_count
-        FROM request_logs
-        WHERE api_key_id = ?
-        """,
-        (key_id,),
-    ).fetchone()
+        row = conn.execute(
+            """
+            SELECT
+                COUNT(*) as total_requests,
+                COALESCE(SUM(input_tokens), 0) as total_input_tokens,
+                COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+                COALESCE(AVG(latency_ms), 0.0) as avg_latency_ms,
+                COALESCE(SUM(CASE WHEN status_code >= 400 THEN 1 ELSE 0 END), 0) as error_count
+            FROM request_logs
+            WHERE api_key_id = ?
+            """,
+            (key_id,),
+        ).fetchone()
 
-    total_requests = row["total_requests"] if row else 0
-    total_input_tokens = row["total_input_tokens"] if row else 0
-    total_output_tokens = row["total_output_tokens"] if row else 0
-    avg_latency_ms = round(float(row["avg_latency_ms"]), 2) if row else 0.0
-    error_count = row["error_count"] if row else 0
-    error_rate_pct = (
-        round((error_count / total_requests) * 100.0, 2) if total_requests > 0 else 0.0
-    )
+        total_requests = row["total_requests"] if row else 0
+        total_input_tokens = row["total_input_tokens"] if row else 0
+        total_output_tokens = row["total_output_tokens"] if row else 0
+        avg_latency_ms = round(float(row["avg_latency_ms"]), 2) if row else 0.0
+        error_count = row["error_count"] if row else 0
+        error_rate_pct = (
+            round((error_count / total_requests) * 100.0, 2) if total_requests > 0 else 0.0
+        )
 
-    now = time.time()
-    cutoff_24h = now - (24 * 3600)
-    rows_24h = conn.execute(
-        """
-        SELECT timestamp, input_tokens, output_tokens, status_code
-        FROM request_logs
-        WHERE api_key_id = ? AND timestamp >= ?
-        """,
-        (key_id, cutoff_24h),
-    ).fetchall()
+        now = time.time()
+        cutoff_24h = now - (24 * 3600)
+        rows_24h = conn.execute(
+            """
+            SELECT timestamp, input_tokens, output_tokens, status_code
+            FROM request_logs
+            WHERE api_key_id = ? AND timestamp >= ?
+            """,
+            (key_id, cutoff_24h),
+        ).fetchall()
 
-    recent_rows = conn.execute(
-        """
-        SELECT id, timestamp, endpoint, method, status_code, latency_ms,
-               ip_address, api_key_id, input_tokens, output_tokens
-        FROM request_logs
-        WHERE api_key_id = ?
-        ORDER BY timestamp DESC
-        LIMIT 50
-        """,
-        (key_id,),
-    ).fetchall()
-    conn.close()
+        recent_rows = conn.execute(
+            """
+            SELECT id, timestamp, endpoint, method, status_code, latency_ms,
+                   ip_address, api_key_id, input_tokens, output_tokens
+            FROM request_logs
+            WHERE api_key_id = ?
+            ORDER BY timestamp DESC
+            LIMIT 50
+            """,
+            (key_id,),
+        ).fetchall()
 
-    # ponytail: in-memory 24h hourly bucketing handles single-node scale; upgrade to TimescaleDB or ClickHouse if logs exceed millions/day.
-    current_hour_epoch = int(now // 3600) * 3600
-    buckets = []
-    bucket_map = {}
-    for i in range(23, -1, -1):
-        bucket_ts = current_hour_epoch - (i * 3600)
-        hour_label = time.strftime("%Y-%m-%d %H:00", time.gmtime(bucket_ts))
-        b = {
-            "hour": hour_label,
-            "timestamp": bucket_ts,
-            "requests": 0,
-            "input_tokens": 0,
-            "output_tokens": 0,
-            "errors": 0,
+        # ponytail: in-memory 24h hourly bucketing handles single-node scale; upgrade to TimescaleDB or ClickHouse if logs exceed millions/day.
+        current_hour_epoch = int(now // 3600) * 3600
+        buckets = []
+        bucket_map = {}
+        for i in range(23, -1, -1):
+            bucket_ts = current_hour_epoch - (i * 3600)
+            hour_label = time.strftime("%Y-%m-%d %H:00", time.gmtime(bucket_ts))
+            b = {
+                "hour": hour_label,
+                "timestamp": bucket_ts,
+                "requests": 0,
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "errors": 0,
+            }
+            buckets.append(b)
+            bucket_map[bucket_ts] = b
+
+        for r in rows_24h:
+            ts = r["timestamp"]
+            bucket_ts = int(ts // 3600) * 3600
+            if bucket_ts in bucket_map:
+                b = bucket_map[bucket_ts]
+                b["requests"] += 1
+                b["input_tokens"] += r["input_tokens"] or 0
+                b["output_tokens"] += r["output_tokens"] or 0
+                if r["status_code"] >= 400:
+                    b["errors"] += 1
+
+        return {
+            "total_requests": total_requests,
+            "total_input_tokens": total_input_tokens,
+            "total_output_tokens": total_output_tokens,
+            "avg_latency_ms": avg_latency_ms,
+            "error_rate_pct": error_rate_pct,
+            "timeseries_24h": buckets,
+            "recent_logs": [dict(r) for r in recent_rows],
         }
-        buckets.append(b)
-        bucket_map[bucket_ts] = b
-
-    for r in rows_24h:
-        ts = r["timestamp"]
-        bucket_ts = int(ts // 3600) * 3600
-        if bucket_ts in bucket_map:
-            b = bucket_map[bucket_ts]
-            b["requests"] += 1
-            b["input_tokens"] += r["input_tokens"] or 0
-            b["output_tokens"] += r["output_tokens"] or 0
-            if r["status_code"] >= 400:
-                b["errors"] += 1
-
-    return {
-        "total_requests": total_requests,
-        "total_input_tokens": total_input_tokens,
-        "total_output_tokens": total_output_tokens,
-        "avg_latency_ms": avg_latency_ms,
-        "error_rate_pct": error_rate_pct,
-        "timeseries_24h": buckets,
-        "recent_logs": [dict(r) for r in recent_rows],
-    }
+    finally:
+        conn.close()
 
 
 def get_system_settings(db_path: str | None = None) -> dict[str, str]:
