@@ -5,7 +5,12 @@ from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from app.core.config import settings
-from app.core.security import create_admin_session_token, verify_admin_cookie
+from app.core.security import (
+    check_ip_blocklist,
+    check_rate_limit,
+    create_admin_session_token,
+    verify_admin_cookie,
+)
 
 router = APIRouter()
 
@@ -74,6 +79,10 @@ async def admin_login_page(request: Request) -> Response:
 
 @router.post("/admin/login")
 async def admin_login(request: Request) -> JSONResponse:
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    check_ip_blocklist(client_ip)
+    check_rate_limit(client_ip)
+
     username = ""
     password = ""
     content_type = request.headers.get("content-type", "")
