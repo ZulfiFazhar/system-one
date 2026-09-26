@@ -1,5 +1,6 @@
 import secrets
 import sqlite3
+import threading
 import time
 from collections import defaultdict
 from fastapi import Depends, HTTPException, Request, Security, status
@@ -19,6 +20,7 @@ admin_basic_scheme = HTTPBasic(auto_error=False)
 # ponytail: in-memory sliding window store works for single process; upgrade to Redis/Dragonfly for distributed horizontal scaling.
 _RATE_LIMIT_STORE: dict[str, list[float]] = defaultdict(list)
 _KEY_RATE_LIMIT_STORE: dict[int, list[float]] = defaultdict(list)
+_RATE_LIMIT_LOCK = threading.Lock()
 
 _BLOCKED_IPS: set[str] = set()
 _CACHED_PUBLIC_RATE_LIMIT: int | None = None
@@ -28,11 +30,12 @@ _CACHED_PUBLIC_RATE_WINDOW: int | None = None
 def reset_rate_limits() -> None:
     """Helper to reset rate limit records (e.g. for testing)."""
     global _CACHED_PUBLIC_RATE_LIMIT, _CACHED_PUBLIC_RATE_WINDOW, _BLOCKED_IPS
-    _RATE_LIMIT_STORE.clear()
-    _KEY_RATE_LIMIT_STORE.clear()
-    _BLOCKED_IPS = set()
-    _CACHED_PUBLIC_RATE_LIMIT = None
-    _CACHED_PUBLIC_RATE_WINDOW = None
+    with _RATE_LIMIT_LOCK:
+        _RATE_LIMIT_STORE.clear()
+        _KEY_RATE_LIMIT_STORE.clear()
+        _BLOCKED_IPS = set()
+        _CACHED_PUBLIC_RATE_LIMIT = None
+        _CACHED_PUBLIC_RATE_WINDOW = None
 
 
 def refresh_security_caches(db_path: str | None = None) -> None:
@@ -41,7 +44,7 @@ def refresh_security_caches(db_path: str | None = None) -> None:
     try:
         blocked = db.get_blocked_ips(db_path)
         _BLOCKED_IPS = {row["ip_address"] for row in blocked}
-    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+    except (sqlite3.OperationalError, sqlite3.DatabaseError, ValueError):
         _BLOCKED_IPS = set()
 
     try:
@@ -50,7 +53,7 @@ def refresh_security_caches(db_path: str | None = None) -> None:
             _CACHED_PUBLIC_RATE_LIMIT = int(sys_settings["public_rate_limit_requests"])
         if "public_rate_limit_window_seconds" in sys_settings:
             _CACHED_PUBLIC_RATE_WINDOW = int(sys_settings["public_rate_limit_window_seconds"])
-    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+    except (sqlite3.OperationalError, sqlite3.DatabaseError, ValueError):
         pass
 
 
@@ -64,19 +67,21 @@ def check_ip_blocklist(client_ip: str) -> None:
 
 def check_key_rate_limit(key_id: int, limit: int, window: int = 60) -> None:
     now = time.time()
-    timestamps = _KEY_RATE_LIMIT_STORE[key_id]
-    valid_timestamps = [ts for ts in timestamps if now - ts < window]
-    _KEY_RATE_LIMIT_STORE[key_id] = valid_timestamps
+    with _RATE_LIMIT_LOCK:
+        timestamps = _KEY_RATE_LIMIT_STORE[key_id]
+        valid_timestamps = [ts for ts in timestamps if now - ts < window]
+        _KEY_RATE_LIMIT_STORE[key_id] = valid_timestamps
 
-    if len(valid_timestamps) >= limit:
-        retry_after = int(window - (now - valid_timestamps[0])) + 1
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"API key rate limit exceeded ({limit} requests per {window}s). Retry after {retry_after}s.",
-            headers={"Retry-After": str(max(1, retry_after))},
-        )
+        if len(valid_timestamps) >= limit:
+            first_ts = valid_timestamps[0] if valid_timestamps else now
+            retry_after = int(window - (now - first_ts)) + 1
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"API key rate limit exceeded ({limit} requests per {window}s). Retry after {retry_after}s.",
+                headers={"Retry-After": str(max(1, retry_after))},
+            )
 
-    valid_timestamps.append(now)
+        valid_timestamps.append(now)
 
 
 def check_rate_limit(client_ip: str) -> None:
@@ -95,19 +100,21 @@ def check_rate_limit(client_ip: str) -> None:
         else settings.rate_limit_window_seconds
     )
 
-    timestamps = _RATE_LIMIT_STORE[client_ip]
-    valid_timestamps = [ts for ts in timestamps if now - ts < window]
-    _RATE_LIMIT_STORE[client_ip] = valid_timestamps
+    with _RATE_LIMIT_LOCK:
+        timestamps = _RATE_LIMIT_STORE[client_ip]
+        valid_timestamps = [ts for ts in timestamps if now - ts < window]
+        _RATE_LIMIT_STORE[client_ip] = valid_timestamps
 
-    if len(valid_timestamps) >= limit:
-        retry_after = int(window - (now - valid_timestamps[0])) + 1
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Public rate limit exceeded ({limit} requests per {window}s). Provide a valid API key for unlimited access, or retry after {retry_after}s.",
-            headers={"Retry-After": str(max(1, retry_after))},
-        )
+        if len(valid_timestamps) >= limit:
+            first_ts = valid_timestamps[0] if valid_timestamps else now
+            retry_after = int(window - (now - first_ts)) + 1
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Public rate limit exceeded ({limit} requests per {window}s). Provide a valid API key for unlimited access, or retry after {retry_after}s.",
+                headers={"Retry-After": str(max(1, retry_after))},
+            )
 
-    valid_timestamps.append(now)
+        valid_timestamps.append(now)
 
 
 def verify_admin_credentials(

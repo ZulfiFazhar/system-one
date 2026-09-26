@@ -13,5 +13,8 @@ wheels/
 # Models
 models/
 
+# Database storage
+data/
+
 .superpowers
 docs/superpowers
