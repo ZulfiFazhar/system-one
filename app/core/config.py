@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     # Dashboard & Admin
     admin_username: str = "admin"
     admin_password: str = "changeme"
+    admin_session_secret: str = ""
     database_path: str = "data/dashboard.db"
 
     log_level: str = "INFO"

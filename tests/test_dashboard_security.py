@@ -11,9 +11,13 @@ from app.core.security import (
     check_ip_blocklist,
     check_key_rate_limit,
     check_rate_limit,
+    create_admin_session_token,
     refresh_security_caches,
     reset_rate_limits,
+    verify_admin_auth,
+    verify_admin_cookie,
     verify_admin_credentials,
+    verify_admin_session_token,
     verify_api_key,
 )
 
@@ -248,3 +252,47 @@ def test_verify_api_key_public_unauthenticated(temp_db):
     with pytest.raises(HTTPException) as exc_info:
         verify_api_key(req2, None)
     assert exc_info.value.status_code == 429
+
+
+# --- Admin Session & Dual Auth Tests ---
+
+
+def test_admin_session_cookie_lifecycle():
+    token = create_admin_session_token("admin_user", expires_in_seconds=3600)
+    assert verify_admin_session_token(token) == "admin_user"
+
+    expired_token = create_admin_session_token("admin_user", expires_in_seconds=-1)
+    assert verify_admin_session_token(expired_token) is None
+
+    payload, sig = token.rsplit(".", 1)
+    tampered_sig = "0" * len(sig) if sig[0] != "0" else "1" * len(sig)
+    assert verify_admin_session_token(f"{payload}.{tampered_sig}") is None
+
+    assert verify_admin_session_token("malformed") is None
+    assert verify_admin_session_token("no:sig:here") is None
+    assert verify_admin_session_token("") is None
+    assert verify_admin_session_token("bad:payload.sig") is None
+
+
+def test_verify_admin_auth_with_cookie_and_basic(monkeypatch):
+    monkeypatch.setattr(settings, "admin_username", "admin")
+    monkeypatch.setattr(settings, "admin_password", "password123")
+
+    # Request with valid admin_session cookie succeeds without basic credentials
+    valid_token = create_admin_session_token("admin")
+    req_cookie = SimpleNamespace(cookies={"admin_session": valid_token})
+    assert verify_admin_cookie(req_cookie) == "admin"
+    assert verify_admin_auth(req_cookie, credentials=None) == "admin"
+
+    # Request with valid Basic auth credentials succeeds without cookie
+    req_no_cookie = SimpleNamespace(cookies={})
+    assert verify_admin_cookie(req_no_cookie) is None
+    creds = HTTPBasicCredentials(username="admin", password="password123")
+    assert verify_admin_auth(req_no_cookie, credentials=creds) == "admin"
+
+    # Request with neither raises 401 with WWW-Authenticate
+    with pytest.raises(HTTPException) as exc_info:
+        verify_admin_auth(req_no_cookie, credentials=None)
+    assert exc_info.value.status_code == 401
+    assert exc_info.value.headers.get("WWW-Authenticate") == "Basic"
+

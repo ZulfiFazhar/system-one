@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import secrets
 import sqlite3
 import threading
@@ -117,6 +119,54 @@ def check_rate_limit(client_ip: str) -> None:
         valid_timestamps.append(now)
 
 
+_SESSION_SECRET: str | None = None
+
+
+def get_session_secret() -> str:
+    global _SESSION_SECRET
+    if settings.admin_session_secret:
+        return settings.admin_session_secret
+    if _SESSION_SECRET is None:
+        _SESSION_SECRET = secrets.token_hex(32)
+    return _SESSION_SECRET
+
+
+def create_admin_session_token(username: str, expires_in_seconds: int = 86400) -> str:
+    exp = int(time.time() + expires_in_seconds)
+    salt = secrets.token_hex(4)
+    payload = f"{username}:{exp}:{salt}"
+    secret = get_session_secret()
+    sig = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+    return f"{payload}.{sig}"
+
+
+def verify_admin_session_token(token: str) -> str | None:
+    if not isinstance(token, str) or "." not in token:
+        return None
+    try:
+        payload, sig = token.rsplit(".", 1)
+        secret = get_session_secret()
+        expected_sig = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+        if not secrets.compare_digest(sig, expected_sig):
+            return None
+        username, exp_str, salt = payload.split(":", 2)
+        if time.time() > float(exp_str):
+            return None
+        return username
+    except (ValueError, TypeError):
+        return None
+
+
+def verify_admin_cookie(request: Request) -> str | None:
+    cookies = getattr(request, "cookies", None)
+    if not cookies:
+        return None
+    token = cookies.get("admin_session")
+    if not token:
+        return None
+    return verify_admin_session_token(token)
+
+
 def verify_admin_credentials(
     credentials: HTTPBasicCredentials | None = Depends(admin_basic_scheme),
 ) -> str:
@@ -137,6 +187,16 @@ def verify_admin_credentials(
             headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
+
+
+def verify_admin_auth(
+    request: Request,
+    credentials: HTTPBasicCredentials | None = Depends(admin_basic_scheme),
+) -> str:
+    cookie_user = verify_admin_cookie(request)
+    if cookie_user is not None:
+        return cookie_user
+    return verify_admin_credentials(credentials)
 
 
 def verify_api_key(
