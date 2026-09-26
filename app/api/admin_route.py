@@ -1,14 +1,12 @@
 import math
 import os
 import time
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.responses import HTMLResponse
 
 from app.core import db
 from app.core.config import settings
-from app.core.security import refresh_security_caches, verify_admin_credentials
+from app.core.security import refresh_security_caches, verify_admin_auth
 from app.dto.admin_dto import (
     BlocklistActionResponseDTO,
     BlocklistCreateDTO,
@@ -27,26 +25,8 @@ from app.dto.admin_dto import (
     SettingsUpdateDTO,
 )
 
-router = APIRouter(dependencies=[Depends(verify_admin_credentials)])
-admin_ui_router = APIRouter(dependencies=[Depends(verify_admin_credentials)])
+router = APIRouter(dependencies=[Depends(verify_admin_auth)])
 _MODULE_START_TIME = time.time()
-
-DASHBOARD_TEMPLATE_PATH = (
-    Path(__file__).resolve().parent.parent / "templates" / "dashboard.html"
-)
-_DASHBOARD_TEMPLATE_CACHE: str | None = None
-
-
-def get_dashboard_template_content() -> str:
-    global _DASHBOARD_TEMPLATE_CACHE
-    if settings.is_development or _DASHBOARD_TEMPLATE_CACHE is None:
-        _DASHBOARD_TEMPLATE_CACHE = DASHBOARD_TEMPLATE_PATH.read_text(encoding="utf-8")
-    return _DASHBOARD_TEMPLATE_CACHE
-
-
-@admin_ui_router.get("/admin", response_class=HTMLResponse)
-async def admin_dashboard() -> HTMLResponse:
-    return HTMLResponse(content=get_dashboard_template_content(), status_code=200)
 
 
 def _get_memory_rss_mb() -> float:
