@@ -3,7 +3,11 @@ from fastapi.testclient import TestClient
 
 from app.core import db
 from app.core.config import settings
-from app.core.security import refresh_security_caches, reset_rate_limits
+from app.core.security import (
+    create_admin_session_token,
+    refresh_security_caches,
+    reset_rate_limits,
+)
 from app.core.server import create_application
 
 
@@ -25,31 +29,36 @@ def client(temp_db):
     return TestClient(app)
 
 
-ADMIN_AUTH = ("admin", "changeme")
-BAD_AUTH = ("admin", "wrongpassword")
+def test_admin_ui_unauthenticated_redirects_to_login(client):
+    resp = client.get("/admin", follow_redirects=False)
+    assert resp.status_code == 303
+    assert resp.headers.get("location") == "/admin/login"
 
 
-def test_admin_ui_unauthenticated_returns_401(client):
+def test_admin_login_page_renders_html(client):
+    resp = client.get("/admin/login")
+    assert resp.status_code == 200
+    assert "text/html" in resp.headers.get("content-type", "")
+    html = resp.text
+    assert "System One" in html
+    assert "Admin Console Authentication" in html
+    assert "username-input" in html
+    assert "password-input" in html
+    assert "login-form" in html
+
+
+def test_admin_ui_authenticated_with_session_cookie(client):
+    token = create_admin_session_token("admin")
+    client.cookies["admin_session"] = token
     resp = client.get("/admin")
-    assert resp.status_code == 401
-    assert resp.headers.get("www-authenticate") == "Basic"
-
-
-def test_admin_ui_bad_credentials_returns_401(client):
-    resp = client.get("/admin", auth=BAD_AUTH)
-    assert resp.status_code == 401
-    assert resp.headers.get("www-authenticate") == "Basic"
-
-
-def test_admin_ui_authenticated_returns_html(client):
-    resp = client.get("/admin", auth=ADMIN_AUTH)
     assert resp.status_code == 200
     assert "text/html" in resp.headers.get("content-type", "")
 
     html = resp.text
-    # Core headings / titles
+    # Core headings / titles & logout button
     assert "System One" in html
     assert "Admin Dashboard" in html
+    assert "logout-btn" in html
 
     # Tab navigation elements
     assert "Overview &amp; Health" in html or "Overview & Health" in html
@@ -106,6 +115,8 @@ def test_admin_ui_authenticated_returns_html(client):
 
 
 def test_admin_ui_trailing_slash_redirect(client):
-    resp = client.get("/admin/", auth=ADMIN_AUTH, follow_redirects=True)
+    token = create_admin_session_token("admin")
+    client.cookies["admin_session"] = token
+    resp = client.get("/admin/", follow_redirects=True)
     assert resp.status_code == 200
     assert "Admin Dashboard" in resp.text
