@@ -14,6 +14,7 @@ from app.core.db import init_db, prune_old_logs
 from app.core.middleware import DashboardLoggingMiddleware
 from app.core.security import refresh_security_caches
 from app.services.laya_service import load_laya_model
+from app.web import web_router
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,8 @@ def create_application() -> FastAPI:
 
     setup_middlewares(app)
 
+    # Mount web UI routes
+    app.include_router(web_router)
     # Mount api routes
     app.include_router(api_router)
 
