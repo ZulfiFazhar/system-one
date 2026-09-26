@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System One | Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bgDark: "#09090b",
+                        cardDark: "#18181b",
+                        cardSubtle: "#141417",
+                        borderDark: "#27272a",
+                        borderHover: "#3f3f46",
+                        accentCyan: "#06b6d4",
+                        accentEmerald: "#10b981",
+                        accentRose: "#f43f5e",
+                        accentAmber: "#f59e0b",
+                    },
+                    boxShadow: {
+                        hard: "2px 2px 0px rgba(0, 0, 0, 0.4)",
+                        "hard-hover": "3px 3px 0px rgba(0, 0, 0, 0.6)",
+                        "hard-active": "1px 1px 0px rgba(0, 0, 0, 0.4)",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+                        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            background-color: #09090b;
+            color: #f4f4f5;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .brutal-card {
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+        }
+        .brutal-btn {
+            border: 1px solid #3f3f46;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+        }
+        .brutal-btn:hover:not(:disabled) {
+            transform: translate(-1px, -1px);
+            border-color: #71717a;
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.6);
+        }
+        .brutal-btn:active:not(:disabled) {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+        }
+        .brutal-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .brutal-input {
+            border: 1px solid #27272a;
+            background-color: #0c0c0e;
+            color: #ffffff;
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.15s ease;
+        }
+        .brutal-input:focus {
+            outline: none;
+            border-color: #52525b;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#09090b] text-[#f4f4f5] antialiased">
+    <!-- Top Header -->
+    <header class="border-b border-[#27272a] bg-[#09090b] sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-2.5 hover:opacity-90 transition">
+                    <span class="w-3.5 h-3.5 bg-cyan-400 inline-block shadow-hard"></span>
+                    <span class="font-extrabold text-lg tracking-tight font-sans text-white">System One</span>
+                </a>
+                <span class="text-xs px-2 py-0.5 border border-[#3f3f46] font-mono bg-[#18181b] text-zinc-300">
+                    Admin Dashboard
+                </span>
+                <div id="header-health" class="hidden sm:inline-flex items-center gap-2 px-2 py-0.5 border border-[#27272a] text-xs font-mono bg-[#141417]">
+                    <span id="header-health-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse inline-block"></span>
+                    <span id="header-health-text" class="text-zinc-400">Checking health...</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="/" class="brutal-btn px-2.5 py-1.5 bg-[#18181b] text-zinc-300 hover:text-white text-xs font-mono flex items-center gap-1">
+                    <span>Public Site</span>
+                    <span aria-hidden="true">&nearr;</span>
+                </a>
+                <a href="/docs" target="_blank" rel="noopener noreferrer" class="brutal-btn px-2.5 py-1.5 bg-[#18181b] text-zinc-300 hover:text-white text-xs font-mono flex items-center gap-1">
+                    <span>API Docs</span>
+                    <span aria-hidden="true">&nearr;</span>
+                </a>
+                <button type="button" id="refresh-all-btn" class="brutal-btn px-3 py-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-semibold flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs Bar -->
+        <div class="border-t border-[#27272a] bg-[#0c0c0e]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 py-2 text-xs font-mono">
+                <button type="button" class="tab-btn px-3.5 py-2 border font-semibold flex items-center gap-2 bg-[#18181b] text-white border-white shadow-hard" data-tab="overview">
+                    <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <span>Overview &amp; Health</span>
+                </button>
+                <button type="button" class="tab-btn px-3.5 py-2 border font-medium flex items-center gap-2 bg-[#141417] text-zinc-400 border-[#27272a] hover:text-zinc-200" data-tab="keys">
+                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                    <span>API Keys &amp; Activity</span>
+                </button>
+                <button type="button" class="tab-btn px-3.5 py-2 border font-medium flex items-center gap-2 bg-[#141417] text-zinc-400 border-[#27272a] hover:text-zinc-200" data-tab="security">
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span>Rate Limits &amp; Blocklist</span>
+                </button>
+                <button type="button" class="tab-btn px-3.5 py-2 border font-medium flex items-center gap-2 bg-[#141417] text-zinc-400 border-[#27272a] hover:text-zinc-200" data-tab="logs">
+                    <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    <span>Live Request Logs</span>
+                </button>
+                <button type="button" class="tab-btn px-3.5 py-2 border font-medium flex items-center gap-2 bg-[#141417] text-zinc-400 border-[#27272a] hover:text-zinc-200" data-tab="playground">
+                    <svg class="w-3.5 h-3.5 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Playground</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: OVERVIEW & SYSTEM HEALTH            -->
+        <!-- ========================================== -->
+        <section id="tab-overview" class="tab-content space-y-6">
+            <!-- KPI Cards Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="brutal-card p-4">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Total Requests</div>
+                    <div id="kpi-total-requests" class="text-2xl font-bold font-mono text-white mt-1">--</div>
+                    <div class="text-[11px] text-zinc-500 font-mono mt-1">All time</div>
+                </div>
+                <div class="brutal-card p-4">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Error Rate</div>
+                    <div id="kpi-error-rate" class="text-2xl font-bold font-mono text-white mt-1">--%</div>
+                    <div class="text-[11px] text-zinc-500 font-mono mt-1">4xx &amp; 5xx</div>
+                </div>
+                <div class="brutal-card p-4">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Avg Latency</div>
+                    <div id="kpi-avg-latency" class="text-2xl font-bold font-mono text-white mt-1">-- ms</div>
+                    <div class="text-[11px] text-zinc-500 font-mono mt-1">Mean forward pass</div>
+                </div>
+                <div class="brutal-card p-4">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Total Tokens</div>
+                    <div id="kpi-total-tokens" class="text-lg font-bold font-mono text-cyan-400 mt-1">--</div>
+                    <div id="kpi-token-breakdown" class="text-[10px] text-zinc-400 font-mono mt-1">In: -- | Out: --</div>
+                </div>
+                <div class="brutal-card p-4">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Active Keys</div>
+                    <div id="kpi-active-keys" class="text-2xl font-bold font-mono text-emerald-400 mt-1">--</div>
+                    <div class="text-[11px] text-zinc-500 font-mono mt-1">Configured keys</div>
+                </div>
+                <div class="brutal-card p-4">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Blocked IPs</div>
+                    <div id="kpi-blocked-ips" class="text-2xl font-bold font-mono text-rose-400 mt-1">--</div>
+                    <div class="text-[11px] text-zinc-500 font-mono mt-1">Blacklist rules</div>
+                </div>
+            </div>
+
+            <!-- Two-column: Traffic Chart & System Diagnostics -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 24-Hour Traffic Chart -->
+                <div class="brutal-card p-5 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-white tracking-tight">24-Hour Traffic Activity</h2>
+                            <p class="text-xs text-zinc-400 font-mono">Requests &amp; error volume grouped by hour</p>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#141417] text-zinc-300">Live 24h</span>
+                    </div>
+                    <div class="h-64 w-full">
+                        <canvas id="overview-traffic-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- System Diagnostics -->
+                <div class="brutal-card p-5 space-y-4">
+                    <div class="border-b border-[#27272a] pb-3">
+                        <h2 class="text-base font-bold text-white tracking-tight">System Diagnostics</h2>
+                        <p class="text-xs text-zinc-400 font-mono">Runtime &amp; engine health status</p>
+                    </div>
+
+                    <div class="space-y-3 font-mono text-xs">
+                        <div class="flex items-center justify-between border-b border-[#222226] pb-2">
+                            <span class="text-zinc-400">Model Engine:</span>
+                            <span id="diag-model-status" class="px-2 py-0.5 text-[11px] font-bold border border-zinc-700 bg-zinc-800 text-zinc-300">
+                                Checking...
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-[#222226] pb-2">
+                            <span class="text-zinc-400">Model ID:</span>
+                            <span id="diag-model-id" class="text-zinc-200 truncate max-w-[180px]" title="--">--</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-[#222226] pb-2">
+                            <span class="text-zinc-400">Compute Device:</span>
+                            <span id="diag-device" class="text-cyan-400 font-bold uppercase">--</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-[#222226] pb-2">
+                            <span class="text-zinc-400">Process Memory (RSS):</span>
+                            <span id="diag-memory" class="text-zinc-200">-- MB</span>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-[#222226] pb-2">
+                            <span class="text-zinc-400">Server Uptime:</span>
+                            <span id="diag-uptime" class="text-zinc-200">--</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-zinc-400">SQLite Database:</span>
+                            <span id="diag-dbsize" class="text-zinc-200">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: API KEYS & ACTIVITY                 -->
+        <!-- ========================================== -->
+        <section id="tab-keys" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">API Keys &amp; Usage</h2>
+                    <p class="text-xs text-zinc-400 font-mono mt-0.5">Generate and monitor OpenRouter-style granular access keys</p>
+                </div>
+                <button type="button" id="open-generate-key-btn" class="brutal-btn px-4 py-2 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold flex items-center gap-1.5">
+                    <span>+ Generate Key</span>
+                </button>
+            </div>
+
+            <!-- Keys Table -->
+            <div class="brutal-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-xs">
+                        <thead class="bg-[#141417] text-zinc-400 border-b border-[#27272a] uppercase text-[10px] tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4">Prefix</th>
+                                <th class="py-3 px-4">Name</th>
+                                <th class="py-3 px-4">Rate Limit</th>
+                                <th class="py-3 px-4">Requests</th>
+                                <th class="py-3 px-4">Token Usage</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4">Created</th>
+                                <th class="py-3 px-4">Last Used</th>
+                                <th class="py-3 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keys-table-body" class="divide-y divide-[#222226] text-zinc-300">
+                            <tr>
+                                <td colspan="9" class="py-8 text-center text-zinc-500">Loading API keys...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: RATE LIMITS & IP BLOCKLIST          -->
+        <!-- ========================================== -->
+        <section id="tab-security" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Panel 1: Dynamic Public Rate Limiting -->
+                <div class="brutal-card p-6 space-y-5">
+                    <div class="border-b border-[#27272a] pb-3">
+                        <h2 class="text-lg font-bold text-white tracking-tight">Public Rate Limiting</h2>
+                        <p class="text-xs text-zinc-400 font-mono mt-0.5">Control dynamic sliding-window limits for unauthenticated traffic</p>
+                    </div>
+
+                    <form id="settings-form" class="space-y-4">
+                        <div>
+                            <label for="rate-limit-requests-input" class="block text-xs font-mono uppercase text-zinc-300 mb-1">Max Requests per Window</label>
+                            <input id="rate-limit-requests-input" type="number" min="1" max="10000" required class="brutal-input w-full px-3 py-2 text-sm font-mono" placeholder="e.g. 10">
+                            <p class="text-[11px] text-zinc-500 font-mono mt-1">Allowed requests per client IP within window</p>
+                        </div>
+
+                        <div>
+                            <label for="rate-limit-window-input" class="block text-xs font-mono uppercase text-zinc-300 mb-1">Window Length (Seconds)</label>
+                            <input id="rate-limit-window-input" type="number" min="1" max="86400" required class="brutal-input w-full px-3 py-2 text-sm font-mono" placeholder="e.g. 60">
+                            <p class="text-[11px] text-zinc-500 font-mono mt-1">Sliding expiration duration in seconds</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" id="save-settings-btn" class="brutal-btn px-4 py-2 bg-cyan-500 text-black hover:bg-cyan-400 text-xs font-mono font-bold flex items-center gap-1.5">
+                                <span>Save Settings</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Panel 2: IP Blocklist Management -->
+                <div class="brutal-card p-6 space-y-5">
+                    <div class="border-b border-[#27272a] pb-3">
+                        <h2 class="text-lg font-bold text-white tracking-tight">IP Blocklist</h2>
+                        <p class="text-xs text-zinc-400 font-mono mt-0.5">Permanently reject inbound connections from abusive IP addresses</p>
+                    </div>
+
+                    <form id="blocklist-form" class="space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="block-ip-input" class="block text-xs font-mono uppercase text-zinc-300 mb-1">IP Address</label>
+                                <input id="block-ip-input" type="text" required class="brutal-input w-full px-3 py-2 text-xs font-mono" placeholder="192.168.1.1">
+                            </div>
+                            <div>
+                                <label for="block-reason-input" class="block text-xs font-mono uppercase text-zinc-300 mb-1">Reason (Optional)</label>
+                                <input id="block-reason-input" type="text" class="brutal-input w-full px-3 py-2 text-xs font-mono" placeholder="Abusive traffic / spam">
+                            </div>
+                        </div>
+                        <button type="submit" id="add-block-btn" class="brutal-btn px-4 py-2 bg-rose-600 text-white hover:bg-rose-500 text-xs font-mono font-bold">
+                            + Block IP
+                        </button>
+                    </form>
+
+                    <!-- Blocklist Table -->
+                    <div class="border border-[#27272a] overflow-x-auto max-h-60 overflow-y-auto">
+                        <table class="w-full text-left font-mono text-xs">
+                            <thead class="bg-[#141417] text-zinc-400 border-b border-[#27272a] text-[10px] uppercase">
+                                <tr>
+                                    <th class="py-2 px-3">IP Address</th>
+                                    <th class="py-2 px-3">Reason</th>
+                                    <th class="py-2 px-3">Blocked At</th>
+                                    <th class="py-2 px-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="blocklist-table-body" class="divide-y divide-[#222226] text-zinc-300">
+                                <tr>
+                                    <td colspan="4" class="py-4 text-center text-zinc-500">Loading blocklist...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: LIVE REQUEST LOGS                   -->
+        <!-- ========================================== -->
+        <section id="tab-logs" class="tab-content hidden space-y-6">
+            <!-- Filter Bar -->
+            <div class="brutal-card p-4 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div>
+                        <label for="logs-status-filter" class="text-[11px] font-mono text-zinc-400 uppercase mr-1">Status:</label>
+                        <select id="logs-status-filter" class="brutal-input px-2.5 py-1.5 text-xs font-mono bg-[#0c0c0e]">
+                            <option value="">All Statuses</option>
+                            <option value="200">200 OK</option>
+                            <option value="400">400 Bad Request</option>
+                            <option value="401">401 Unauthorized</option>
+                            <option value="403">403 Blocked</option>
+                            <option value="429">429 Rate Limited</option>
+                            <option value="500">500 Server Error</option>
+                            <option value="503">503 Unavailable</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="logs-ip-filter" class="text-[11px] font-mono text-zinc-400 uppercase mr-1">IP:</label>
+                        <input id="logs-ip-filter" type="text" placeholder="Filter by IP..." class="brutal-input px-2.5 py-1.5 text-xs font-mono w-32 sm:w-40">
+                    </div>
+
+                    <div>
+                        <label for="logs-limit-select" class="text-[11px] font-mono text-zinc-400 uppercase mr-1">Limit:</label>
+                        <select id="logs-limit-select" class="brutal-input px-2.5 py-1.5 text-xs font-mono bg-[#0c0c0e]">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="apply-logs-filter-btn" class="brutal-btn px-3 py-1.5 bg-[#18181b] text-white hover:bg-[#27272a] text-xs font-mono">
+                        Filter
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <label class="inline-flex items-center gap-2 cursor-pointer font-mono text-xs text-zinc-300">
+                        <input id="logs-auto-refresh-toggle" type="checkbox" class="w-3.5 h-3.5 rounded bg-zinc-900 border-zinc-700 text-cyan-500 focus:ring-0">
+                        <span>Auto-refresh (3s)</span>
+                        <span id="auto-refresh-indicator" class="hidden w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    </label>
+
+                    <button type="button" id="refresh-logs-btn" class="brutal-btn px-2.5 py-1 bg-[#141417] text-zinc-300 hover:text-white text-xs font-mono">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Logs Table -->
+            <div class="brutal-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono text-xs">
+                        <thead class="bg-[#141417] text-zinc-400 border-b border-[#27272a] uppercase text-[10px] tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4">Time</th>
+                                <th class="py-3 px-4">Method</th>
+                                <th class="py-3 px-4">Endpoint</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4">Latency</th>
+                                <th class="py-3 px-4">Client IP</th>
+                                <th class="py-3 px-4">Tokens (In / Out)</th>
+                                <th class="py-3 px-4">Key ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body" class="divide-y divide-[#222226] text-zinc-300">
+                            <tr>
+                                <td colspan="8" class="py-8 text-center text-zinc-500">Loading request logs...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer -->
+                <div class="border-t border-[#27272a] p-3 bg-[#141417] flex items-center justify-between text-xs font-mono text-zinc-400">
+                    <span id="logs-page-info">Showing page 1 of 1 (0 total)</span>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="logs-prev-btn" disabled class="brutal-btn px-3 py-1 bg-[#18181b] text-white hover:bg-[#27272a] disabled:opacity-30 text-xs font-mono">
+                            &larr; Prev
+                        </button>
+                        <button type="button" id="logs-next-btn" disabled class="brutal-btn px-3 py-1 bg-[#18181b] text-white hover:bg-[#27272a] disabled:opacity-30 text-xs font-mono">
+                            Next &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: INTERACTIVE PLAYGROUND              -->
+        <!-- ========================================== -->
+        <section id="tab-playground" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">Interactive Playground</h2>
+                    <p class="text-xs text-zinc-400 font-mono mt-0.5">Test live inference against <code class="text-zinc-200">POST /v1/systemone</code></p>
+                </div>
+
+                <!-- Presets buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-mono uppercase text-zinc-400 mr-1">Presets:</span>
+                    <button type="button" id="preset-support-btn" class="brutal-btn px-3 py-1.5 text-xs font-mono font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]">
+                        Customer Support (Noul)
+                    </button>
+                    <button type="button" id="preset-topic-btn" class="brutal-btn px-3 py-1.5 text-xs font-mono font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]">
+                        Topic Routing (Choice)
+                    </button>
+                    <button type="button" id="preset-incident-btn" class="brutal-btn px-3 py-1.5 text-xs font-mono font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]">
+                        Incident Severity (Score)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left: Request Configuration -->
+                <div class="space-y-4">
+                    <!-- Auth Selector -->
+                    <div class="brutal-card p-4 space-y-2">
+                        <label for="pg-auth-select" class="block text-xs font-mono uppercase text-zinc-300 font-semibold">Authentication Header</label>
+                        <select id="pg-auth-select" class="brutal-input w-full px-3 py-2 text-xs font-mono bg-[#0c0c0e]">
+                            <option value="">Public Access (No API Key)</option>
+                        </select>
+                        <div id="pg-custom-key-container" class="hidden mt-2">
+                            <input id="pg-custom-key-input" type="password" placeholder="Enter custom API key..." class="brutal-input w-full px-3 py-1.5 text-xs font-mono">
+                        </div>
+                    </div>
+
+                    <!-- State Input -->
+                    <div class="brutal-card p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label for="pg-state-input" class="text-xs font-mono uppercase text-zinc-300 font-semibold">State Context</label>
+                            <span class="text-[10px] font-mono text-zinc-500">Unstructured text input</span>
+                        </div>
+                        <textarea id="pg-state-input" rows="4" class="brutal-input w-full p-3 text-xs font-mono" placeholder="Context text to evaluate..."></textarea>
+                    </div>
+
+                    <!-- Questions Schema JSON -->
+                    <div class="brutal-card p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label for="pg-questions-input" class="text-xs font-mono uppercase text-zinc-300 font-semibold">Questions Config (JSON)</label>
+                            <span class="text-[10px] font-mono text-zinc-500">noul | choice | score</span>
+                        </div>
+                        <textarea id="pg-questions-input" rows="9" class="brutal-input w-full p-3 text-xs font-mono text-cyan-300 bg-[#08080a]" placeholder='{ "is_refund": { "type": "noul", "instructions": "..." } }'></textarea>
+                    </div>
+
+                    <!-- Send Request Button -->
+                    <div class="flex items-center justify-between pt-1">
+                        <button type="button" id="pg-send-btn" class="brutal-btn w-full sm:w-auto px-6 py-2.5 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold flex items-center justify-center gap-2">
+                            <span id="pg-send-spinner" class="hidden w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                            <span id="pg-send-text">Send Request &rarr;</span>
+                        </button>
+                        <span class="hidden sm:inline text-[11px] font-mono text-zinc-500">Ctrl + Enter to send</span>
+                    </div>
+                </div>
+
+                <!-- Right: Inference Output -->
+                <div class="space-y-4">
+                    <div class="brutal-card p-4 space-y-4">
+                        <div class="flex items-center justify-between border-b border-[#27272a] pb-3">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-bold text-white font-mono uppercase">Inference Output</h3>
+                                <span id="pg-status-badge" class="hidden px-2 py-0.5 text-[10px] font-mono font-bold border border-zinc-700 bg-zinc-800 text-zinc-300">
+                                    --
+                                </span>
+                            </div>
+                            <span id="pg-latency-badge" class="hidden text-xs font-mono text-cyan-400">
+                                -- ms
+                            </span>
+                        </div>
+
+                        <!-- Decision Visualization Area -->
+                        <div id="pg-decision-viz" class="space-y-3">
+                            <div class="text-xs text-zinc-500 font-mono py-8 text-center">
+                                Configure state &amp; questions, then click "Send Request".
+                            </div>
+                        </div>
+
+                        <!-- Token Usage Breakdown -->
+                        <div id="pg-usage-container" class="hidden border-t border-[#27272a] pt-3 text-xs font-mono text-zinc-400 flex items-center justify-between">
+                            <span>Token Usage:</span>
+                            <span id="pg-usage-text" class="text-zinc-200">Input: -- | Output: -- | Total: --</span>
+                        </div>
+
+                        <!-- Raw JSON Output -->
+                        <div class="border-t border-[#27272a] pt-3">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-mono text-zinc-400 uppercase">Raw JSON Response</span>
+                                <button type="button" id="pg-copy-raw-btn" class="brutal-btn px-2 py-0.5 bg-[#141417] text-zinc-300 hover:text-white text-[10px] font-mono">
+                                    Copy JSON
+                                </button>
+                            </div>
+                            <pre id="pg-raw-output" class="p-3 bg-[#08080a] border border-[#27272a] text-zinc-300 font-mono text-xs overflow-x-auto max-h-56">{}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL: GENERATE API KEY                    -->
+    <!-- ========================================== -->
+    <div id="key-create-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden p-4">
+        <div class="brutal-card w-full max-w-md p-6 space-y-4 bg-[#141417] border border-[#3f3f46]">
+            <div class="flex items-center justify-between border-b border-[#27272a] pb-3">
+                <h3 class="text-base font-bold text-white font-mono uppercase">Generate API Key</h3>
+                <button type="button" id="modal-close-btn" class="text-zinc-400 hover:text-white font-mono text-lg">&times;</button>
+            </div>
+
+            <!-- Creation Form -->
+            <form id="key-create-form" class="space-y-4">
+                <div>
+                    <label for="key-name-input" class="block text-xs font-mono uppercase text-zinc-300 mb-1">Key Name *</label>
+                    <input id="key-name-input" type="text" required placeholder="e.g. production-worker-1" class="brutal-input w-full px-3 py-2 text-xs font-mono">
+                </div>
+
+                <div>
+                    <label for="key-limit-input" class="block text-xs font-mono uppercase text-zinc-300 mb-1">Rate Limit (req/min)</label>
+                    <input id="key-limit-input" type="number" min="1" placeholder="Leave empty for unlimited" class="brutal-input w-full px-3 py-2 text-xs font-mono">
+                    <p class="text-[10px] text-zinc-500 font-mono mt-1">Optional per-key rate limit. Blank = unlimited.</p>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" id="modal-cancel-btn" class="brutal-btn px-4 py-2 bg-[#18181b] text-zinc-300 hover:text-white text-xs font-mono">
+                        Cancel
+                    </button>
+                    <button type="submit" id="modal-submit-btn" class="brutal-btn px-4 py-2 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold">
+                        Create Key
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success Callout (Hidden by default, shown after creation) -->
+            <div id="key-created-callout" class="hidden space-y-3 pt-2">
+                <div class="p-3 bg-rose-950/40 border border-rose-600/60 text-xs font-mono text-rose-200 space-y-1">
+                    <div class="font-bold flex items-center gap-1.5 text-rose-300">
+                        <span>⚠️ SAVE YOUR KEY NOW</span>
+                    </div>
+                    <p class="text-[11px] leading-relaxed">
+                        This API key will never be shown again. If you lose it, you will need to revoke it and generate a new one.
+                    </p>
+                </div>
+
+                <div class="relative">
+                    <input id="raw-key-display" type="text" readonly class="brutal-input w-full px-3 py-2.5 text-xs font-mono bg-black text-emerald-400 font-bold pr-20 select-all">
+                    <button type="button" id="copy-raw-key-btn" class="brutal-btn absolute top-1.5 right-1.5 px-3 py-1 bg-white text-black hover:bg-zinc-200 text-xs font-mono font-bold">
+                        Copy
+                    </button>
+                </div>
+
+                <div class="pt-2 text-right">
+                    <button type="button" id="modal-done-btn" class="brutal-btn px-4 py-2 bg-[#18181b] text-white hover:bg-[#27272a] text-xs font-mono">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DRAWER: OPENROUTER STYLE KEY ACTIVITY      -->
+    <!-- ========================================== -->
+    <div id="key-activity-drawer" class="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-sm hidden">
+        <div class="w-full max-w-2xl bg-[#121215] border-l border-[#27272a] h-full flex flex-col p-6 space-y-6 overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-[#27272a] pb-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 id="drawer-key-name" class="text-lg font-bold text-white font-mono">--</h3>
+                        <span id="drawer-key-status" class="px-2 py-0.5 text-[10px] font-mono border border-zinc-700 bg-zinc-800 text-zinc-300">--</span>
+                    </div>
+                    <p id="drawer-key-prefix" class="text-xs font-mono text-zinc-400 mt-0.5">--</p>
+                </div>
+                <button type="button" id="drawer-close-btn" class="brutal-btn p-2 bg-[#18181b] text-zinc-400 hover:text-white font-mono text-sm">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Key Summary Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="brutal-card p-3">
+                    <div class="text-[10px] font-mono text-zinc-400 uppercase">Requests</div>
+                    <div id="drawer-total-requests" class="text-lg font-bold font-mono text-white mt-1">--</div>
+                </div>
+                <div class="brutal-card p-3">
+                    <div class="text-[10px] font-mono text-zinc-400 uppercase">Tokens</div>
+                    <div id="drawer-total-tokens" class="text-lg font-bold font-mono text-cyan-400 mt-1">--</div>
+                </div>
+                <div class="brutal-card p-3">
+                    <div class="text-[10px] font-mono text-zinc-400 uppercase">Avg Latency</div>
+                    <div id="drawer-avg-latency" class="text-lg font-bold font-mono text-white mt-1">-- ms</div>
+                </div>
+                <div class="brutal-card p-3">
+                    <div class="text-[10px] font-mono text-zinc-400 uppercase">Error Rate</div>
+                    <div id="drawer-error-rate" class="text-lg font-bold font-mono text-white mt-1">--%</div>
+                </div>
+            </div>
+
+            <!-- Key 24h Usage Chart -->
+            <div class="brutal-card p-4 space-y-2">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-mono uppercase font-bold text-zinc-200">24h Hourly Burn (Requests &amp; Tokens)</h4>
+                </div>
+                <div class="h-48 w-full">
+                    <canvas id="drawer-activity-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Requests Log for this Key -->
+            <div class="brutal-card p-4 space-y-3 flex-1">
+                <h4 class="text-xs font-mono uppercase font-bold text-zinc-200">Recent Request Logs</h4>
+                <div class="border border-[#27272a] overflow-x-auto max-h-72 overflow-y-auto">
+                    <table class="w-full text-left font-mono text-xs">
+                        <thead class="bg-[#141417] text-zinc-400 border-b border-[#27272a] text-[10px] uppercase">
+                            <tr>
+                                <th class="py-2 px-3">Time</th>
+                                <th class="py-2 px-3">Endpoint</th>
+                                <th class="py-2 px-3">Status</th>
+                                <th class="py-2 px-3">Latency</th>
+                                <th class="py-2 px-3">Tokens (In/Out)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="drawer-logs-body" class="divide-y divide-[#222226] text-zinc-300">
+                            <tr>
+                                <td colspan="5" class="py-4 text-center text-zinc-500">Loading recent logs...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC                           -->
+    <!-- ========================================== -->
+    <script>
+    (function () {
+        // --- State ---
+        let currentTab = "overview";
+        let trafficChartInstance = null;
+        let drawerChartInstance = null;
+        let logsPage = 1;
+        let logsLimit = 50;
+        let logsTotalPages = 1;
+        let autoRefreshInterval = null;
+        let cachedKeys = [];
+
+        // Playground Presets
+        const PLAYGROUND_PRESETS = {
+            support: {
+                name: "Customer Support (Noul)",
+                state: "User: \"I was charged twice for my subscription on March 15th ($49 x 2). Please refund the duplicate transaction immediately.\"",
+                questions: {
+                    is_refund: {
+                        type: "noul",
+                        instructions: "Is the user requesting a refund?"
+                    }
+                }
+            },
+            topic: {
+                name: "Topic Routing (Choice)",
+                state: "User: \"The checkout page crashes with error 500 when attempting to process credit card payment on mobile.\"",
+                questions: {
+                    category: {
+                        type: "choice",
+                        instructions: "Classify the support ticket category",
+                        criteria: {
+                            billing: "Payment, invoice, charge, or refund issues",
+                            technical: "Software bugs, downtime, or performance errors",
+                            account: "Login, password reset, or profile management"
+                        }
+                    }
+                }
+            },
+            incident: {
+                name: "Incident Severity (Score)",
+                state: "Alert: Production database cluster primary node unreachable. Replica promotion failed with timeout error 504. API error rate spiked to 84%.",
+                questions: {
+                    urgency: {
+                        type: "score",
+                        instructions: "Determine the incident urgency score",
+                        criteria: [
+                            "Low: General anomaly or informational issue",
+                            "Medium: Moderate issue without major disruption",
+                            "High: System failure affecting user traffic",
+                            "Critical: Severe outage requiring emergency response"
+                        ]
+                    }
+                }
+            }
+        };
+
+        // --- Helper Functions ---
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return "";
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = "pointer-events-auto px-4 py-2.5 brutal-card text-xs font-mono shadow-hard flex items-center gap-2 transform transition-all duration-200 translate-y-2 opacity-0";
+            
+            let borderColor = "#3f3f46";
+            let textColor = "#f4f4f5";
+            let icon = "ℹ️";
+
+            if (type === "success") {
+                borderColor = "#10b981";
+                textColor = "#34d399";
+                icon = "✓";
+            } else if (type === "error") {
+                borderColor = "#f43f5e";
+                textColor = "#fb7185";
+                icon = "✕";
+            }
+
+            toast.style.borderColor = borderColor;
+            toast.style.color = textColor;
+            toast.innerHTML = `<span class="font-bold">${icon}</span><span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            });
+
+            setTimeout(() => {
+                toast.classList.add("translate-y-2", "opacity-0");
+                setTimeout(() => toast.remove(), 200);
+            }, 3200);
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return "0 B";
+            const k = 1024;
+            const sizes = ["B", "KB", "MB", "GB"];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+        }
+
+        function formatUptime(seconds) {
+            if (!seconds || seconds <= 0) return "0s";
+            const d = Math.floor(seconds / 86400);
+            const h = Math.floor((seconds % 86400) / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            if (d > 0) return `${d}d ${h}h ${m}m`;
+            if (h > 0) return `${h}h ${m}m ${s}s`;
+            if (m > 0) return `${m}m ${s}s`;
+            return `${s}s`;
+        }
+
+        function formatDate(isoStr) {
+            if (!isoStr) return "Never";
+            try {
+                const date = new Date(isoStr);
+                return date.toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false
+                });
+            } catch (e) {
+                return isoStr;
+            }
+        }
+
+        // Generic API Fetch Wrapper
+        async function apiFetch(url, options = {}) {
+            options.credentials = "same-origin";
+            const res = await fetch(url, options);
+            if (!res.ok) {
+                let detail = res.statusText;
+                try {
+                    const errJson = await res.json();
+                    detail = errJson.detail || JSON.stringify(errJson);
+                } catch (_) {}
+                throw new Error(`${res.status}: ${detail}`);
+            }
+            return res.json();
+        }
+
+        // --- Tab Navigation ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                const isCurrent = btn.dataset.tab === tabId;
+                if (isCurrent) {
+                    btn.className = "tab-btn px-3.5 py-2 border font-semibold flex items-center gap-2 bg-[#18181b] text-white border-white shadow-hard";
+                } else {
+                    btn.className = "tab-btn px-3.5 py-2 border font-medium flex items-center gap-2 bg-[#141417] text-zinc-400 border-[#27272a] hover:text-zinc-200";
+                }
+            });
+
+            document.querySelectorAll(".tab-content").forEach(el => {
+                el.classList.add("hidden");
+            });
+
+            const activeSection = document.getElementById("tab-" + tabId);
+            if (activeSection) {
+                activeSection.classList.remove("hidden");
+            }
+
+            // Load data for active tab
+            if (tabId === "overview") loadOverview();
+            else if (tabId === "keys") loadKeys();
+            else if (tabId === "security") loadSecurity();
+            else if (tabId === "logs") loadLogs();
+            else if (tabId === "playground") loadPlaygroundKeys();
+        }
+
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+            btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+        });
+
+        // --- Tab 1: Overview & Health ---
+        async function loadOverview() {
+            try {
+                const [overview, health] = await Promise.all([
+                    apiFetch("/api/admin/overview"),
+                    apiFetch("/api/admin/health")
+                ]);
+
+                // Update Header Health
+                const headerDot = document.getElementById("header-health-dot");
+                const headerText = document.getElementById("header-health-text");
+                if (health.model_loaded) {
+                    headerDot.className = "w-2 h-2 rounded-full bg-emerald-400 inline-block";
+                    headerText.textContent = "Online (" + health.device.toUpperCase() + ")";
+                } else {
+                    headerDot.className = "w-2 h-2 rounded-full bg-yellow-500 inline-block";
+                    headerText.textContent = "Model Unloaded";
+                }
+
+                // Update KPIs
+                document.getElementById("kpi-total-requests").textContent = overview.total_requests.toLocaleString();
+                document.getElementById("kpi-error-rate").textContent = overview.error_rate.toFixed(1) + "%";
+                document.getElementById("kpi-avg-latency").textContent = overview.avg_latency_ms.toFixed(1) + " ms";
+                document.getElementById("kpi-total-tokens").textContent = (overview.total_input_tokens + overview.total_output_tokens).toLocaleString();
+                document.getElementById("kpi-token-breakdown").textContent = `In: ${overview.total_input_tokens.toLocaleString()} | Out: ${overview.total_output_tokens.toLocaleString()}`;
+                document.getElementById("kpi-active-keys").textContent = overview.active_keys_count.toLocaleString();
+                document.getElementById("kpi-blocked-ips").textContent = overview.blocked_ips_count.toLocaleString();
+
+                // Update Diagnostics
+                const diagStatus = document.getElementById("diag-model-status");
+                if (health.model_loaded) {
+                    diagStatus.textContent = "INITIALIZED";
+                    diagStatus.className = "px-2 py-0.5 text-[11px] font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400";
+                } else {
+                    diagStatus.textContent = "ON DEMAND";
+                    diagStatus.className = "px-2 py-0.5 text-[11px] font-bold border border-yellow-500/40 bg-yellow-950/40 text-yellow-400";
+                }
+                document.getElementById("diag-model-id").textContent = health.model_id;
+                document.getElementById("diag-model-id").title = health.model_id;
+                document.getElementById("diag-device").textContent = health.device;
+                document.getElementById("diag-memory").textContent = health.memory_rss_mb + " MB";
+                document.getElementById("diag-uptime").textContent = formatUptime(health.uptime_seconds);
+                document.getElementById("diag-dbsize").textContent = formatBytes(health.database_size_bytes);
+
+                // Render Chart
+                renderTrafficChart(overview.timeseries_24h || []);
+            } catch (err) {
+                showToast("Failed to load overview: " + err.message, "error");
+            }
+        }
+
+        function renderTrafficChart(timeseries) {
+            const ctx = document.getElementById("overview-traffic-chart").getContext("2d");
+            
+            const labels = timeseries.map(b => b.hour.substring(11, 16) || b.hour);
+            const successfulData = timeseries.map(b => b.successful_requests);
+            const failedData = timeseries.map(b => b.failed_requests);
+
+            if (trafficChartInstance) {
+                trafficChartInstance.destroy();
+            }
+
+            trafficChartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Successful Requests",
+                            data: successfulData,
+                            backgroundColor: "rgba(6, 182, 212, 0.7)",
+                            borderColor: "#06b6d4",
+                            borderWidth: 1,
+                        },
+                        {
+                            label: "Failed (Errors)",
+                            data: failedData,
+                            backgroundColor: "rgba(244, 63, 94, 0.7)",
+                            borderColor: "#f43f5e",
+                            borderWidth: 1,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { color: "#27272a" },
+                            ticks: { color: "#a1a1aa", font: { family: "JetBrains Mono", size: 10 } }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: { color: "#27272a" },
+                            ticks: { color: "#a1a1aa", font: { family: "JetBrains Mono", size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: "#f4f4f5", font: { family: "JetBrains Mono", size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Tab 2: API Keys ---
+        async function loadKeys() {
+            try {
+                const keys = await apiFetch("/api/admin/keys");
+                cachedKeys = keys;
+                const tbody = document.getElementById("keys-table-body");
+                tbody.innerHTML = "";
+
+                if (keys.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-zinc-500 font-mono">No API keys created yet. Click "+ Generate Key" to create your first access token.</td></tr>`;
+                    return;
+                }
+
+                keys.forEach(k => {
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-[#141417] transition-colors";
+                    
+                    const statusBadge = k.is_active 
+                        ? `<span class="px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 font-semibold text-[10px]">Active</span>`
+                        : `<span class="px-2 py-0.5 border border-zinc-700 bg-zinc-800 text-zinc-400 font-semibold text-[10px]">Revoked</span>`;
+
+                    const rateLimitStr = k.rate_limit ? `${k.rate_limit} req/min` : `<span class="text-zinc-500">Unlimited</span>`;
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 text-cyan-400 font-bold">${escapeHtml(k.key_prefix)}</td>
+                        <td class="py-3 px-4 font-semibold text-white">${escapeHtml(k.name)}</td>
+                        <td class="py-3 px-4">${rateLimitStr}</td>
+                        <td class="py-3 px-4 text-zinc-200">${k.total_requests.toLocaleString()}</td>
+                        <td class="py-3 px-4 text-zinc-400">In: ${k.total_input_tokens.toLocaleString()} / Out: ${k.total_output_tokens.toLocaleString()}</td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-zinc-400">${formatDate(k.created_at)}</td>
+                        <td class="py-3 px-4 text-zinc-400">${formatDate(k.last_used_at)}</td>
+                        <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                            <button type="button" class="key-activity-btn brutal-btn px-2 py-1 bg-[#18181b] text-cyan-400 hover:text-white text-[11px]" data-id="${k.id}">
+                                Activity
+                            </button>
+                            <button type="button" class="key-toggle-btn brutal-btn px-2 py-1 bg-[#18181b] ${k.is_active ? 'text-amber-400 hover:text-amber-300' : 'text-emerald-400 hover:text-emerald-300'} text-[11px]" data-id="${k.id}" data-active="${k.is_active}">
+                                ${k.is_active ? "Revoke" : "Activate"}
+                            </button>
+                            <button type="button" class="key-delete-btn brutal-btn px-2 py-1 bg-[#18181b] text-rose-400 hover:text-rose-300 text-[11px]" data-id="${k.id}" data-name="${escapeHtml(k.name)}">
+                                Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Attach Action Listeners
+                document.querySelectorAll(".key-activity-btn").forEach(btn => {
+                    btn.addEventListener("click", () => openKeyActivity(btn.dataset.id));
+                });
+                document.querySelectorAll(".key-toggle-btn").forEach(btn => {
+                    btn.addEventListener("click", () => toggleKeyStatus(btn.dataset.id, btn.dataset.active === "true"));
+                });
+                document.querySelectorAll(".key-delete-btn").forEach(btn => {
+                    btn.addEventListener("click", () => deleteKey(btn.dataset.id, btn.dataset.name));
+                });
+
+            } catch (err) {
+                showToast("Failed to load keys: " + err.message, "error");
+            }
+        }
+
+        async function toggleKeyStatus(keyId, currentActive) {
+            try {
+                await apiFetch(`/api/admin/keys/${keyId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ is_active: !currentActive })
+                });
+                showToast(`Key successfully ${!currentActive ? "activated" : "revoked"}`, "success");
+                loadKeys();
+            } catch (err) {
+                showToast("Failed to update key: " + err.message, "error");
+            }
+        }
+
+        async function deleteKey(keyId, keyName) {
+            if (!confirm(`Are you sure you want to permanently delete API key "${keyName}"?`)) return;
+            try {
+                await apiFetch(`/api/admin/keys/${keyId}`, { method: "DELETE" });
+                showToast("API key deleted", "success");
+                loadKeys();
+            } catch (err) {
+                showToast("Failed to delete key: " + err.message, "error");
+            }
+        }
+
+        // Key Activity Drawer
+        async function openKeyActivity(keyId) {
+            const drawer = document.getElementById("key-activity-drawer");
+            drawer.classList.remove("hidden");
+            try {
+                const act = await apiFetch(`/api/admin/keys/${keyId}/activity`);
+                document.getElementById("drawer-key-name").textContent = act.name;
+                document.getElementById("drawer-key-prefix").textContent = "Prefix: " + act.key_prefix;
+                const statusEl = document.getElementById("drawer-key-status");
+                statusEl.textContent = act.is_active ? "ACTIVE" : "REVOKED";
+                statusEl.className = act.is_active 
+                    ? "px-2 py-0.5 text-[10px] font-mono border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 font-bold"
+                    : "px-2 py-0.5 text-[10px] font-mono border border-zinc-700 bg-zinc-800 text-zinc-400 font-bold";
+
+                document.getElementById("drawer-total-requests").textContent = act.total_requests.toLocaleString();
+                document.getElementById("drawer-total-tokens").textContent = (act.total_input_tokens + act.total_output_tokens).toLocaleString();
+                document.getElementById("drawer-avg-latency").textContent = act.avg_latency_ms.toFixed(1) + " ms";
+                document.getElementById("drawer-error-rate").textContent = act.error_rate.toFixed(1) + "%";
+
+                // Render Drawer Chart
+                renderDrawerChart(act.timeseries_24h || []);
+
+                // Render Recent Logs
+                const logsBody = document.getElementById("drawer-logs-body");
+                logsBody.innerHTML = "";
+                if (!act.recent_logs || act.recent_logs.length === 0) {
+                    logsBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-zinc-500">No recent logs recorded for this key.</td></tr>`;
+                } else {
+                    act.recent_logs.forEach(l => {
+                        const row = document.createElement("tr");
+                        const statusColor = l.status_code >= 500 ? "text-rose-400" : (l.status_code >= 400 ? "text-amber-400" : "text-emerald-400");
+                        row.innerHTML = `
+                            <td class="py-2 px-3 text-zinc-400">${formatDate(l.timestamp)}</td>
+                            <td class="py-2 px-3 text-white">${escapeHtml(l.endpoint)}</td>
+                            <td class="py-2 px-3 ${statusColor} font-bold">${l.status_code}</td>
+                            <td class="py-2 px-3 text-zinc-300">${l.latency_ms.toFixed(1)} ms</td>
+                            <td class="py-2 px-3 text-zinc-400">${l.input_tokens} / ${l.output_tokens}</td>
+                        `;
+                        logsBody.appendChild(row);
+                    });
+                }
+            } catch (err) {
+                showToast("Failed to load key activity: " + err.message, "error");
+            }
+        }
+
+        function renderDrawerChart(timeseries) {
+            const ctx = document.getElementById("drawer-activity-chart").getContext("2d");
+            const labels = timeseries.map(b => b.hour.substring(11, 16) || b.hour);
+            const reqs = timeseries.map(b => b.total_requests);
+            const tokens = timeseries.map(b => b.total_tokens);
+
+            if (drawerChartInstance) {
+                drawerChartInstance.destroy();
+            }
+
+            drawerChartInstance = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Requests",
+                            data: reqs,
+                            borderColor: "#06b6d4",
+                            backgroundColor: "rgba(6, 182, 212, 0.1)",
+                            borderWidth: 2,
+                            yAxisID: "yReq",
+                            tension: 0.2
+                        },
+                        {
+                            label: "Tokens Burned",
+                            data: tokens,
+                            borderColor: "#10b981",
+                            backgroundColor: "rgba(16, 185, 129, 0.1)",
+                            borderWidth: 2,
+                            yAxisID: "yToken",
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: "#27272a" },
+                            ticks: { color: "#a1a1aa", font: { family: "JetBrains Mono", size: 10 } }
+                        },
+                        yReq: {
+                            type: "linear",
+                            position: "left",
+                            beginAtZero: true,
+                            grid: { color: "#27272a" },
+                            ticks: { color: "#06b6d4", font: { family: "JetBrains Mono", size: 10 } }
+                        },
+                        yToken: {
+                            type: "linear",
+                            position: "right",
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: "#10b981", font: { family: "JetBrains Mono", size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: "#f4f4f5", font: { family: "JetBrains Mono", size: 11 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById("drawer-close-btn").addEventListener("click", () => {
+            document.getElementById("key-activity-drawer").classList.add("hidden");
+        });
+
+        // Key Create Modal
+        const keyModal = document.getElementById("key-create-modal");
+        const keyForm = document.getElementById("key-create-form");
+        const keyCallout = document.getElementById("key-created-callout");
+        const rawKeyDisplay = document.getElementById("raw-key-display");
+
+        document.getElementById("open-generate-key-btn").addEventListener("click", () => {
+            keyForm.reset();
+            keyForm.classList.remove("hidden");
+            keyCallout.classList.add("hidden");
+            keyModal.classList.remove("hidden");
+            document.getElementById("key-name-input").focus();
+        });
+
+        function closeKeyModal() {
+            keyModal.classList.add("hidden");
+        }
+
+        document.getElementById("modal-close-btn").addEventListener("click", closeKeyModal);
+        document.getElementById("modal-cancel-btn").addEventListener("click", closeKeyModal);
+        document.getElementById("modal-done-btn").addEventListener("click", closeKeyModal);
+
+        keyForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("key-name-input").value.trim();
+            const limitVal = document.getElementById("key-limit-input").value.trim();
+            const rateLimit = limitVal ? parseInt(limitVal, 10) : null;
+
+            if (!name) return;
+
+            try {
+                const res = await apiFetch("/api/admin/keys", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, rate_limit: rateLimit })
+                });
+
+                keyForm.classList.add("hidden");
+                rawKeyDisplay.value = res.raw_key;
+                keyCallout.classList.remove("hidden");
+                showToast("Key generated successfully", "success");
+                loadKeys();
+            } catch (err) {
+                showToast("Failed to create key: " + err.message, "error");
+            }
+        });
+
+        document.getElementById("copy-raw-key-btn").addEventListener("click", () => {
+            navigator.clipboard.writeText(rawKeyDisplay.value).then(() => {
+                showToast("API key copied to clipboard!", "success");
+            }).catch(() => {
+                showToast("Could not auto-copy, please select and copy manually.", "error");
+            });
+        });
+
+        // --- Tab 3: Rate Limits & Blocklist ---
+        async function loadSecurity() {
+            try {
+                const [settings, blocklist] = await Promise.all([
+                    apiFetch("/api/admin/settings"),
+                    apiFetch("/api/admin/blocklist")
+                ]);
+
+                // Populate settings
+                document.getElementById("rate-limit-requests-input").value = settings.public_rate_limit_requests || "10";
+                document.getElementById("rate-limit-window-input").value = settings.public_rate_limit_window_seconds || "60";
+
+                // Populate blocklist
+                const tbody = document.getElementById("blocklist-table-body");
+                tbody.innerHTML = "";
+
+                if (blocklist.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-zinc-500 font-mono">No IP addresses currently blocked.</td></tr>`;
+                    return;
+                }
+
+                blocklist.forEach(b => {
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-[#141417]";
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-3 text-rose-400 font-bold">${escapeHtml(b.ip_address)}</td>
+                        <td class="py-2.5 px-3 text-zinc-300">${escapeHtml(b.reason || "None")}</td>
+                        <td class="py-2.5 px-3 text-zinc-400">${formatDate(b.blocked_at)}</td>
+                        <td class="py-2.5 px-3 text-right">
+                            <button type="button" class="unblock-btn brutal-btn px-2.5 py-1 bg-[#18181b] text-zinc-200 hover:text-white text-[11px]" data-ip="${escapeHtml(b.ip_address)}">
+                                Unblock
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.querySelectorAll(".unblock-btn").forEach(btn => {
+                    btn.addEventListener("click", () => unblockIp(btn.dataset.ip));
+                });
+            } catch (err) {
+                showToast("Failed to load security settings: " + err.message, "error");
+            }
+        }
+
+        document.getElementById("settings-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const requests = parseInt(document.getElementById("rate-limit-requests-input").value, 10);
+            const windowSec = parseInt(document.getElementById("rate-limit-window-input").value, 10);
+
+            try {
+                await apiFetch("/api/admin/settings", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        rate_limit_requests: requests,
+                        rate_limit_window_seconds: windowSec
+                    })
+                });
+                showToast("Rate limit settings saved successfully", "success");
+            } catch (err) {
+                showToast("Failed to save settings: " + err.message, "error");
+            }
+        });
+
+        document.getElementById("blocklist-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const ip = document.getElementById("block-ip-input").value.trim();
+            const reason = document.getElementById("block-reason-input").value.trim();
+            if (!ip) return;
+
+            try {
+                await apiFetch("/api/admin/blocklist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ip_address: ip, reason: reason || "Manual block via admin dashboard" })
+                });
+                showToast(`IP ${ip} blocked successfully`, "success");
+                document.getElementById("block-ip-input").value = "";
+                document.getElementById("block-reason-input").value = "";
+                loadSecurity();
+            } catch (err) {
+                showToast("Failed to block IP: " + err.message, "error");
+            }
+        });
+
+        async function unblockIp(ip) {
+            try {
+                await apiFetch(`/api/admin/blocklist/${encodeURIComponent(ip)}`, { method: "DELETE" });
+                showToast(`IP ${ip} unblocked`, "success");
+                loadSecurity();
+            } catch (err) {
+                showToast("Failed to unblock IP: " + err.message, "error");
+            }
+        }
+
+        // --- Tab 4: Live Request Logs ---
+        async function loadLogs() {
+            const statusFilter = document.getElementById("logs-status-filter").value;
+            const ipFilter = document.getElementById("logs-ip-filter").value.trim();
+            logsLimit = parseInt(document.getElementById("logs-limit-select").value, 10);
+
+            let url = `/api/admin/logs?page=${logsPage}&limit=${logsLimit}`;
+            if (statusFilter) url += `&status_code=${encodeURIComponent(statusFilter)}`;
+            if (ipFilter) url += `&ip=${encodeURIComponent(ipFilter)}`;
+
+            try {
+                const data = await apiFetch(url);
+                const tbody = document.getElementById("logs-table-body");
+                tbody.innerHTML = "";
+
+                logsTotalPages = data.pages || 1;
+                document.getElementById("logs-page-info").textContent = `Showing page ${data.page} of ${data.pages} (${data.total.toLocaleString()} total)`;
+                document.getElementById("logs-prev-btn").disabled = data.page <= 1;
+                document.getElementById("logs-next-btn").disabled = data.page >= data.pages;
+
+                if (!data.items || data.items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-zinc-500 font-mono">No logs found matching current filters.</td></tr>`;
+                    return;
+                }
+
+                data.items.forEach(log => {
+                    const tr = document.createElement("tr");
+                    tr.className = "hover:bg-[#141417]";
+
+                    let statusClass = "text-emerald-400 border-emerald-500/40 bg-emerald-950/40";
+                    if (log.status_code >= 500) statusClass = "text-rose-400 border-rose-500/40 bg-rose-950/40";
+                    else if (log.status_code >= 400) statusClass = "text-amber-400 border-amber-500/40 bg-amber-950/40";
+
+                    const keyStr = log.api_key_id ? `<span class="text-cyan-400 font-bold">Key #${log.api_key_id}</span>` : `<span class="text-zinc-500">Public</span>`;
+
+                    tr.innerHTML = `
+                        <td class="py-2.5 px-4 text-zinc-400 whitespace-nowrap">${formatDate(log.timestamp)}</td>
+                        <td class="py-2.5 px-4 font-bold text-white">${escapeHtml(log.method)}</td>
+                        <td class="py-2.5 px-4 text-zinc-200">${escapeHtml(log.endpoint)}</td>
+                        <td class="py-2.5 px-4">
+                            <span class="px-2 py-0.5 border text-[10px] font-bold ${statusClass}">${log.status_code}</span>
+                        </td>
+                        <td class="py-2.5 px-4 text-zinc-300 font-bold">${log.latency_ms.toFixed(1)} ms</td>
+                        <td class="py-2.5 px-4 text-zinc-400">${escapeHtml(log.ip_address)}</td>
+                        <td class="py-2.5 px-4 text-zinc-400">${log.input_tokens} / ${log.output_tokens}</td>
+                        <td class="py-2.5 px-4">${keyStr}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                showToast("Failed to load logs: " + err.message, "error");
+            }
+        }
+
+        document.getElementById("apply-logs-filter-btn").addEventListener("click", () => {
+            logsPage = 1;
+            loadLogs();
+        });
+        document.getElementById("refresh-logs-btn").addEventListener("click", () => loadLogs());
+
+        document.getElementById("logs-prev-btn").addEventListener("click", () => {
+            if (logsPage > 1) {
+                logsPage--;
+                loadLogs();
+            }
+        });
+
+        document.getElementById("logs-next-btn").addEventListener("click", () => {
+            if (logsPage < logsTotalPages) {
+                logsPage++;
+                loadLogs();
+            }
+        });
+
+        // Auto Refresh
+        const autoRefreshCheckbox = document.getElementById("logs-auto-refresh-toggle");
+        const autoRefreshIndicator = document.getElementById("auto-refresh-indicator");
+        autoRefreshCheckbox.addEventListener("change", (e) => {
+            if (e.target.checked) {
+                autoRefreshIndicator.classList.remove("hidden");
+                autoRefreshInterval = setInterval(() => {
+                    if (currentTab === "logs") loadLogs();
+                }, 3000);
+            } else {
+                autoRefreshIndicator.classList.add("hidden");
+                if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            }
+        });
+
+        // --- Tab 5: Interactive Playground ---
+        async function loadPlaygroundKeys() {
+            try {
+                if (cachedKeys.length === 0) {
+                    cachedKeys = await apiFetch("/api/admin/keys");
+                }
+                const select = document.getElementById("pg-auth-select");
+                const currentVal = select.value;
+                select.innerHTML = `
+                    <option value="">Public Access (No API Key)</option>
+                    <option value="__custom__">Custom API Key (Enter Manually)...</option>
+                `;
+                cachedKeys.filter(k => k.is_active).forEach(k => {
+                    const opt = document.createElement("option");
+                    opt.value = k.key_prefix;
+                    opt.textContent = `${k.name} (${k.key_prefix}) [Active Key]`;
+                    select.appendChild(opt);
+                });
+                select.value = currentVal;
+            } catch (_) {}
+        }
+
+        const pgAuthSelect = document.getElementById("pg-auth-select");
+        const pgCustomKeyContainer = document.getElementById("pg-custom-key-container");
+        pgAuthSelect.addEventListener("change", (e) => {
+            if (e.target.value === "__custom__") {
+                pgCustomKeyContainer.classList.remove("hidden");
+                document.getElementById("pg-custom-key-input").focus();
+            } else {
+                pgCustomKeyContainer.classList.add("hidden");
+            }
+        });
+
+        function setPreset(presetKey) {
+            const p = PLAYGROUND_PRESETS[presetKey];
+            if (!p) return;
+            document.getElementById("pg-state-input").value = p.state;
+            document.getElementById("pg-questions-input").value = JSON.stringify(p.questions, null, 2);
+        }
+
+        document.getElementById("preset-support-btn").addEventListener("click", () => setPreset("support"));
+        document.getElementById("preset-topic-btn").addEventListener("click", () => setPreset("topic"));
+        document.getElementById("preset-incident-btn").addEventListener("click", () => setPreset("incident"));
+
+        // Set initial preset
+        setPreset("support");
+
+        async function sendPlaygroundRequest() {
+            const state = document.getElementById("pg-state-input").value.trim();
+            const questionsRaw = document.getElementById("pg-questions-input").value.trim();
+            const sendBtn = document.getElementById("pg-send-btn");
+            const sendSpinner = document.getElementById("pg-send-spinner");
+            const sendText = document.getElementById("pg-send-text");
+            const statusBadge = document.getElementById("pg-status-badge");
+            const latencyBadge = document.getElementById("pg-latency-badge");
+            const vizContainer = document.getElementById("pg-decision-viz");
+            const usageContainer = document.getElementById("pg-usage-container");
+            const rawOutput = document.getElementById("pg-raw-output");
+
+            if (!state) {
+                showToast("Please enter a state context", "error");
+                return;
+            }
+
+            let questions;
+            try {
+                questions = JSON.parse(questionsRaw);
+            } catch (err) {
+                showToast("Invalid JSON in Questions Config: " + err.message, "error");
+                return;
+            }
+
+            // Headers
+            const headers = { "Content-Type": "application/json" };
+            const authMode = pgAuthSelect.value;
+            if (authMode === "__custom__") {
+                const customKey = document.getElementById("pg-custom-key-input").value.trim();
+                if (customKey) headers["Authorization"] = "Bearer " + customKey;
+            }
+
+            sendBtn.disabled = true;
+            sendSpinner.classList.remove("hidden");
+            sendText.textContent = "Inferring...";
+
+            const startTime = performance.now();
+            try {
+                const res = await fetch("/v1/systemone", {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({ state, questions })
+                });
+
+                const endTime = performance.now();
+                const roundtripMs = (endTime - startTime).toFixed(1);
+
+                statusBadge.classList.remove("hidden");
+                latencyBadge.classList.remove("hidden");
+                latencyBadge.textContent = roundtripMs + " ms";
+
+                const data = await res.json();
+                rawOutput.textContent = JSON.stringify(data, null, 2);
+
+                if (res.ok) {
+                    statusBadge.textContent = `${res.status} OK`;
+                    statusBadge.className = "px-2 py-0.5 text-[10px] font-mono font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400";
+
+                    // Token Usage
+                    if (data.usage) {
+                        usageContainer.classList.remove("hidden");
+                        document.getElementById("pg-usage-text").textContent = `Input: ${data.usage.prompt_tokens} | Output: ${data.usage.completion_tokens} | Total: ${data.usage.total_tokens}`;
+                    } else {
+                        usageContainer.classList.add("hidden");
+                    }
+
+                    // Render Visualizations
+                    renderPlaygroundDecision(data, questions);
+                } else {
+                    statusBadge.textContent = `${res.status} ERROR`;
+                    statusBadge.className = "px-2 py-0.5 text-[10px] font-mono font-bold border border-rose-500/40 bg-rose-950/40 text-rose-400";
+                    vizContainer.innerHTML = `
+                        <div class="p-3 bg-rose-950/30 border border-rose-600/40 text-rose-300 text-xs font-mono">
+                            ${escapeHtml(data.detail || JSON.stringify(data))}
+                        </div>
+                    `;
+                    usageContainer.classList.add("hidden");
+                }
+            } catch (err) {
+                const endTime = performance.now();
+                latencyBadge.classList.remove("hidden");
+                latencyBadge.textContent = (endTime - startTime).toFixed(1) + " ms";
+
+                statusBadge.classList.remove("hidden");
+                statusBadge.textContent = "ERR_FAILED";
+                statusBadge.className = "px-2 py-0.5 text-[10px] font-mono font-bold border border-rose-500/40 bg-rose-950/40 text-rose-400";
+
+                vizContainer.innerHTML = `
+                    <div class="p-3 bg-rose-950/30 border border-rose-600/40 text-rose-300 text-xs font-mono">
+                        Network Error: ${escapeHtml(err.message)}
+                    </div>
+                `;
+                rawOutput.textContent = err.toString();
+            } finally {
+                sendBtn.disabled = false;
+                sendSpinner.classList.add("hidden");
+                sendText.textContent = "Send Request \u2192";
+            }
+        }
+
+        function renderPlaygroundDecision(response, questions) {
+            const container = document.getElementById("pg-decision-viz");
+            container.innerHTML = "";
+
+            const answers = response.answers || {};
+            const keys = Object.keys(answers);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<div class="text-xs text-zinc-500 font-mono py-4 text-center">No answers returned from model.</div>`;
+                return;
+            }
+
+            keys.forEach(k => {
+                const ans = answers[k];
+                const card = document.createElement("div");
+                card.className = "p-3 brutal-card border border-[#27272a] space-y-2";
+
+                const qMeta = questions[k] || {};
+                const qType = ans.type || qMeta.type || "noul";
+
+                let bodyHtml = "";
+
+                if (qType === "noul") {
+                    const prob = (ans.probability !== undefined ? ans.probability : 0.0);
+                    const pct = (prob * 100).toFixed(1);
+                    const isYes = prob >= 0.5;
+                    bodyHtml = `
+                        <div class="flex items-center justify-between text-xs font-mono">
+                            <span class="font-bold ${isYes ? 'text-emerald-400' : 'text-zinc-400'}">
+                                ${isYes ? "YES (True)" : "NO (False)"}
+                            </span>
+                            <span class="text-cyan-400 font-bold">${pct}% probability</span>
+                        </div>
+                        <div class="w-full bg-[#0c0c0e] h-2.5 border border-[#27272a] overflow-hidden">
+                            <div class="h-full bg-cyan-400 transition-all duration-300" style="width: ${pct}%"></div>
+                        </div>
+                    `;
+                } else if (qType === "choice") {
+                    const probs = ans.probabilities || {};
+                    const selected = ans.decision;
+                    bodyHtml = `
+                        <div class="text-xs font-mono text-zinc-300 mb-1">
+                            Decision: <span class="font-bold text-cyan-400 uppercase">${escapeHtml(selected)}</span>
+                        </div>
+                        <div class="space-y-1.5 font-mono text-xs">
+                    `;
+                    Object.keys(probs).forEach(opt => {
+                        const optProb = probs[opt];
+                        const optPct = (optProb * 100).toFixed(1);
+                        const isChosen = opt === selected;
+                        bodyHtml += `
+                            <div>
+                                <div class="flex items-center justify-between text-[11px] mb-0.5">
+                                    <span class="${isChosen ? 'text-white font-bold' : 'text-zinc-400'}">${escapeHtml(opt)}</span>
+                                    <span class="${isChosen ? 'text-cyan-400 font-bold' : 'text-zinc-500'}">${optPct}%</span>
+                                </div>
+                                <div class="w-full bg-[#0c0c0e] h-2 border border-[#27272a] overflow-hidden">
+                                    <div class="h-full ${isChosen ? 'bg-cyan-400' : 'bg-zinc-700'} transition-all duration-300" style="width: ${optPct}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    bodyHtml += `</div>`;
+                } else if (qType === "score") {
+                    const score = ans.score !== undefined ? ans.score : (ans.decision !== undefined ? ans.decision : "--");
+                    const label = ans.label || "";
+                    bodyHtml = `
+                        <div class="flex items-center justify-between text-xs font-mono">
+                            <span class="text-zinc-300">Predicted Score:</span>
+                            <span class="font-bold text-cyan-400 text-sm">${score}</span>
+                        </div>
+                        ${label ? `<div class="text-[11px] font-mono text-zinc-400">${escapeHtml(label)}</div>` : ''}
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-[#222226] pb-1.5">
+                        <span class="text-xs font-mono font-bold text-white">${escapeHtml(k)}</span>
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 border border-[#3f3f46] text-zinc-400 bg-[#0c0c0e]">${escapeHtml(qType)}</span>
+                    </div>
+                    ${bodyHtml}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById("pg-send-btn").addEventListener("click", sendPlaygroundRequest);
+
+        // Keyboard Shortcut: Ctrl/Cmd + Enter
+        document.addEventListener("keydown", (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && currentTab === "playground") {
+                sendPlaygroundRequest();
+            }
+        });
+
+        document.getElementById("pg-copy-raw-btn").addEventListener("click", () => {
+            const raw = document.getElementById("pg-raw-output").textContent;
+            navigator.clipboard.writeText(raw).then(() => {
+                showToast("JSON copied to clipboard", "success");
+            });
+        });
+
+        // Global Refresh Button
+        document.getElementById("refresh-all-btn").addEventListener("click", () => {
+            if (currentTab === "overview") loadOverview();
+            else if (currentTab === "keys") loadKeys();
+            else if (currentTab === "security") loadSecurity();
+            else if (currentTab === "logs") loadLogs();
+            else if (currentTab === "playground") loadPlaygroundKeys();
+            showToast("Dashboard refreshed", "info");
+        });
+
+        // Initial Load
+        loadOverview();
+    })();
+    </script>
+</body>
+</html>
