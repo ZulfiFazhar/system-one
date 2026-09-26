@@ -2,7 +2,6 @@ import sqlite3
 import time
 import pytest
 from fastapi.testclient import TestClient
-from pydantic import SecretStr
 
 from app.core.config import settings
 from app.core import db

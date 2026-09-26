@@ -27,18 +27,22 @@ class DashboardLoggingMiddleware(BaseHTTPMiddleware):
             input_tokens = getattr(usage, "input_tokens", 0) if usage else 0
             output_tokens = getattr(usage, "output_tokens", 0) if usage else 0
 
-            # ponytail: run_in_threadpool offloads DB I/O from event loop; upgrade to batch queue if write volume exceeds SQLite WAL.
-            try:
-                await run_in_threadpool(
-                    record_request_log,
-                    endpoint=request.url.path,
-                    method=request.method,
-                    status_code=status_code,
-                    latency_ms=latency_ms,
-                    ip_address=client_ip,
-                    api_key_id=api_key_id,
-                    input_tokens=input_tokens,
-                    output_tokens=output_tokens,
-                )
-            except Exception as exc:
-                logger.warning("Failed to record request log: %s", exc)
+            # Skip static assets
+            if request.url.path.startswith("/public/"):
+                pass
+            else:
+                # ponytail: run_in_threadpool offloads DB I/O from event loop; upgrade to batch queue if write volume exceeds SQLite WAL.
+                try:
+                    await run_in_threadpool(
+                        record_request_log,
+                        endpoint=request.url.path,
+                        method=request.method,
+                        status_code=status_code,
+                        latency_ms=latency_ms,
+                        ip_address=client_ip,
+                        api_key_id=api_key_id,
+                        input_tokens=input_tokens,
+                        output_tokens=output_tokens,
+                    )
+                except Exception as exc:
+                    logger.warning("Failed to record request log: %s", exc)
