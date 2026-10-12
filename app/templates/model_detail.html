@@ -532,10 +532,112 @@
             </div>
         </footer>
 
+        <!-- On-Demand Model Activation Modal -->
+        <div
+            id="model-activate-modal"
+            class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-activate-title"
+        >
+            <div class="brutal-card w-full max-w-lg bg-[#141417] border-2 border-[#27272a] shadow-2xl p-6 space-y-6">
+                <!-- Header -->
+                <div class="flex items-center justify-between border-b border-[#27272a] pb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 bg-yellow-400 inline-block animate-pulse"></span>
+                        <h3 id="modal-activate-title" class="text-sm font-bold font-mono uppercase tracking-wider text-white">
+                            MODEL NOT LOADED YET
+                        </h3>
+                    </div>
+                    <button
+                        type="button"
+                        id="modal-close-btn"
+                        class="text-zinc-400 hover:text-white font-mono text-sm px-2 py-1 border border-transparent hover:border-[#3f3f46] hover:bg-[#18181b]"
+                        aria-label="Close modal"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <!-- Confirmation Phase -->
+                <div id="modal-confirm-phase" class="space-y-4">
+                    <div class="p-3 bg-[#0c0c0e] border border-[#27272a] space-y-2">
+                        <div class="text-xs font-mono text-zinc-300">
+                            Model <span class="text-cyan-400 font-bold font-mono">{{ model.id }}</span> is not currently loaded in memory.
+                        </div>
+                        <p class="text-xs text-zinc-400 leading-relaxed font-mono">
+                            Running playground inference requires downloading model assets and loading weights. Would you like to activate it now?
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button
+                            type="button"
+                            id="modal-cancel-btn"
+                            class="brutal-btn px-4 py-2 text-xs font-mono font-semibold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            id="modal-confirm-btn"
+                            class="brutal-btn px-4 py-2 text-xs font-mono font-bold bg-white text-black border border-white hover:bg-zinc-200"
+                        >
+                            Download & Activate Model
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Phase -->
+                <div id="modal-progress-phase" class="space-y-4 hidden">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-xs font-mono">
+                            <span id="modal-progress-status" class="text-zinc-300">Initializing activation...</span>
+                            <span id="modal-progress-percent" class="text-cyan-400 font-bold">0%</span>
+                        </div>
+                        <div class="w-full bg-[#0c0c0e] h-3 border border-[#27272a] overflow-hidden">
+                            <div
+                                id="modal-progress-bar"
+                                class="h-full bg-cyan-400 transition-all duration-300"
+                                style="width: 0%"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Log Stream -->
+                    <div class="space-y-1">
+                        <div class="text-[11px] font-mono uppercase text-zinc-400">Terminal Log Stream:</div>
+                        <pre
+                            id="modal-log-stream"
+                            class="bg-[#09090b] border border-[#27272a] p-3 text-[11px] font-mono text-zinc-300 h-36 overflow-y-auto whitespace-pre-wrap leading-tight"
+                        ></pre>
+                    </div>
+
+                    <!-- Error Alert in Modal -->
+                    <div id="modal-error-alert" class="hidden p-3 bg-red-950/50 border border-red-500/50 text-red-300 text-xs font-mono">
+                        <div class="font-bold mb-1 text-red-400">Activation Failed</div>
+                        <div id="modal-error-text"></div>
+                    </div>
+                </div>
+
+                <!-- Completed Phase -->
+                <div id="modal-completed-phase" class="space-y-4 hidden">
+                    <div class="p-3 bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 text-xs font-mono space-y-1">
+                        <div class="font-bold flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            Model successfully activated!
+                        </div>
+                        <p class="text-zinc-400">Running inference...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Interactive Script -->
         <script>
             (function () {
                 const CURRENT_MODEL_ID = "{{ model.id }}";
+                let isModelActive = {{ 'true' if is_active else 'false' }};
 
                 // Tab Switcher Elements
                 const tabBtnCard = document.getElementById("tab-btn-card");
@@ -856,8 +958,183 @@
                     resultsEmpty.classList.add("hidden");
                 }
 
+                // Activation Modal Elements & Logic
+                const activateModal = document.getElementById("model-activate-modal");
+                const modalCloseBtn = document.getElementById("modal-close-btn");
+                const modalCancelBtn = document.getElementById("modal-cancel-btn");
+                const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+                const modalConfirmPhase = document.getElementById("modal-confirm-phase");
+                const modalProgressPhase = document.getElementById("modal-progress-phase");
+                const modalCompletedPhase = document.getElementById("modal-completed-phase");
+                const modalProgressStatus = document.getElementById("modal-progress-status");
+                const modalProgressPercent = document.getElementById("modal-progress-percent");
+                const modalProgressBar = document.getElementById("modal-progress-bar");
+                const modalLogStream = document.getElementById("modal-log-stream");
+                const modalErrorAlert = document.getElementById("modal-error-alert");
+                const modalErrorText = document.getElementById("modal-error-text");
+
+                let activationEventSource = null;
+
+                function appendModalLog(text) {
+                    if (!modalLogStream) return;
+                    const ts = new Date().toLocaleTimeString();
+                    modalLogStream.textContent += `[${ts}] ${text}\n`;
+                    modalLogStream.scrollTop = modalLogStream.scrollHeight;
+                }
+
+                function showActivationModal() {
+                    if (!activateModal) return;
+                    modalConfirmPhase.classList.remove("hidden");
+                    modalProgressPhase.classList.add("hidden");
+                    modalCompletedPhase.classList.add("hidden");
+                    if (modalErrorAlert) modalErrorAlert.classList.add("hidden");
+                    if (modalProgressBar) modalProgressBar.style.width = "0%";
+                    if (modalProgressPercent) modalProgressPercent.textContent = "0%";
+                    if (modalProgressStatus) modalProgressStatus.textContent = "Waiting for activation...";
+                    if (modalLogStream) modalLogStream.textContent = "";
+                    if (modalConfirmBtn) modalConfirmBtn.disabled = false;
+                    activateModal.classList.remove("hidden");
+                }
+
+                function hideActivationModal() {
+                    if (!activateModal) return;
+                    if (activationEventSource) {
+                        activationEventSource.close();
+                        activationEventSource = null;
+                    }
+                    activateModal.classList.add("hidden");
+                }
+
+                if (modalCloseBtn) modalCloseBtn.addEventListener("click", hideActivationModal);
+                if (modalCancelBtn) modalCancelBtn.addEventListener("click", hideActivationModal);
+                if (activateModal) {
+                    activateModal.addEventListener("click", (e) => {
+                        if (e.target === activateModal) {
+                            hideActivationModal();
+                        }
+                    });
+                }
+                window.addEventListener("keydown", (e) => {
+                    if (e.key === "Escape" && activateModal && !activateModal.classList.contains("hidden")) {
+                        hideActivationModal();
+                    }
+                });
+
+                function setModelActiveUI() {
+                    isModelActive = true;
+                    const badge = document.getElementById("detail-model-badge");
+                    if (badge) {
+                        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 text-xs font-mono";
+                        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>Active';
+                    }
+                }
+
+                function setModelInactiveUI() {
+                    isModelActive = false;
+                    const badge = document.getElementById("detail-model-badge");
+                    if (badge) {
+                        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400 text-xs font-mono";
+                        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-zinc-500"></span>Non Active';
+                    }
+                }
+
+                async function startModelActivation() {
+                    if (modalConfirmBtn) modalConfirmBtn.disabled = true;
+                    modalConfirmPhase.classList.add("hidden");
+                    modalProgressPhase.classList.remove("hidden");
+                    if (modalErrorAlert) modalErrorAlert.classList.add("hidden");
+
+                    appendModalLog(`Connecting to activation stream for ${CURRENT_MODEL_ID}...`);
+
+                    if (activationEventSource) {
+                        activationEventSource.close();
+                        activationEventSource = null;
+                    }
+
+                    activationEventSource = new EventSource("/api/models/stream");
+                    activationEventSource.onmessage = function (event) {
+                        try {
+                            const data = JSON.parse(event.data);
+                            const progress = typeof data.progress === "number" ? data.progress : 0;
+                            if (modalProgressBar) modalProgressBar.style.width = `${progress}%`;
+                            if (modalProgressPercent) modalProgressPercent.textContent = `${progress}%`;
+                            if (modalProgressStatus && data.message) modalProgressStatus.textContent = data.message;
+                            if (data.message) appendModalLog(data.message);
+
+                            if (data.phase === "completed") {
+                                if (modalProgressBar) modalProgressBar.style.width = "100%";
+                                if (modalProgressPercent) modalProgressPercent.textContent = "100%";
+                                modalProgressPhase.classList.add("hidden");
+                                modalCompletedPhase.classList.remove("hidden");
+                                if (activationEventSource) {
+                                    activationEventSource.close();
+                                    activationEventSource = null;
+                                }
+                                setModelActiveUI();
+                                setTimeout(() => {
+                                    hideActivationModal();
+                                    runInference();
+                                }, 600);
+                            } else if (data.phase === "error") {
+                                if (modalErrorAlert) {
+                                    modalErrorAlert.classList.remove("hidden");
+                                    if (modalErrorText) modalErrorText.textContent = data.message || "Model activation failed.";
+                                }
+                                if (activationEventSource) {
+                                    activationEventSource.close();
+                                    activationEventSource = null;
+                                }
+                            }
+                        } catch (err) {
+                            console.error("Error parsing activation stream event", err);
+                        }
+                    };
+
+                    activationEventSource.onerror = function (err) {
+                        console.warn("Activation stream connection error", err);
+                    };
+
+                    try {
+                        const res = await fetch("/api/models/activate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ model: CURRENT_MODEL_ID })
+                        });
+                        if (!res.ok) {
+                            const errData = await res.json().catch(() => ({}));
+                            const msg = errData.detail || "Failed to trigger model activation.";
+                            appendModalLog(`Activation error: ${msg}`);
+                            if (modalErrorAlert) {
+                                modalErrorAlert.classList.remove("hidden");
+                                if (modalErrorText) modalErrorText.textContent = msg;
+                            }
+                            if (activationEventSource) {
+                                activationEventSource.close();
+                                activationEventSource = null;
+                            }
+                        }
+                    } catch (err) {
+                        appendModalLog(`Network error: ${err.message}`);
+                        if (modalErrorAlert) {
+                            modalErrorAlert.classList.remove("hidden");
+                            if (modalErrorText) modalErrorText.textContent = `Network error: ${err.message}`;
+                        }
+                        if (activationEventSource) {
+                            activationEventSource.close();
+                            activationEventSource = null;
+                        }
+                    }
+                }
+
+                if (modalConfirmBtn) modalConfirmBtn.addEventListener("click", startModelActivation);
+
                 // Execute Inference
                 async function runInference() {
+                    if (!isModelActive) {
+                        showActivationModal();
+                        return;
+                    }
+
                     hideError();
                     let questionsObj;
                     try {
@@ -960,17 +1237,14 @@
                         const res = await fetch("/health");
                         if (res.ok) {
                             const data = await res.json();
-                            const badge = document.getElementById("detail-model-badge");
-                            if (badge && data.loaded_models) {
+                            if (data.loaded_models) {
                                 const currentId = "{{ model.id }}";
                                 const currentName = "{{ model.name }}";
                                 const isActive = data.loaded_models.includes(currentId) || data.loaded_models.includes(currentName) || (currentName === "laya-multilingual" && data.loaded_models.includes("laya"));
                                 if (isActive) {
-                                    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 text-xs font-mono";
-                                    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>Active';
+                                    setModelActiveUI();
                                 } else {
-                                    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400 text-xs font-mono";
-                                    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-zinc-500"></span>Non Active';
+                                    setModelInactiveUI();
                                 }
                             }
                         }

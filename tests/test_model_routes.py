@@ -57,3 +57,14 @@ def test_model_active_and_non_active_status_display(client_no_auth):
     assert resp_home.status_code == 200
     assert "model-status-badge" in resp_home.text
 
+
+def test_model_detail_activation_modal_present(client_no_auth):
+    resp = client_no_auth.get("/vllm-sr/d3-lite")
+    assert resp.status_code == 200
+    html = resp.text
+    assert 'id="model-activate-modal"' in html
+    assert "MODEL NOT LOADED YET" in html
+    assert "Download & Activate Model" in html
+    assert "Cancel" in html
+
+
