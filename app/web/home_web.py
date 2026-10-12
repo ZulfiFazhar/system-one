@@ -37,7 +37,7 @@ def get_model_detail_content(model: dict[str, Any]) -> str:
             import jinja2
 
             return jinja2.Template(_MODEL_DETAIL_TEMPLATE_CACHE).render(
-                model=model, **model
+                model=model, settings=settings
             )
         except Exception:
             return _MODEL_DETAIL_TEMPLATE_CACHE

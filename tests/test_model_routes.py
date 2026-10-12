@@ -17,3 +17,16 @@ def test_model_detail_route_success(client_no_auth):
 def test_model_detail_route_not_found(client_no_auth):
     resp = client_no_auth.get("/nonexistent/model-xyz")
     assert resp.status_code == 404
+
+
+def test_model_detail_page_contents(client_no_auth):
+    resp = client_no_auth.get("/vllm-sr/d3-lite")
+    assert resp.status_code == 200
+    html = resp.text
+    assert "Model Card" in html
+    assert "Playground" in html
+    assert "vllm-sr/d3-lite" in html
+    assert "Parameters" in html
+    assert "Context" in html
+    assert "/v1/systemone" in html
+

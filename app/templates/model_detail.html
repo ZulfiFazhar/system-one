@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ model.display_name }} | System One Model Card & Playground</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: "#1E1E1E",
+                            surface: "#fefefe",
+                            borderDefault: "#1E1E1E",
+                            accentGreen: "#03aa5c",
+                            accentPink: "#f386a1",
+                            accentTeal: "#09aea1",
+                            subtleGray: "#dedede",
+                            textMuted: "#555555",
+                        },
+                        boxShadow: {
+                            hard: "2px 2px 0px rgba(0,0,0,0.4)",
+                            "hard-hover": "3px 3px 0px rgba(0,0,0,0.6)",
+                            "hard-active": "1px 1px 0px rgba(0,0,0,0.4)",
+                        },
+                        fontFamily: {
+                            sans: [
+                                "Inter",
+                                "system-ui",
+                                "-apple-system",
+                                "sans-serif",
+                            ],
+                            mono: [
+                                "JetBrains Mono",
+                                "ui-monospace",
+                                "monospace",
+                            ],
+                        },
+                    },
+                },
+            };
+        </script>
+        <link rel="stylesheet" href="/public/css/style.css" />
+    </head>
+    <body class="min-h-screen flex flex-col bg-[#09090b] text-[#f4f4f5] antialiased font-sans">
+        <!-- Top Navigation Bar -->
+        <header class="border-b border-[#27272a] bg-[#09090b] text-white sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 min-w-0">
+                    <a
+                        href="/#models"
+                        class="brutal-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white shrink-0"
+                    >
+                        &larr; Back to Models
+                    </a>
+                    <span class="text-zinc-600 hidden sm:inline">/</span>
+                    <nav aria-label="Breadcrumb" class="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400 truncate">
+                        <a href="/" class="hover:text-zinc-200">System One</a>
+                        <span class="text-zinc-600">/</span>
+                        <span class="text-zinc-400">{{ model.creator }}</span>
+                        <span class="text-zinc-600">/</span>
+                        <span class="text-white font-semibold truncate">{{ model.name }}</span>
+                    </nav>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                    {% if model.huggingface_url %}
+                    <a
+                        href="{{ model.huggingface_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="brutal-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white font-mono text-xs"
+                    >
+                        <span>Hugging Face</span>
+                        <span aria-hidden="true">&nearr;</span>
+                    </a>
+                    {% endif %}
+                    <a
+                        href="/docs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="brutal-btn inline-flex items-center gap-1 px-3 py-1.5 bg-white text-black border border-white font-mono text-xs font-bold hover:bg-zinc-200"
+                    >
+                        <span>API Docs</span>
+                        <span aria-hidden="true">&nearr;</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <!-- Hero Title & Badges -->
+            <div class="space-y-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="px-2.5 py-0.5 border border-[#3f3f46] text-xs font-mono uppercase bg-[#18181b] text-zinc-300">
+                        {{ model.creator }}
+                    </span>
+                    <span class="px-2.5 py-0.5 border border-cyan-500/40 bg-cyan-950/40 text-cyan-400 text-xs font-mono">
+                        {{ model.id }}
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 text-xs font-mono">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Active
+                    </span>
+                </div>
+
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                            {{ model.display_name }}
+                        </h1>
+                        <p class="text-sm sm:text-base text-zinc-400 mt-2 max-w-3xl leading-relaxed">
+                            {{ model.summary }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Stats Bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div class="brutal-card p-3.5 bg-[#141417] border border-[#27272a]">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Parameters</div>
+                    <div class="text-base sm:text-lg font-bold font-mono text-white mt-1">{{ model.params }}</div>
+                </div>
+                <div class="brutal-card p-3.5 bg-[#141417] border border-[#27272a]">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Context</div>
+                    <div class="text-base sm:text-lg font-bold font-mono text-white mt-1">{{ model.context_window }}</div>
+                </div>
+                <div class="brutal-card p-3.5 bg-[#141417] border border-[#27272a]">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Modality</div>
+                    <div class="text-base sm:text-lg font-bold font-mono text-white mt-1">{{ model.modality }}</div>
+                </div>
+                <div class="brutal-card p-3.5 bg-[#141417] border border-[#27272a]">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">License</div>
+                    <div class="text-base sm:text-lg font-bold font-mono text-white mt-1">{{ model.license }}</div>
+                </div>
+                <div class="brutal-card p-3.5 bg-[#141417] border border-[#27272a] col-span-2 sm:col-span-1">
+                    <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Architecture</div>
+                    <div class="text-base sm:text-lg font-bold font-mono text-cyan-400 mt-1 truncate" title="{{ model.architecture }}">
+                        {{ model.architecture }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Tab Switcher -->
+            <div class="border-b border-[#27272a] flex items-center gap-2">
+                <button
+                    type="button"
+                    id="tab-btn-card"
+                    class="px-5 py-2.5 font-mono text-xs sm:text-sm font-bold border-b-2 border-white text-white bg-[#141417] transition-colors"
+                >
+                    Model Card
+                </button>
+                <button
+                    type="button"
+                    id="tab-btn-playground"
+                    class="px-5 py-2.5 font-mono text-xs sm:text-sm font-bold border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 transition-colors"
+                >
+                    Interactive Playground
+                </button>
+            </div>
+
+            <!-- Tab Content: Model Card -->
+            <section id="section-model-card" class="space-y-8">
+                <!-- Overview & Description -->
+                <div class="brutal-card p-6 bg-[#141417] border border-[#27272a] space-y-4">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 bg-cyan-400 inline-block"></span>
+                        Overview & Architecture
+                    </h2>
+                    <p class="text-sm text-zinc-300 leading-relaxed">
+                        {{ model.description }}
+                    </p>
+                    <div class="pt-3 border-t border-[#27272a] flex flex-wrap items-center gap-4 text-xs font-mono text-zinc-400">
+                        <div>Endpoint: <code class="text-zinc-200 bg-[#09090b] px-2 py-0.5 border border-[#27272a]">POST /v1/systemone</code></div>
+                        <div>Target Model: <code class="text-cyan-400 bg-[#09090b] px-2 py-0.5 border border-[#27272a]">{{ model.id }}</code></div>
+                    </div>
+                </div>
+
+                <!-- Specifications & Benchmarks Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Specifications -->
+                    <div class="brutal-card p-6 bg-[#141417] border border-[#27272a] space-y-4">
+                        <h3 class="text-base font-bold text-white uppercase tracking-wider font-mono">
+                            Technical Specifications
+                        </h3>
+                        <dl class="divide-y divide-[#27272a] text-xs font-mono">
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">Model Identifier</dt>
+                                <dd class="text-white font-semibold">{{ model.id }}</dd>
+                            </div>
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">Creator / Publisher</dt>
+                                <dd class="text-white">{{ model.creator }}</dd>
+                            </div>
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">Architecture Family</dt>
+                                <dd class="text-cyan-400">{{ model.architecture }}</dd>
+                            </div>
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">Parameter Count</dt>
+                                <dd class="text-white">{{ model.params }}</dd>
+                            </div>
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">Context Window</dt>
+                                <dd class="text-white">{{ model.context_window }}</dd>
+                            </div>
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">Modality</dt>
+                                <dd class="text-white">{{ model.modality }}</dd>
+                            </div>
+                            <div class="py-2.5 flex justify-between">
+                                <dt class="text-zinc-400">License</dt>
+                                <dd class="text-white">{{ model.license }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <!-- Benchmarks Table -->
+                    <div class="brutal-card p-6 bg-[#141417] border border-[#27272a] space-y-4">
+                        <h3 class="text-base font-bold text-white uppercase tracking-wider font-mono">
+                            Performance Benchmarks
+                        </h3>
+                        {% if model.benchmarks %}
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead>
+                                    <tr class="border-b border-[#27272a] text-zinc-400">
+                                        <th class="py-2 pr-3">Metric</th>
+                                        <th class="py-2 px-3">Result</th>
+                                        <th class="py-2 pl-3">Condition / Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-[#27272a]">
+                                    {% for bench in model.benchmarks %}
+                                    <tr>
+                                        <td class="py-2.5 pr-3 text-zinc-300 font-semibold">{{ bench.metric }}</td>
+                                        <td class="py-2.5 px-3 text-emerald-400 font-bold">{{ bench.value }}</td>
+                                        <td class="py-2.5 pl-3 text-zinc-400">{{ bench.note }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-xs font-mono text-zinc-500 py-4">No benchmark data available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Code Integration Snippets -->
+                <div class="brutal-card p-6 bg-[#141417] border border-[#27272a] space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#27272a] pb-3">
+                        <h3 class="text-base font-bold text-white uppercase tracking-wider font-mono">
+                            Integration Code Snippets
+                        </h3>
+                        <div class="flex items-center gap-2 border border-[#3f3f46] bg-[#0c0c0e] p-0.5 text-xs font-mono">
+                            <button
+                                type="button"
+                                id="btn-snippet-curl"
+                                class="px-3 py-1 bg-white text-black font-semibold"
+                            >
+                                cURL
+                            </button>
+                            <button
+                                type="button"
+                                id="btn-snippet-python"
+                                class="px-3 py-1 text-zinc-400 hover:text-white"
+                            >
+                                Python
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- cURL Block -->
+                    <div id="snippet-curl-block" class="relative">
+                        <button
+                            type="button"
+                            onclick="navigator.clipboard.writeText(document.getElementById('code-curl-text').innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000)"
+                            class="absolute top-3 right-3 px-2 py-1 bg-[#27272a] hover:bg-[#3f3f46] text-white text-[11px] font-mono border border-[#3f3f46]"
+                        >
+                            Copy
+                        </button>
+                        <pre class="bg-[#09090b] border border-[#27272a] p-4 text-xs font-mono text-zinc-200 overflow-x-auto"><code id="code-curl-text">{{ model.code_curl }}</code></pre>
+                    </div>
+
+                    <!-- Python Block -->
+                    <div id="snippet-python-block" class="relative hidden">
+                        <button
+                            type="button"
+                            onclick="navigator.clipboard.writeText(document.getElementById('code-python-text').innerText); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 2000)"
+                            class="absolute top-3 right-3 px-2 py-1 bg-[#27272a] hover:bg-[#3f3f46] text-white text-[11px] font-mono border border-[#3f3f46]"
+                        >
+                            Copy
+                        </button>
+                        <pre class="bg-[#09090b] border border-[#27272a] p-4 text-xs font-mono text-zinc-200 overflow-x-auto"><code id="code-python-text">{{ model.code_python }}</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Interactive Playground -->
+            <section id="section-playground" class="space-y-6 hidden">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <div class="inline-block px-2.5 py-0.5 border border-[#3f3f46] text-xs font-mono uppercase bg-[#18181b] text-zinc-300 mb-2">
+                            Interactive Tester
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight text-white">
+                            Playground: {{ model.display_name }}
+                        </h2>
+                        <p class="text-sm text-zinc-400 mt-1">
+                            Execute real-time TypeSafe System 1 decisions against <code class="text-zinc-200 font-mono">POST /v1/systemone</code> targeting <code class="text-cyan-400 font-mono">{{ model.id }}</code>.
+                        </p>
+                    </div>
+
+                    <!-- Presets -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-mono uppercase text-zinc-400 mr-1">Presets:</span>
+                        <button
+                            type="button"
+                            id="preset-billing"
+                            class="brutal-btn min-h-[40px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
+                        >
+                            Billing Dispute
+                        </button>
+                        <button
+                            type="button"
+                            id="preset-urgency"
+                            class="brutal-btn min-h-[40px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
+                        >
+                            Urgency Rating
+                        </button>
+                        <button
+                            type="button"
+                            id="preset-routing"
+                            class="brutal-btn min-h-[40px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
+                        >
+                            Support Routing
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: Form Controls -->
+                    <div class="space-y-6">
+                        <!-- Model ID indicator -->
+                        <div class="brutal-card p-4 bg-[#141417] border border-[#27272a] flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400">Active Model</span>
+                                <div class="text-sm font-mono font-bold text-cyan-400 mt-0.5">{{ model.id }}</div>
+                            </div>
+                            <span class="text-[11px] font-mono px-2 py-0.5 border border-zinc-700 bg-zinc-800 text-zinc-300">
+                                Target /v1/systemone
+                            </span>
+                        </div>
+
+                        <!-- Auth Token -->
+                        <div class="brutal-card p-4 bg-[#141417] border border-[#27272a]">
+                            <label for="api-key-input" class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1 text-zinc-200">
+                                Bearer API Key (Optional)
+                            </label>
+                            <p class="text-xs text-zinc-400 mb-2">
+                                Stored in session storage. Leave blank for public access or use configured dev key.
+                            </p>
+                            <input
+                                id="api-key-input"
+                                type="password"
+                                placeholder="e.g. dev-key"
+                                class="brutal-input w-full px-3 py-2 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] focus-visible:outline-white"
+                                autocomplete="off"
+                            />
+                        </div>
+
+                        <!-- State Input -->
+                        <div class="brutal-card p-4 bg-[#141417] border border-[#27272a]">
+                            <label for="state-input" class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1 text-zinc-200">
+                                State Context (Input Text)
+                            </label>
+                            <p class="text-xs text-zinc-400 mb-2">
+                                Natural language context string evaluated against the question definitions.
+                            </p>
+                            <textarea
+                                id="state-input"
+                                rows="4"
+                                class="brutal-input w-full p-3 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] resize-y focus-visible:outline-white"
+                                placeholder="Enter state context here..."
+                            ></textarea>
+                        </div>
+
+                        <!-- Questions Schema Input -->
+                        <div class="brutal-card p-4 bg-[#141417] border border-[#27272a]">
+                            <div class="flex items-center justify-between mb-1">
+                                <label for="questions-input" class="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200">
+                                    Questions JSON Schema
+                                </label>
+                                <button
+                                    type="button"
+                                    id="format-questions-btn"
+                                    class="text-xs font-mono text-zinc-400 hover:text-white underline"
+                                >
+                                    Format JSON
+                                </button>
+                            </div>
+                            <p class="text-xs text-zinc-400 mb-2">
+                                JSON map of questions conforming to System One types (noul, choice, score).
+                            </p>
+                            <textarea
+                                id="questions-input"
+                                rows="10"
+                                class="brutal-input w-full p-3 text-xs font-mono bg-[#0c0c0e] text-white border border-[#27272a] resize-y focus-visible:outline-white"
+                                spellcheck="false"
+                            ></textarea>
+                        </div>
+
+                        <!-- Execute Button -->
+                        <div class="flex items-center gap-4">
+                            <button
+                                type="button"
+                                id="run-btn"
+                                class="brutal-btn min-h-[48px] flex-1 py-3 px-6 bg-white text-black font-bold text-sm hover:bg-zinc-200 border border-white flex items-center justify-center gap-2"
+                            >
+                                <svg
+                                    id="run-spinner"
+                                    class="hidden animate-spin h-4 w-4 text-black"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span id="run-text">Run Inference</span>
+                                <span class="text-[11px] font-mono text-zinc-600 border border-zinc-300 px-1 py-0.2 rounded hidden sm:inline">Ctrl+Enter</span>
+                            </button>
+                        </div>
+
+                        <!-- Error Box -->
+                        <div
+                            id="playground-error"
+                            class="hidden brutal-card p-4 bg-red-950/50 border border-red-500/50 text-red-200 text-sm"
+                        >
+                            <div class="font-bold mb-1 flex items-center gap-2 text-red-400">
+                                <span class="w-2 h-2 bg-red-500 rounded-full inline-block"></span>
+                                <span id="error-title">Inference Error</span>
+                            </div>
+                            <p id="error-message" class="text-xs font-mono whitespace-pre-wrap text-red-300"></p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Results Console -->
+                    <div class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white flex flex-col min-h-[520px]">
+                        <!-- Results Header -->
+                        <div class="border-b border-zinc-800 pb-4 mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono font-bold uppercase tracking-wider text-white">Evaluation Output</span>
+                                <span id="res-status" class="hidden text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400">200 OK</span>
+                                <span id="res-latency" class="hidden text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-zinc-300">-- ms</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <span id="res-tokens" class="hidden text-xs font-mono text-zinc-400">in: 0 / out: 0 tok</span>
+                                <div class="border border-[#3f3f46] flex text-xs font-mono bg-[#0c0c0e]">
+                                    <button type="button" id="tab-visual" class="px-2.5 py-1 bg-white text-black font-semibold">
+                                        Visual
+                                    </button>
+                                    <button type="button" id="tab-raw" class="px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]">
+                                        JSON
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Body -->
+                        <div class="flex-grow flex flex-col">
+                            <!-- Visual Results View -->
+                            <div id="visual-results" class="space-y-4">
+                                <div id="results-empty" class="text-center py-20 text-zinc-400">
+                                    <div class="w-10 h-10 border border-[#3f3f46] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-[#18181b] text-zinc-300">
+                                        S1
+                                    </div>
+                                    <p class="text-sm font-medium text-zinc-300">Ready for evaluation.</p>
+                                    <p class="text-xs text-zinc-400 mt-1">
+                                        Select a preset or customize state and click Run Inference.
+                                    </p>
+                                </div>
+                                <div id="results-content" class="hidden space-y-4"></div>
+                            </div>
+
+                            <!-- Raw JSON View -->
+                            <div id="raw-results" class="hidden flex-grow flex flex-col">
+                                <div class="flex justify-end mb-2">
+                                    <button
+                                        type="button"
+                                        id="copy-raw-json-btn"
+                                        class="px-2 py-1 text-xs font-mono bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a]"
+                                    >
+                                        Copy JSON
+                                    </button>
+                                </div>
+                                <pre class="bg-[#09090b] border border-[#27272a] p-4 text-xs font-mono text-zinc-200 overflow-x-auto flex-grow max-h-[500px]"><code id="raw-json">{}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-[#27272a] bg-[#09090b] text-zinc-400 text-xs font-mono py-8 mt-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-cyan-400 inline-block"></span>
+                    <span>System One Decision Models</span>
+                </div>
+                <div>
+                    Target Endpoint: <code class="text-zinc-200">/v1/systemone</code> &bull; Model: <span class="text-cyan-400">{{ model.id }}</span>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Interactive Script -->
+        <script>
+            (function () {
+                const CURRENT_MODEL_ID = "{{ model.id }}";
+
+                // Tab Switcher Elements
+                const tabBtnCard = document.getElementById("tab-btn-card");
+                const tabBtnPlayground = document.getElementById("tab-btn-playground");
+                const sectionModelCard = document.getElementById("section-model-card");
+                const sectionPlayground = document.getElementById("section-playground");
+
+                function activateTab(tab) {
+                    if (tab === "card") {
+                        tabBtnCard.className = "px-5 py-2.5 font-mono text-xs sm:text-sm font-bold border-b-2 border-white text-white bg-[#141417] transition-colors";
+                        tabBtnPlayground.className = "px-5 py-2.5 font-mono text-xs sm:text-sm font-bold border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 transition-colors";
+                        sectionModelCard.classList.remove("hidden");
+                        sectionPlayground.classList.add("hidden");
+                    } else {
+                        tabBtnPlayground.className = "px-5 py-2.5 font-mono text-xs sm:text-sm font-bold border-b-2 border-white text-white bg-[#141417] transition-colors";
+                        tabBtnCard.className = "px-5 py-2.5 font-mono text-xs sm:text-sm font-bold border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 transition-colors";
+                        sectionPlayground.classList.remove("hidden");
+                        sectionModelCard.classList.add("hidden");
+                    }
+                }
+
+                tabBtnCard.addEventListener("click", () => activateTab("card"));
+                tabBtnPlayground.addEventListener("click", () => activateTab("playground"));
+
+                // Snippets Switcher
+                const btnSnippetCurl = document.getElementById("btn-snippet-curl");
+                const btnSnippetPython = document.getElementById("btn-snippet-python");
+                const snippetCurlBlock = document.getElementById("snippet-curl-block");
+                const snippetPythonBlock = document.getElementById("snippet-python-block");
+
+                if (btnSnippetCurl && btnSnippetPython) {
+                    btnSnippetCurl.addEventListener("click", () => {
+                        btnSnippetCurl.className = "px-3 py-1 bg-white text-black font-semibold";
+                        btnSnippetPython.className = "px-3 py-1 text-zinc-400 hover:text-white";
+                        snippetCurlBlock.classList.remove("hidden");
+                        snippetPythonBlock.classList.add("hidden");
+                    });
+                    btnSnippetPython.addEventListener("click", () => {
+                        btnSnippetPython.className = "px-3 py-1 bg-white text-black font-semibold";
+                        btnSnippetCurl.className = "px-3 py-1 text-zinc-400 hover:text-white";
+                        snippetPythonBlock.classList.remove("hidden");
+                        snippetCurlBlock.classList.add("hidden");
+                    });
+                }
+
+                // Playground Presets
+                const PRESETS = {
+                    billing: {
+                        state: 'User: "I was charged twice for my subscription on March 15th ($49 x 2). Please refund the duplicate transaction immediately."',
+                        questions: {
+                            refund_requested: {
+                                type: "noul",
+                                instructions: "Is the user requesting a financial refund?"
+                            },
+                            issue_type: {
+                                type: "choice",
+                                instructions: "Classify the billing inquiry category",
+                                criteria: {
+                                    duplicate_charge: "User charged multiple times for single period",
+                                    overcharge: "Amount billed is higher than expected",
+                                    cancellation: "User wants to cancel service"
+                                }
+                            },
+                            priority: {
+                                type: "score",
+                                instructions: "Determine support response priority",
+                                criteria: [
+                                    "P3: Standard billing question",
+                                    "P2: Unresolved charge dispute",
+                                    "P1: Severe billing error requiring immediate reversal"
+                                ]
+                            }
+                        }
+                    },
+                    urgency: {
+                        state: "System alert: Production database replication lag exceeded 180 seconds. Multiple checkout transactions failing with 500 status.",
+                        questions: {
+                            requires_oncall: {
+                                type: "noul",
+                                instructions: "Does this incident require alerting on-call engineering?"
+                            },
+                            urgency_level: {
+                                type: "score",
+                                instructions: "Rate customer urgency level",
+                                criteria: [
+                                    "Low: Non-impacting warning",
+                                    "Medium: Degraded internal metrics",
+                                    "High: User-facing functional disruption",
+                                    "Critical: Revenue loss or data outage"
+                                ]
+                            }
+                        }
+                    },
+                    routing: {
+                        state: "Customer message: 'We need help setting up SAML Single Sign-On with Okta for 500 team members across Europe.'",
+                        questions: {
+                            enterprise_feature: {
+                                type: "noul",
+                                instructions: "Does this request involve Enterprise tier features?"
+                            },
+                            target_team: {
+                                type: "choice",
+                                instructions: "Select which team should handle this request",
+                                criteria: {
+                                    security_it: "SSO, SAML, Okta, identity management",
+                                    sales: "Seat expansion, enterprise contract licensing",
+                                    general_support: "Standard documentation and guidance"
+                                }
+                            }
+                        }
+                    }
+                };
+
+                // Playground Elements
+                const apiKeyInput = document.getElementById("api-key-input");
+                const stateInput = document.getElementById("state-input");
+                const questionsInput = document.getElementById("questions-input");
+                const runBtn = document.getElementById("run-btn");
+                const runSpinner = document.getElementById("run-spinner");
+                const runText = document.getElementById("run-text");
+                const errorBox = document.getElementById("playground-error");
+                const errorMessage = document.getElementById("error-message");
+                const resStatus = document.getElementById("res-status");
+                const resLatency = document.getElementById("res-latency");
+                const resTokens = document.getElementById("res-tokens");
+                const tabVisual = document.getElementById("tab-visual");
+                const tabRaw = document.getElementById("tab-raw");
+                const visualResults = document.getElementById("visual-results");
+                const rawResults = document.getElementById("raw-results");
+                const resultsEmpty = document.getElementById("results-empty");
+                const resultsContent = document.getElementById("results-content");
+                const rawJson = document.getElementById("raw-json");
+                const formatQuestionsBtn = document.getElementById("format-questions-btn");
+                const copyRawJsonBtn = document.getElementById("copy-raw-json-btn");
+
+                // Session Storage
+                const STORAGE_KEY = "system_one_api_key";
+                const savedApiKey = sessionStorage.getItem(STORAGE_KEY);
+                if (savedApiKey) apiKeyInput.value = savedApiKey;
+                apiKeyInput.addEventListener("input", () => {
+                    const val = apiKeyInput.value.trim();
+                    if (val) sessionStorage.setItem(STORAGE_KEY, val);
+                    else sessionStorage.removeItem(STORAGE_KEY);
+                });
+
+                function loadPreset(key) {
+                    const preset = PRESETS[key];
+                    if (!preset) return;
+                    stateInput.value = preset.state;
+                    questionsInput.value = JSON.stringify(preset.questions, null, 2);
+                    hideError();
+                }
+
+                document.getElementById("preset-billing").addEventListener("click", () => loadPreset("billing"));
+                document.getElementById("preset-urgency").addEventListener("click", () => loadPreset("urgency"));
+                document.getElementById("preset-routing").addEventListener("click", () => loadPreset("routing"));
+
+                // Initialize with billing preset
+                loadPreset("billing");
+
+                formatQuestionsBtn.addEventListener("click", () => {
+                    try {
+                        const parsed = JSON.parse(questionsInput.value);
+                        questionsInput.value = JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        showError("Invalid JSON in questions: " + e.message);
+                    }
+                });
+
+                // Tab Switcher between Visual and JSON
+                tabVisual.addEventListener("click", () => {
+                    tabVisual.className = "px-2.5 py-1 bg-white text-black font-semibold";
+                    tabRaw.className = "px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]";
+                    visualResults.classList.remove("hidden");
+                    rawResults.classList.add("hidden");
+                });
+
+                tabRaw.addEventListener("click", () => {
+                    tabRaw.className = "px-2.5 py-1 bg-white text-black font-semibold";
+                    tabVisual.className = "px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]";
+                    rawResults.classList.remove("hidden");
+                    visualResults.classList.add("hidden");
+                });
+
+                if (copyRawJsonBtn) {
+                    copyRawJsonBtn.addEventListener("click", () => {
+                        navigator.clipboard.writeText(rawJson.innerText);
+                        copyRawJsonBtn.innerText = "Copied!";
+                        setTimeout(() => (copyRawJsonBtn.innerText = "Copy JSON"), 2000);
+                    });
+                }
+
+                function escapeHtml(str) {
+                    return String(str)
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
+                }
+
+                function showError(msg) {
+                    errorMessage.textContent = msg;
+                    errorBox.classList.remove("hidden");
+                }
+
+                function hideError() {
+                    errorBox.classList.add("hidden");
+                }
+
+                // Render Visual Decision Outputs
+                function renderVisualAnswers(data) {
+                    resultsContent.innerHTML = "";
+                    const answers = data.answers || {};
+                    const keys = Object.keys(answers);
+
+                    if (keys.length === 0) {
+                        resultsContent.innerHTML = '<div class="text-xs text-zinc-400 font-mono py-6 text-center">No answers returned.</div>';
+                        resultsContent.classList.remove("hidden");
+                        resultsEmpty.classList.add("hidden");
+                        return;
+                    }
+
+                    keys.forEach((key) => {
+                        const ans = answers[key];
+                        const card = document.createElement("div");
+                        card.className = "p-4 brutal-card bg-[#0e0e11] border border-[#27272a] space-y-3";
+
+                        let innerHtml = "";
+                        const ansType = ans.type || "unknown";
+
+                        if (ansType === "noul") {
+                            const val = typeof ans.noul === "number" ? ans.noul : (typeof ans.probability === "number" ? ans.probability : 0.5);
+                            const pct = (val * 100).toFixed(1);
+                            const isPositive = val >= 0.5;
+                            innerHtml = `
+                                <div class="flex items-center justify-between text-xs font-mono">
+                                    <span class="font-bold ${isPositive ? 'text-emerald-400' : 'text-zinc-400'}">
+                                        ${isPositive ? 'TRUE / YES' : 'FALSE / NO'}
+                                    </span>
+                                    <span class="text-cyan-400 font-bold">${pct}%</span>
+                                </div>
+                                <div class="w-full bg-[#18181b] h-2.5 border border-[#27272a] overflow-hidden">
+                                    <div class="h-full bg-cyan-400 transition-all duration-300" style="width: ${pct}%"></div>
+                                </div>
+                            `;
+                        } else if (ansType === "choice") {
+                            const decision = ans.choice || ans.decision || "";
+                            const probs = ans.probabilities || {};
+                            innerHtml = `
+                                <div class="text-xs font-mono text-zinc-300">
+                                    Choice: <span class="font-bold text-cyan-400 uppercase">${escapeHtml(decision)}</span>
+                                    ${ans.confidence !== undefined ? `<span class="text-zinc-500 ml-2">(${(ans.confidence * 100).toFixed(0)}% conf)</span>` : ''}
+                                </div>
+                                <div class="space-y-1.5 font-mono text-xs">
+                            `;
+                            Object.entries(probs).forEach(([optKey, optProb]) => {
+                                const optPct = (Number(optProb) * 100).toFixed(1);
+                                const isSelected = optKey === decision;
+                                innerHtml += `
+                                    <div>
+                                        <div class="flex items-center justify-between text-[11px] mb-0.5">
+                                            <span class="${isSelected ? 'text-white font-bold' : 'text-zinc-400'}">${escapeHtml(optKey)}</span>
+                                            <span class="${isSelected ? 'text-cyan-400 font-bold' : 'text-zinc-500'}">${optPct}%</span>
+                                        </div>
+                                        <div class="w-full bg-[#18181b] h-2 border border-[#27272a] overflow-hidden">
+                                            <div class="h-full ${isSelected ? 'bg-cyan-400' : 'bg-zinc-700'} transition-all duration-300" style="width: ${optPct}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            innerHtml += `</div>`;
+                        } else if (ansType === "score") {
+                            const score = ans.score !== undefined ? ans.score : (ans.decision !== undefined ? ans.decision : "--");
+                            const legend = ans.legend || {};
+                            const scoreLabel = legend[String(score)] || "";
+                            innerHtml = `
+                                <div class="flex items-center justify-between text-xs font-mono">
+                                    <span class="text-zinc-300">Score Rating:</span>
+                                    <span class="font-bold text-cyan-400 text-sm">${escapeHtml(String(score))}</span>
+                                </div>
+                                ${scoreLabel ? `<div class="text-[11px] font-mono text-zinc-400">${escapeHtml(scoreLabel)}</div>` : ''}
+                            `;
+                            if (ans.probabilities && Object.keys(ans.probabilities).length > 0) {
+                                innerHtml += `<div class="space-y-1.5 font-mono text-xs pt-1">`;
+                                Object.entries(ans.probabilities).forEach(([sKey, sProb]) => {
+                                    const sPct = (Number(sProb) * 100).toFixed(1);
+                                    const isScoreChoice = String(sKey) === String(score);
+                                    innerHtml += `
+                                        <div>
+                                            <div class="flex items-center justify-between text-[11px] mb-0.5">
+                                                <span class="${isScoreChoice ? 'text-white font-bold' : 'text-zinc-400'}">${escapeHtml(sKey)}</span>
+                                                <span class="${isScoreChoice ? 'text-cyan-400 font-bold' : 'text-zinc-500'}">${sPct}%</span>
+                                            </div>
+                                            <div class="w-full bg-[#18181b] h-1.5 border border-[#27272a] overflow-hidden">
+                                                <div class="h-full ${isScoreChoice ? 'bg-cyan-400' : 'bg-zinc-700'}" style="width: ${sPct}%"></div>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                innerHtml += `</div>`;
+                            }
+                        } else {
+                            innerHtml = `<pre class="text-xs text-zinc-300 font-mono">${escapeHtml(JSON.stringify(ans, null, 2))}</pre>`;
+                        }
+
+                        card.innerHTML = `
+                            <div class="flex items-center justify-between border-b border-[#222226] pb-2">
+                                <span class="text-xs font-mono font-bold text-white">${escapeHtml(key)}</span>
+                                <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 border border-[#3f3f46] text-zinc-400 bg-[#18181b]">${escapeHtml(ansType)}</span>
+                            </div>
+                            ${innerHtml}
+                        `;
+                        resultsContent.appendChild(card);
+                    });
+
+                    resultsContent.classList.remove("hidden");
+                    resultsEmpty.classList.add("hidden");
+                }
+
+                // Execute Inference
+                async function runInference() {
+                    hideError();
+                    let questionsObj;
+                    try {
+                        questionsObj = JSON.parse(questionsInput.value);
+                    } catch (e) {
+                        showError("Invalid JSON in Questions Schema: " + e.message);
+                        return;
+                    }
+
+                    const state = stateInput.value;
+                    const apiKey = apiKeyInput.value.trim();
+
+                    runBtn.disabled = true;
+                    runSpinner.classList.remove("hidden");
+                    runText.textContent = "Running...";
+
+                    const headers = { "Content-Type": "application/json" };
+                    if (apiKey) {
+                        headers["Authorization"] = `Bearer ${apiKey}`;
+                    }
+
+                    const startTime = performance.now();
+
+                    try {
+                        const payload = {
+                            model: CURRENT_MODEL_ID,
+                            state: state,
+                            questions: questionsObj
+                        };
+
+                        const res = await fetch("/v1/systemone", {
+                            method: "POST",
+                            headers: headers,
+                            body: JSON.stringify(payload)
+                        });
+
+                        const endTime = performance.now();
+                        const latency = (endTime - startTime).toFixed(1);
+
+                        resLatency.classList.remove("hidden");
+                        resLatency.textContent = `${latency} ms`;
+
+                        resStatus.classList.remove("hidden");
+                        if (res.ok) {
+                            resStatus.textContent = `${res.status} OK`;
+                            resStatus.className = "text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400";
+                        } else {
+                            resStatus.textContent = `${res.status} ERR`;
+                            resStatus.className = "text-xs font-mono px-2 py-0.5 border border-red-500/40 bg-red-950/40 text-red-400";
+                        }
+
+                        const data = await res.json();
+                        rawJson.textContent = JSON.stringify(data, null, 2);
+
+                        if (!res.ok) {
+                            showError(data.detail ? (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail, null, 2)) : JSON.stringify(data, null, 2));
+                            return;
+                        }
+
+                        // Tokens
+                        if (data.usage) {
+                            const inTok = data.usage.input_tokens ?? data.usage.prompt_tokens ?? 0;
+                            const outTok = data.usage.output_tokens ?? data.usage.completion_tokens ?? 0;
+                            resTokens.classList.remove("hidden");
+                            resTokens.textContent = `in: ${inTok} / out: ${outTok} tok`;
+                        } else {
+                            resTokens.classList.add("hidden");
+                        }
+
+                        renderVisualAnswers(data);
+                    } catch (err) {
+                        const endTime = performance.now();
+                        resLatency.classList.remove("hidden");
+                        resLatency.textContent = `${(endTime - startTime).toFixed(1)} ms`;
+                        resStatus.classList.remove("hidden");
+                        resStatus.textContent = "ERR_NETWORK";
+                        resStatus.className = "text-xs font-mono px-2 py-0.5 border border-red-500/40 bg-red-950/40 text-red-400";
+                        showError("Network request failed: " + err.message);
+                    } finally {
+                        runBtn.disabled = false;
+                        runSpinner.classList.add("hidden");
+                        runText.textContent = "Run Inference";
+                    }
+                }
+
+                runBtn.addEventListener("click", runInference);
+
+                // Ctrl+Enter / Cmd+Enter Shortcut
+                window.addEventListener("keydown", (e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                        if (!sectionPlayground.classList.contains("hidden")) {
+                            e.preventDefault();
+                            runInference();
+                        }
+                    }
+                });
+            })();
+        </script>
+    </body>
+</html>
