@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
 from app.services.models.laya_adapter import LayaAdapter
 from app.services.models.d3_lite_adapter import D3LiteAdapter
+from app.services.models.kev_adapter import KevAdapter
 
 
 def test_laya_adapter_predict():
@@ -34,3 +35,19 @@ def test_d3_lite_adapter_predict():
     mock_model.system_one.assert_called_once_with(
         state="billing inquiry", questions={"route": {"type": "choice"}}
     )
+
+
+def test_kev_adapter_predict():
+    adapter = KevAdapter()
+    mock_runner = MagicMock()
+    mock_runner.predict.return_value = {
+        "answers": {
+            "urgent": {"type": "noul", "noul": 0.88}
+        }
+    }
+    adapter.runner = mock_runner
+
+    res = adapter.predict(state="urgent issue", questions={"urgent": {"type": "noul"}})
+    assert res["answers"]["urgent"]["noul"] == 0.88
+    mock_runner.predict.assert_called_once_with("urgent issue", {"urgent": {"type": "noul"}})
+
