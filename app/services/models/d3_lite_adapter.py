@@ -15,12 +15,28 @@ class D3LiteAdapter:
         self.model: Any = None
         self._lock = threading.Lock()
 
+    def ensure_weights(self) -> None:
+        config_path = os.path.join(settings.d3_lite_model_path, "config.json")
+        if not os.path.exists(config_path):
+            logger.info(
+                "Local d3-lite weights not found at '%s'. Downloading from '%s'...",
+                settings.d3_lite_model_path,
+                settings.d3_lite_model_id,
+            )
+            from huggingface_hub import snapshot_download
+
+            snapshot_download(
+                repo_id=settings.d3_lite_model_id,
+                local_dir=settings.d3_lite_model_path,
+            )
+
     def load(self) -> None:
         if self.model is not None:
             return
         with self._lock:
             if self.model is not None:
                 return
+            self.ensure_weights()
             target = (
                 settings.d3_lite_model_path
                 if os.path.exists(settings.d3_lite_model_path)

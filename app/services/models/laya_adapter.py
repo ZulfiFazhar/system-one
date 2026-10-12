@@ -15,6 +15,9 @@ class LayaAdapter:
         self.router: Any = None
         self._lock = threading.Lock()
 
+    def ensure_weights(self) -> None:
+        ensure_model_weights()
+
     def load(self) -> None:
         if self.router is not None:
             return

@@ -78,6 +78,9 @@ def test_app():
     with patch.object(LayaAdapter, "load", mock_laya_load), \
          patch.object(D3LiteAdapter, "load", mock_d3_load), \
          patch.object(KevAdapter, "load", mock_kev_load), \
+         patch.object(LayaAdapter, "ensure_weights", lambda self: None), \
+         patch.object(D3LiteAdapter, "ensure_weights", lambda self: None), \
+         patch.object(KevAdapter, "ensure_weights", lambda self: None), \
          patch("app.core.server.load_laya_model", side_effect=mock_load, create=True), \
          patch("app.services.laya_service.load_laya_model", side_effect=mock_load), \
          patch("app.services.laya_service.ensure_model_weights", return_value=None):
@@ -103,6 +106,9 @@ def mock_lazy_laya_load(monkeypatch):
     monkeypatch.setattr(LayaAdapter, "load", mock_laya_load)
     monkeypatch.setattr(D3LiteAdapter, "load", mock_d3_load)
     monkeypatch.setattr(KevAdapter, "load", mock_kev_load)
+    monkeypatch.setattr(LayaAdapter, "ensure_weights", lambda self: None)
+    monkeypatch.setattr(D3LiteAdapter, "ensure_weights", lambda self: None)
+    monkeypatch.setattr(KevAdapter, "ensure_weights", lambda self: None)
     yield
     reset_rate_limits()
 

@@ -135,6 +135,12 @@ class ModelSetupManager:
                 if adapter is None:
                     raise ValueError(f"Unknown or unavailable model adapter: '{m}'")
 
+                if hasattr(adapter, "ensure_weights"):
+                    if inspect.iscoroutinefunction(getattr(adapter, "ensure_weights", None)):
+                        await adapter.ensure_weights()
+                    else:
+                        await asyncio.to_thread(adapter.ensure_weights)
+
                 self.broadcast(
                     {
                         "phase": "loading",

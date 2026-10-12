@@ -90,12 +90,28 @@ class KevAdapter:
         self.runner: KevRunner | None = None
         self._lock = threading.Lock()
 
+    def ensure_weights(self) -> None:
+        config_path = os.path.join(settings.kev_model_path, "adapter_config.json")
+        if not os.path.exists(config_path):
+            logger.info(
+                "Local kev weights not found at '%s'. Downloading from '%s'...",
+                settings.kev_model_path,
+                settings.kev_model_id,
+            )
+            from huggingface_hub import snapshot_download
+
+            snapshot_download(
+                repo_id=settings.kev_model_id,
+                local_dir=settings.kev_model_path,
+            )
+
     def load(self) -> None:
         if self.runner is not None:
             return
         with self._lock:
             if self.runner is not None:
                 return
+            self.ensure_weights()
             target = (
                 settings.kev_model_path
                 if os.path.exists(settings.kev_model_path)
