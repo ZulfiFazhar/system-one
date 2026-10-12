@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from app.core.security import check_rate_limit
 from app.services.models.registry import default_registry, normalize_model_name
 from app.services.setup_manager import default_setup_manager
 
@@ -16,6 +17,9 @@ class ModelActivateRequest(BaseModel):
 
 @router.post("/activate")
 async def activate_model(body: ModelActivateRequest, request: Request) -> dict[str, str]:
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    check_rate_limit(client_ip)
+
     if not body.model or not body.model.strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -27,6 +31,16 @@ async def activate_model(body: ModelActivateRequest, request: Request) -> dict[s
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unknown model: {body.model}",
+        )
+
+    loaded_models = getattr(request.app.state, "models", {})
+    if model_name in loaded_models:
+        return {"status": "already_active", "model": model_name}
+
+    if default_setup_manager._is_running:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Another model setup or activation is currently in progress",
         )
 
     # ponytail: fire-and-forget background task; upgrade to durable queue if multi-instance.

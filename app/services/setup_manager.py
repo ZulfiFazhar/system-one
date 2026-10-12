@@ -160,10 +160,13 @@ class ModelSetupManager:
                 if adapter.name == "laya" and hasattr(adapter, "router"):
                     app_state.router = adapter.router
 
+            curr_raw = db.get_system_settings(self.db_path).get("active_models", "")
+            curr_models = [m.strip() for m in curr_raw.split(",") if m.strip()]
+            merged_models = list(dict.fromkeys(curr_models + clean_models))
             db.update_system_settings(
                 {
                     "models_setup_completed": "1",
-                    "active_models": ",".join(clean_models),
+                    "active_models": ",".join(merged_models),
                 },
                 db_path=self.db_path,
             )
