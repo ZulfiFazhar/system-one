@@ -300,3 +300,14 @@ def test_systemone_lazy_load_registers_in_app_state(test_app, monkeypatch):
     assert "kev" in test_app.state.models
 
 
+def test_landing_page_models_directory(client_no_auth):
+    resp = client_no_auth.get("/")
+    assert resp.status_code == 200
+    html = resp.text
+    assert "Supported Decision Models" in html
+    assert "/convaiinnovations/laya-multilingual" in html
+    assert "/vllm-sr/d3-lite" in html
+    assert "/jaredpalmer/kev-0.8b" in html
+    assert "Open Model Card & Playground" in html
+
+

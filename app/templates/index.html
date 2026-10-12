@@ -100,9 +100,9 @@
                         >About System One</a
                     >
                     <a
-                        href="#playground"
+                        href="#models"
                         class="hover:underline text-zinc-300 hover:text-white focus-visible:ring-2 focus-visible:ring-white px-1 sm:px-2 py-1"
-                        >Playground</a
+                        >Models</a
                     >
                     <a
                         href="#model-card"
@@ -203,10 +203,10 @@
                     About System One
                 </a>
                 <a
-                    href="#playground"
+                    href="#models"
                     class="mobile-nav-link block py-2 px-3 border border-[#27272a] bg-[#141417] text-zinc-200 hover:bg-[#1f1f23] hover:text-white"
                 >
-                    Playground
+                    Models
                 </a>
                 <a
                     href="#model-card"
@@ -283,10 +283,10 @@
 
                     <div class="flex flex-wrap gap-4 mb-14">
                         <a
-                            href="#playground"
+                            href="#models"
                             class="brutal-btn min-h-[44px] inline-flex items-center px-6 py-3 bg-white text-[#050505] font-semibold text-sm hover:bg-zinc-200 border border-white"
                         >
-                            Open Interactive Playground
+                            Models
                         </a>
                         <a
                             href="#model-card"
@@ -582,12 +582,13 @@ print(response.json()["answers"])</pre>
                 </div>
             </section>
 
-            <!-- Playground Section -->
+            <!-- Model Directory Section -->
             <section
-                id="playground"
+                id="models"
                 class="border-b border-[#27272a] py-16 px-4 sm:px-6 lg:px-8 bg-[#09090b] text-white"
             >
                 <div class="max-w-7xl mx-auto reveal-on-scroll">
+                    <!-- Section Header -->
                     <div
                         class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4"
                     >
@@ -595,364 +596,256 @@ print(response.json()["answers"])</pre>
                             <div
                                 class="inline-block px-2.5 py-0.5 border border-[#3f3f46] text-xs font-mono uppercase bg-[#18181b] text-zinc-300 mb-2"
                             >
-                                Live Tester
+                                MODEL DIRECTORY
                             </div>
                             <h2
                                 class="text-2xl sm:text-3xl font-bold tracking-tight text-white"
                             >
-                                Interactive Playground
+                                Supported Decision Models
                             </h2>
-                            <p class="text-sm text-zinc-400 mt-1">
-                                Execute live inference requests directly against
-                                the local POST /v1/systemone endpoint.
+                            <p class="text-sm text-zinc-400 mt-1 max-w-2xl">
+                                Non-autoregressive decision models and calibrated probability estimators. Inspect technical specifications, model architecture, or run interactive evaluations.
                             </p>
                         </div>
 
-                        <!-- Presets -->
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span
-                                class="text-xs font-mono uppercase text-zinc-400 mr-1"
-                                >Presets:</span
-                            >
-                            <button
-                                type="button"
-                                id="preset-billing"
-                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
-                            >
-                                Billing Dispute
-                            </button>
-                            <button
-                                type="button"
-                                id="preset-outage"
-                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
-                            >
-                                Outage Incident
-                            </button>
-                            <button
-                                type="button"
-                                id="preset-sales"
-                                class="brutal-btn min-h-[44px] px-3 py-2 text-xs font-semibold bg-[#18181b] text-zinc-200 border border-[#3f3f46] hover:bg-[#27272a]"
-                            >
-                                Sales Lead
-                            </button>
+                        <!-- Real-time Search Input -->
+                        <div class="w-full md:w-80">
+                            <label for="model-search-input" class="sr-only">Search models</label>
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="model-search-input"
+                                    placeholder="Search models, specs, tags..."
+                                    class="brutal-input w-full px-3 py-2 text-xs font-mono bg-[#0c0c0e] border border-[#27272a] text-white placeholder-zinc-500 focus:outline-none focus:border-white"
+                                />
+                                <span class="absolute right-3 top-2.5 text-zinc-500 text-xs font-mono pointer-events-none">&#x2315;</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Playground Engine Mode Switcher -->
-                    <div class="flex flex-wrap items-center gap-2 border-b border-zinc-800 pb-4 mb-6">
+                    <!-- Quick Filter Buttons -->
+                    <div
+                        class="flex flex-wrap items-center gap-2 pb-6 mb-8 border-b border-[#27272a]"
+                    >
+                        <span class="text-xs font-mono uppercase text-zinc-400 mr-2"
+                            >Filter:</span
+                        >
                         <button
                             type="button"
-                            id="mode-laya-btn"
-                            class="brutal-btn min-h-[40px] px-4 py-2 text-xs font-mono font-bold bg-white text-black border border-white"
+                            class="model-filter-btn brutal-btn min-h-[36px] px-3.5 py-1.5 text-xs font-mono font-semibold bg-white text-black border border-white"
+                            data-filter="all"
                         >
-                            Laya (Local Engine)
+                            All
                         </button>
                         <button
                             type="button"
-                            id="mode-compare-btn"
-                            class="brutal-btn min-h-[40px] px-4 py-2 text-xs font-mono font-bold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white"
+                            class="model-filter-btn brutal-btn min-h-[36px] px-3.5 py-1.5 text-xs font-mono font-semibold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white"
+                            data-filter="multimodal"
                         >
-                            Compare Mode (Laya vs OpenRouter Jev)
+                            Multimodal
+                        </button>
+                        <button
+                            type="button"
+                            class="model-filter-btn brutal-btn min-h-[36px] px-3.5 py-1.5 text-xs font-mono font-semibold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white"
+                            data-filter="multilingual"
+                        >
+                            Multilingual
+                        </button>
+                        <button
+                            type="button"
+                            class="model-filter-btn brutal-btn min-h-[36px] px-3.5 py-1.5 text-xs font-mono font-semibold bg-[#18181b] text-zinc-300 border border-[#3f3f46] hover:bg-[#27272a] hover:text-white"
+                            data-filter="calibrated"
+                        >
+                            Calibrated
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Left: Inputs -->
-                        <div class="space-y-6">
-                            <!-- Auth Bar -->
-                            <div
-                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
-                            >
-                                <label
-                                    for="api-key-input"
-                                    class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1 text-zinc-200"
-                                >
-                                    Bearer API Key (Optional)
-                                </label>
-                                <p class="text-xs text-zinc-400 mb-2">
-                                    Stored in session storage. Leave blank for
-                                    public access (rate limited to 10 requests
-                                    per minute per IP), or enter your configured
-                                    API key for unlimited access.
-                                </p>
-                                <input
-                                    id="api-key-input"
-                                    type="password"
-                                    placeholder="e.g. secret-token-123"
-                                    class="brutal-input w-full px-3 py-2 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] focus-visible:outline-white"
-                                    autocomplete="off"
-                                />
-                            </div>
-
-                            <!-- OpenRouter API Key for Compare Mode (Only visible in Compare mode) -->
-                            <div
-                                id="openrouter-auth-card"
-                                class="hidden brutal-card p-4 bg-[#141417] border border-[#27272a]"
-                            >
-                                <div class="flex items-center justify-between mb-1">
-                                    <label
-                                        for="openrouter-key-input"
-                                        class="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200"
-                                    >
-                                        OpenRouter API Key (Required for Compare)
-                                    </label>
+                    <!-- Model Cards Grid -->
+                    <div
+                        id="models-grid"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
+                        <!-- Card 1: Laya Multilingual -->
+                        <div
+                            class="model-card brutal-card p-6 bg-[#141417] border border-[#27272a] text-white flex flex-col justify-between brutal-card-hover"
+                            data-categories="all multilingual"
+                            data-search="laya multilingual convaiinnovations 322m 512 tokens text instant classification scoring mmbert"
+                        >
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-4">
                                     <span
-                                        class="text-[10px] font-mono px-1.5 py-0.5 border border-cyan-500/40 bg-cyan-950/40 text-cyan-400"
-                                        title="Direct browser HTTPS request"
+                                        class="text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-cyan-400"
                                     >
-                                        Client-Side Only
+                                        convaiinnovations
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>
+                                        Active
                                     </span>
                                 </div>
-                                <p class="text-xs text-zinc-400 mb-2">
-                                    Mandatory for the Compare tab to query <code class="font-mono text-zinc-300">typesafe/jev-1.13</code> on OpenRouter. Handled directly by your browser via HTTPS. Never sent to or accessible by our backend server.
+                                <h3 class="text-xl font-bold text-white mb-2 tracking-tight">
+                                    Laya Multilingual
+                                </h3>
+                                <p class="text-xs text-zinc-400 leading-relaxed mb-5">
+                                    Ultra-fast low-latency multilingual model supporting 100+ languages for instant classification and scoring.
                                 </p>
-                                <input
-                                    id="openrouter-key-input"
-                                    type="password"
-                                    placeholder="sk-or-v1-..."
-                                    class="brutal-input w-full px-3 py-2 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] focus-visible:outline-white"
-                                    autocomplete="off"
-                                />
-                            </div>
-
-                            <!-- State Input -->
-                            <div
-                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
-                            >
-                                <label
-                                    for="state-input"
-                                    class="block text-xs font-mono font-semibold uppercase tracking-wider mb-1 text-zinc-200"
-                                >
-                                    State Context (Input Text)
-                                </label>
-                                <p class="text-xs text-zinc-400 mb-2">
-                                    Context string evaluated across all
-                                    configured questions.
-                                </p>
-                                <textarea
-                                    id="state-input"
-                                    rows="5"
-                                    class="brutal-input w-full p-3 text-sm font-mono bg-[#0c0c0e] text-white border border-[#27272a] resize-y focus-visible:outline-white"
-                                    placeholder="Enter context text..."
-                                ></textarea>
-                            </div>
-
-                            <!-- Questions Schema Input -->
-                            <div
-                                class="brutal-card p-4 bg-[#141417] border border-[#27272a]"
-                            >
-                                <div
-                                    class="flex items-center justify-between mb-1"
-                                >
-                                    <label
-                                        for="questions-input"
-                                        class="block text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200"
-                                    >
-                                        Questions JSON Schema
-                                    </label>
-                                    <button
-                                        type="button"
-                                        id="reset-questions-btn"
-                                        class="text-xs font-mono text-zinc-400 hover:text-white underline"
-                                    >
-                                        Reset Schema
-                                    </button>
-                                </div>
-                                <p class="text-xs text-zinc-400 mb-2">
-                                    Map of question keys to question objects
-                                    (types: noul, choice, score).
-                                </p>
-                                <textarea
-                                    id="questions-input"
-                                    rows="12"
-                                    class="brutal-input w-full p-3 text-xs font-mono bg-[#0c0c0e] text-white border border-[#27272a] resize-y focus-visible:outline-white"
-                                    spellcheck="false"
-                                ></textarea>
-                            </div>
-
-                            <!-- Run Button -->
-                            <div class="flex items-center gap-4">
-                                <button
-                                    type="button"
-                                    id="run-btn"
-                                    class="brutal-btn min-h-[48px] flex-1 py-3 px-6 bg-white text-black font-bold text-sm hover:bg-zinc-200 border border-white flex items-center justify-center gap-2"
-                                >
-                                    <svg
-                                        id="run-spinner"
-                                        class="hidden animate-spin h-4 w-4 text-black"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle
-                                            class="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            stroke-width="4"
-                                        ></circle>
-                                        <path
-                                            class="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
-                                    </svg>
-                                    <span id="run-text"
-                                        >Run System 1 Evaluation</span
-                                    >
-                                </button>
-                            </div>
-
-                            <!-- Error Banner -->
-                            <div
-                                id="playground-error"
-                                class="hidden brutal-card p-4 bg-red-950/50 border border-red-500/50 text-red-200 text-sm"
-                            >
-                                <div
-                                    class="font-bold mb-1 flex items-center gap-2 text-red-400"
-                                >
+                                <div class="flex flex-wrap gap-2 mb-6">
                                     <span
-                                        class="w-2 h-2 bg-red-500 rounded-full inline-block"
-                                    ></span>
-                                    <span id="error-title">Request Failed</span>
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        322M Params
+                                    </span>
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        512 Context
+                                    </span>
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        Text (Multilingual)
+                                    </span>
                                 </div>
-                                <p
-                                    id="error-message"
-                                    class="text-xs font-mono whitespace-pre-wrap text-red-300"
-                                ></p>
+                            </div>
+                            <div class="pt-4 border-t border-[#27272a]">
+                                <a
+                                    href="/convaiinnovations/laya-multilingual"
+                                    class="brutal-btn w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black font-semibold text-xs hover:bg-zinc-200 border border-white"
+                                >
+                                    <span>Open Model Card & Playground</span>
+                                    <span aria-hidden="true">&rarr;</span>
+                                </a>
                             </div>
                         </div>
 
-                        <!-- Right: Results Console -->
+                        <!-- Card 2: d3-lite (Decision 3.0) -->
                         <div
-                            class="brutal-card p-6 bg-[#141417] border border-[#27272a] text-white flex flex-col min-h-[500px]"
+                            class="model-card brutal-card p-6 bg-[#141417] border border-[#27272a] text-white flex flex-col justify-between brutal-card-hover"
+                            data-categories="all multimodal"
+                            data-search="d3-lite decision 3.0 vllm-sr 450m 2048 tokens multimodal text vision concurrent dual-stream"
                         >
-                            <!-- Results Header -->
-                            <div
-                                class="border-b border-zinc-800 pb-4 mb-4 flex flex-wrap items-center justify-between gap-3"
-                            >
-                                <div class="flex items-center gap-2">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-4">
                                     <span
-                                        class="text-xs font-mono font-bold uppercase tracking-wider text-white"
-                                        >Evaluation Output</span
+                                        class="text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-cyan-400"
                                     >
+                                        vllm-sr
+                                    </span>
                                     <span
-                                        id="res-status"
-                                        class="hidden text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
-                                        >200 OK</span
+                                        class="inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
                                     >
-                                    <span
-                                        id="res-latency"
-                                        class="hidden text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-zinc-300"
-                                        >-- ms</span
-                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>
+                                        Active
+                                    </span>
                                 </div>
-
-                                <div class="flex items-center gap-2">
+                                <h3 class="text-xl font-bold text-white mb-2 tracking-tight">
+                                    d3-lite (Decision 3.0)
+                                </h3>
+                                <p class="text-xs text-zinc-400 leading-relaxed mb-5">
+                                    Compact multimodal decision model for concurrent text and visual state evaluation.
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-6">
                                     <span
-                                        id="res-tokens"
-                                        class="hidden text-xs font-mono text-zinc-400"
-                                        >in: 0 / out: 0 tok</span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
                                     >
-                                    <div
-                                        class="border border-[#3f3f46] flex text-xs font-mono bg-[#0c0c0e]"
+                                        450M Params
+                                    </span>
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
                                     >
-                                        <button
-                                            type="button"
-                                            id="tab-visual"
-                                            class="px-2.5 py-1 bg-white text-black font-semibold"
-                                        >
-                                            Visual
-                                        </button>
-                                        <button
-                                            type="button"
-                                            id="tab-raw"
-                                            class="px-2.5 py-1 bg-[#18181b] text-zinc-400 hover:bg-[#27272a]"
-                                        >
-                                            JSON
-                                        </button>
-                                    </div>
+                                        2048 Context
+                                    </span>
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        Multimodal (Text + Vision)
+                                    </span>
                                 </div>
                             </div>
-
-                            <!-- Results Body -->
-                            <div class="flex-grow flex flex-col">
-                                <!-- Visual Results View -->
-                                <div id="visual-results" class="space-y-4">
-                                    <div
-                                        id="results-empty"
-                                        class="text-center py-20 text-zinc-400"
-                                    >
-                                        <div
-                                            class="w-10 h-10 border border-[#3f3f46] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-[#18181b] text-zinc-300"
-                                        >
-                                            S1
-                                        </div>
-                                        <p
-                                            class="text-sm font-medium text-zinc-300"
-                                        >
-                                            Ready for evaluation.
-                                        </p>
-                                        <p class="text-xs text-zinc-400 mt-1">
-                                            Select a preset or enter input state
-                                            and click Run System 1 Evaluation.
-                                        </p>
-                                    </div>
-                                    <div
-                                        id="results-content"
-                                        class="hidden space-y-4"
-                                    >
-                                        <!-- Dynamic answers inserted here -->
-                                    </div>
-                                </div>
-
-                                <!-- Compare Results View -->
-                                <div id="compare-results" class="hidden space-y-4">
-                                    <div
-                                        id="compare-empty"
-                                        class="text-center py-20 text-zinc-400"
-                                    >
-                                        <div
-                                            class="w-10 h-10 border border-[#3f3f46] mx-auto mb-3 flex items-center justify-center font-mono text-sm bg-[#18181b] text-zinc-300"
-                                        >
-                                            VS
-                                        </div>
-                                        <p class="text-sm font-medium text-zinc-300">
-                                            Laya (Local) vs TypeSafe Jev (OpenRouter)
-                                        </p>
-                                        <p class="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">
-                                            Enter your OpenRouter API key on the left to benchmark both models side by side.
-                                        </p>
-                                    </div>
-                                    <div id="compare-content" class="hidden space-y-4">
-                                        <!-- Latency & Model Meta Header -->
-                                        <div class="grid grid-cols-2 gap-3 text-xs font-mono">
-                                            <div class="p-3 border border-[#27272a] bg-[#0c0c0e]">
-                                                <div class="font-bold text-cyan-400 mb-0.5">Laya Multilingual</div>
-                                                <div class="text-[11px] text-zinc-400">Self-Hosted (Local)</div>
-                                                <div id="compare-laya-latency" class="mt-2 font-bold text-zinc-200">Latency: -- ms</div>
-                                            </div>
-                                            <div class="p-3 border border-[#27272a] bg-[#0c0c0e]">
-                                                <div class="font-bold text-pink-400 mb-0.5">TypeSafe Jev (v1.13)</div>
-                                                <div class="text-[11px] text-zinc-400">OpenRouter Decisions API</div>
-                                                <div id="compare-jev-latency" class="mt-2 font-bold text-zinc-200">Latency: -- ms</div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Questions Comparison Cards Container -->
-                                        <div id="compare-cards" class="space-y-4"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Raw JSON View -->
-                                <div id="raw-results" class="hidden flex-grow">
-                                    <pre
-                                        id="raw-json"
-                                        class="w-full h-full p-4 border border-[#27272a] bg-[#050505] font-mono text-xs overflow-auto text-zinc-200 max-h-[600px]"
-                                    ></pre>
-                                </div>
+                            <div class="pt-4 border-t border-[#27272a]">
+                                <a
+                                    href="/vllm-sr/d3-lite"
+                                    class="brutal-btn w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black font-semibold text-xs hover:bg-zinc-200 border border-white"
+                                >
+                                    <span>Open Model Card & Playground</span>
+                                    <span aria-hidden="true">&rarr;</span>
+                                </a>
                             </div>
                         </div>
+
+                        <!-- Card 3: Kev-0.8B (Kev 1.0) -->
+                        <div
+                            class="model-card brutal-card p-6 bg-[#141417] border border-[#27272a] text-white flex flex-col justify-between brutal-card-hover"
+                            data-categories="all calibrated"
+                            data-search="kev-0.8b kev 1.0 jaredpalmer 800m 4096 tokens text calibrated zero-shot probability routing"
+                        >
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-4">
+                                    <span
+                                        class="text-xs font-mono px-2 py-0.5 border border-[#3f3f46] bg-[#18181b] text-cyan-400"
+                                    >
+                                        jaredpalmer
+                                    </span>
+                                    <span
+                                        class="inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>
+                                        Active
+                                    </span>
+                                </div>
+                                <h3 class="text-xl font-bold text-white mb-2 tracking-tight">
+                                    Kev-0.8B (Kev 1.0)
+                                </h3>
+                                <p class="text-xs text-zinc-400 leading-relaxed mb-5">
+                                    Lightweight autoregressive System One judgment model calibrated for zero-shot decision primitives.
+                                </p>
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        800M Params
+                                    </span>
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        4096 Context
+                                    </span>
+                                    <span
+                                        class="text-xs font-mono px-2 py-1 border border-[#27272a] bg-[#0c0c0e] text-zinc-300"
+                                    >
+                                        Text (Calibrated)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-[#27272a]">
+                                <a
+                                    href="/jaredpalmer/kev-0.8b"
+                                    class="brutal-btn w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black font-semibold text-xs hover:bg-zinc-200 border border-white"
+                                >
+                                    <span>Open Model Card & Playground</span>
+                                    <span aria-hidden="true">&rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Results Fallback -->
+                    <div
+                        id="no-models-msg"
+                        class="hidden brutal-card p-12 text-center bg-[#141417] border border-[#27272a] mt-6"
+                    >
+                        <p class="text-sm font-mono text-zinc-400">
+                            No decision models match the selected filter or query.
+                        </p>
+                        <button
+                            type="button"
+                            id="reset-filter-btn"
+                            class="brutal-btn mt-4 px-4 py-2 text-xs font-mono bg-[#18181b] text-white border border-[#3f3f46] hover:bg-[#27272a]"
+                        >
+                            Reset filters
+                        </button>
                     </div>
                 </div>
             </section>
@@ -1432,6 +1325,187 @@ print(response.json()["answers"])</pre>
             </div>
         </footer>
 
-        <script src="/public/js/app.js" defer></script>
+        <script>
+            (function () {
+                // Models Directory Filter & Real-Time Search
+                const searchInput = document.getElementById("model-search-input");
+                const filterBtns = document.querySelectorAll(".model-filter-btn");
+                const modelCards = document.querySelectorAll(".model-card");
+                const noModelsMsg = document.getElementById("no-models-msg");
+                const resetFilterBtn = document.getElementById("reset-filter-btn");
+
+                let activeCategory = "all";
+
+                function filterModels() {
+                    const query = (searchInput ? searchInput.value : "").trim().toLowerCase();
+                    let visibleCount = 0;
+
+                    modelCards.forEach(function (card) {
+                        const categories = (card.getAttribute("data-categories") || "").toLowerCase().split(" ");
+                        const searchText = (card.getAttribute("data-search") || "" + " " + card.textContent).toLowerCase();
+
+                        const matchesCategory = activeCategory === "all" || categories.includes(activeCategory);
+                        const matchesQuery = !query || searchText.includes(query);
+
+                        if (matchesCategory && matchesQuery) {
+                            card.classList.remove("hidden");
+                            visibleCount++;
+                        } else {
+                            card.classList.add("hidden");
+                        }
+                    });
+
+                    if (noModelsMsg) {
+                        if (visibleCount === 0) {
+                            noModelsMsg.classList.remove("hidden");
+                        } else {
+                            noModelsMsg.classList.add("hidden");
+                        }
+                    }
+                }
+
+                if (filterBtns.length > 0) {
+                    filterBtns.forEach(function (btn) {
+                        btn.addEventListener("click", function () {
+                            activeCategory = btn.getAttribute("data-filter") || "all";
+                            filterBtns.forEach(function (b) {
+                                b.classList.remove("bg-white", "text-black", "border-white");
+                                b.classList.add("bg-[#18181b]", "text-zinc-300", "border-[#3f3f46]");
+                            });
+                            btn.classList.add("bg-white", "text-black", "border-white");
+                            btn.classList.remove("bg-[#18181b]", "text-zinc-300", "border-[#3f3f46]");
+                            filterModels();
+                        });
+                    });
+                }
+
+                if (searchInput) {
+                    searchInput.addEventListener("input", filterModels);
+                }
+
+                if (resetFilterBtn) {
+                    resetFilterBtn.addEventListener("click", function () {
+                        activeCategory = "all";
+                        if (searchInput) searchInput.value = "";
+                        filterBtns.forEach(function (b) {
+                            if (b.getAttribute("data-filter") === "all") {
+                                b.classList.add("bg-white", "text-black", "border-white");
+                                b.classList.remove("bg-[#18181b]", "text-zinc-300", "border-[#3f3f46]");
+                            } else {
+                                b.classList.remove("bg-white", "text-black", "border-white");
+                                b.classList.add("bg-[#18181b]", "text-zinc-300", "border-[#3f3f46]");
+                            }
+                        });
+                        filterModels();
+                    });
+                }
+
+                // Health Status Polling
+                async function pollHealth() {
+                    const dot = document.getElementById("health-dot");
+                    const text = document.getElementById("health-text");
+                    const mobileDot = document.getElementById("mobile-health-dot");
+                    const mobileText = document.getElementById("mobile-health-text");
+                    try {
+                        const res = await fetch("/health");
+                        if (res.ok) {
+                            const data = await res.json();
+                            const isReady = data.status === "ready";
+                            if (dot) dot.className = `w-2 h-2 rounded-full ${isReady ? "bg-emerald-500" : "bg-yellow-500"} inline-block`;
+                            if (text) text.textContent = isReady ? "System Ready" : data.status;
+                            if (mobileDot) mobileDot.className = `w-2 h-2 rounded-full ${isReady ? "bg-emerald-500" : "bg-yellow-500"} inline-block`;
+                            if (mobileText) mobileText.textContent = isReady ? "Ready" : data.status;
+                        } else {
+                            throw new Error();
+                        }
+                    } catch {
+                        if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                        if (text) text.textContent = "Offline";
+                        if (mobileDot) mobileDot.className = "w-2 h-2 rounded-full bg-red-500 inline-block";
+                        if (mobileText) mobileText.textContent = "Offline";
+                    }
+                }
+                pollHealth();
+                setInterval(pollHealth, 30000);
+
+                // Copy cURL Button
+                const copyCurlBtn = document.getElementById("copy-curl-btn");
+                if (copyCurlBtn) {
+                    copyCurlBtn.addEventListener("click", function () {
+                        const curlCode = document.getElementById("curl-code");
+                        if (curlCode) {
+                            navigator.clipboard.writeText(curlCode.innerText).then(function () {
+                                copyCurlBtn.textContent = "Copied!";
+                                setTimeout(function () {
+                                    copyCurlBtn.textContent = "Copy cURL";
+                                }, 2000);
+                            });
+                        }
+                    });
+                }
+
+                // Intersection Observer for Reveal-on-Scroll
+                if ("IntersectionObserver" in window) {
+                    const observer = new IntersectionObserver(
+                        function (entries) {
+                            entries.forEach(function (e) {
+                                if (e.isIntersecting) {
+                                    e.target.classList.add("revealed");
+                                    observer.unobserve(e.target);
+                                }
+                            });
+                        },
+                        { threshold: 0.1 }
+                    );
+                    document.querySelectorAll(".reveal-on-scroll").forEach(function (el) {
+                        observer.observe(el);
+                    });
+                } else {
+                    document.querySelectorAll(".reveal-on-scroll").forEach(function (el) {
+                        el.classList.add("revealed");
+                    });
+                }
+
+                // Sync live API origin
+                if (window.location && window.location.origin) {
+                    const liveEndpoint = window.location.origin + "/v1/systemone";
+                    document.querySelectorAll(".api-endpoint-url").forEach(function (el) {
+                        el.textContent = liveEndpoint;
+                    });
+                }
+
+                // Mobile Navigation Drawer Toggle
+                const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+                const mobileMenu = document.getElementById("mobile-menu");
+                const menuIconOpen = document.getElementById("menu-icon-open");
+                const menuIconClose = document.getElementById("menu-icon-close");
+
+                if (mobileMenuBtn && mobileMenu) {
+                    mobileMenuBtn.addEventListener("click", function () {
+                        const isClosed = mobileMenu.classList.contains("hidden");
+                        if (isClosed) {
+                            mobileMenu.classList.remove("hidden");
+                            mobileMenuBtn.setAttribute("aria-expanded", "true");
+                            if (menuIconOpen) menuIconOpen.classList.add("hidden");
+                            if (menuIconClose) menuIconClose.classList.remove("hidden");
+                        } else {
+                            mobileMenu.classList.add("hidden");
+                            mobileMenuBtn.setAttribute("aria-expanded", "false");
+                            if (menuIconOpen) menuIconOpen.classList.remove("hidden");
+                            if (menuIconClose) menuIconClose.classList.add("hidden");
+                        }
+                    });
+
+                    document.querySelectorAll(".mobile-nav-link").forEach(function (link) {
+                        link.addEventListener("click", function () {
+                            mobileMenu.classList.add("hidden");
+                            mobileMenuBtn.setAttribute("aria-expanded", "false");
+                            if (menuIconOpen) menuIconOpen.classList.remove("hidden");
+                            if (menuIconClose) menuIconClose.classList.add("hidden");
+                        });
+                    });
+                }
+            })();
+        </script>
     </body>
 </html>
