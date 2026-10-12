@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 from app.services.models.laya_adapter import LayaAdapter
 from app.services.models.d3_lite_adapter import D3LiteAdapter
 from app.services.models.kev_adapter import KevAdapter
+from app.services.models.registry import ModelRegistry, normalize_model_name
 
 
 def test_laya_adapter_predict():
@@ -50,4 +51,36 @@ def test_kev_adapter_predict():
     res = adapter.predict(state="urgent issue", questions={"urgent": {"type": "noul"}})
     assert res["answers"]["urgent"]["noul"] == 0.88
     mock_runner.predict.assert_called_once_with("urgent issue", {"urgent": {"type": "noul"}})
+
+
+def test_normalize_model_name():
+    assert normalize_model_name("laya") == "laya"
+    assert normalize_model_name("vllm-sr/d3-lite") == "d3-lite"
+    assert normalize_model_name("d3-lite") == "d3-lite"
+    assert normalize_model_name("d3_lite") == "d3-lite"
+    assert normalize_model_name("jaredpalmer/kev-0.8b") == "kev"
+    assert normalize_model_name("kev") == "kev"
+    assert normalize_model_name("kev-latest") == "kev"
+
+
+def test_registry_get_adapter():
+    registry = ModelRegistry()
+    assert registry.get_adapter("laya").name == "laya"
+    assert registry.get_adapter("vllm-sr/d3-lite").name == "d3-lite"
+    assert registry.get_adapter("jaredpalmer/kev-0.8b").name == "kev"
+    assert registry.get_adapter("unknown-model") is None
+
+
+def test_registry_preload_all():
+    registry = ModelRegistry()
+    mock_adapter = MagicMock()
+    mock_adapter.name = "laya"
+    registry._adapters["laya"] = mock_adapter
+
+    mock_state = MagicMock()
+    loaded = registry.preload_all(mock_state, ["laya"])
+    assert "laya" in loaded
+    mock_adapter.load.assert_called_once()
+    assert mock_state.models["laya"] == mock_adapter
+
 
