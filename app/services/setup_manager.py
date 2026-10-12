@@ -64,6 +64,8 @@ class ModelSetupManager:
     async def event_generator(self) -> AsyncGenerator[SSEMessage, None]:
         queue: asyncio.Queue = asyncio.Queue()
         self._subscribers.append(queue)
+        # Emit initial handshake event
+        yield SSEMessage({"phase": "connected", "progress": 0, "message": "Stream connected"})
         try:
             while True:
                 msg = await queue.get()
