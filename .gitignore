@@ -11,7 +11,7 @@ wheels/
 .env
 
 # Models
-models/
+/models/
 
 # Database storage
 data/
