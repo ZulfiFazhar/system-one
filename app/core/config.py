@@ -25,8 +25,6 @@ class Settings(BaseSettings):
     laya_model_id: str = "convaiinnovations/laya-multilingual"
     laya_model_path: str = "models/laya-multilingual"
     laya_device: str = "auto"
-    laya_preload: bool = True
-    laya_lazy_load: bool = False
 
     # D3-Lite
     d3_lite_model_id: str = "vllm-sr/d3-lite"

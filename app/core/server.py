@@ -9,8 +9,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api import router as api_router
+from app.core import db
 from app.core.config import settings
-from app.core.db import init_db, prune_old_logs
 from app.core.middleware import DashboardLoggingMiddleware
 from app.core.security import refresh_security_caches
 from app.services.laya_service import load_laya_model
@@ -39,21 +39,25 @@ def setup_middlewares(app: FastAPI) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.start_time = time.time()
-    init_db()
+    db.init_db()
     refresh_security_caches()
-    prune_old_logs(30)
+    db.prune_old_logs(30)
 
-    should_preload = settings.laya_preload and not settings.laya_lazy_load
+    sys_settings = db.get_system_settings()
+    is_setup_done = sys_settings.get("models_setup_completed") == "1"
+    if is_setup_done:
+        active_models_str = sys_settings.get("active_models", "")
+        models_to_load = [m.strip() for m in active_models_str.split(",") if m.strip()]
+        if models_to_load:
+            from app.services.models.registry import default_registry
 
-    if should_preload:
-        from app.services.models.registry import default_registry
-        default_registry.preload_all(app.state, settings.preload_models)
-        laya_adapter = getattr(app.state, "models", {}).get("laya")
-        if laya_adapter and hasattr(laya_adapter, "router"):
-            app.state.router = laya_adapter.router
+            default_registry.preload_all(app.state, models_to_load)
+            laya_adapter = getattr(app.state, "models", {}).get("laya")
+            if laya_adapter and hasattr(laya_adapter, "router"):
+                app.state.router = laya_adapter.router
     else:
         logger.info(
-            "Lazy loading active (LAYA_LAZY_LOAD=true). Model will load upon first inference request."
+            "Lazy loading active (models setup not completed). Models will load upon first inference request."
         )
 
     yield

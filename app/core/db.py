@@ -69,6 +69,8 @@ def init_db(db_path: str | None = None) -> None:
 
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('public_rate_limit_requests', '10');
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('public_rate_limit_window_seconds', '60');
+            INSERT OR IGNORE INTO system_settings (key, value) VALUES ('models_setup_completed', '0');
+            INSERT OR IGNORE INTO system_settings (key, value) VALUES ('active_models', '');
             """
         )
     conn.close()

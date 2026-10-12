@@ -179,12 +179,13 @@ def test_verify_api_key_db_lookup(monkeypatch):
     assert exc_info.value.status_code == 401
 
 
-def test_lazy_loading(monkeypatch):
+def test_lazy_loading(monkeypatch, tmp_path):
     from fastapi.testclient import TestClient
     from app.core.config import settings
     from app.core.server import create_application
 
-    monkeypatch.setattr(settings, "laya_lazy_load", True)
+    test_db = str(tmp_path / "test_lazy.db")
+    monkeypatch.setattr(settings, "database_path", test_db)
     app = create_application()
     with TestClient(app) as client:
         assert getattr(app.state, "router", None) is None
