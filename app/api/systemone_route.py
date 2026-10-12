@@ -31,9 +31,11 @@ async def systemone(req: SystemOneRequest, request: Request) -> SystemOneRespons
         questions_dict,
     )
     laya_answers = res.get("answers", {})
-    return format_jev_response(
+    response = format_jev_response(
         model_name=req.model,
         laya_answers=laya_answers,
         questions=req.questions,
         state=req.state,
     )
+    request.state.usage = response.usage
+    return response

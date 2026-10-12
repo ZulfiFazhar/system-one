@@ -1,4 +1,5 @@
 import logging
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -9,7 +10,11 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api import router as api_router
 from app.core.config import settings
+from app.core.db import init_db, prune_old_logs
+from app.core.middleware import DashboardLoggingMiddleware
+from app.core.security import refresh_security_caches
 from app.services.laya_service import load_laya_model
+from app.web import web_router
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +33,16 @@ def setup_middlewares(app: FastAPI) -> None:
     )
     if settings.is_production:
         app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
+    app.add_middleware(DashboardLoggingMiddleware)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.start_time = time.time()
+    init_db()
+    refresh_security_caches()
+    prune_old_logs(30)
+
     should_preload = settings.laya_preload and not settings.laya_lazy_load
 
     if should_preload:
@@ -58,6 +69,8 @@ def create_application() -> FastAPI:
 
     setup_middlewares(app)
 
+    # Mount web UI routes
+    app.include_router(web_router)
     # Mount api routes
     app.include_router(api_router)
 

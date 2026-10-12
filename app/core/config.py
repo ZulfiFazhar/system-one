@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     rate_limit_requests: int = 10
     rate_limit_window_seconds: int = 60
 
+    # Dashboard & Admin
+    admin_username: str = "admin"
+    admin_password: str = "changeme"
+    admin_session_secret: str = ""
+    database_path: str = "data/dashboard.db"
+
     log_level: str = "INFO"
     log_format: str = " ▕  %(levelname)s - %(asctime)s - %(message)s"
 
