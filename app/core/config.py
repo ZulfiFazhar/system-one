@@ -19,12 +19,26 @@ class Settings(BaseSettings):
     allowed_origins: list[str] = ["*"]
     allowed_hosts: list[str] = ["*"]
 
+    default_model: str = "laya"
+    preload_models: list[str] = ["laya", "d3-lite", "kev"]
+
+    # Laya
     laya_api_key: SecretStr | None = None
     laya_model_id: str = "convaiinnovations/laya-multilingual"
     laya_model_path: str = "models/laya-multilingual"
     laya_device: str = "auto"
     laya_preload: bool = True
     laya_lazy_load: bool = False
+
+    # D3-Lite
+    d3_lite_model_id: str = "vllm-sr/d3-lite"
+    d3_lite_model_path: str = "models/d3-lite"
+    d3_lite_device: str = "auto"
+
+    # Kev
+    kev_model_id: str = "jaredpalmer/kev-0.8b"
+    kev_model_path: str = "models/kev-0.8b"
+    kev_device: str = "auto"
 
     # Public Rate Limiting (when no API key is provided)
     rate_limit_enabled: bool = True
