@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from jinja2 import Template
 
+from app.core import db
 from app.core.config import settings
 from app.core.security import (
     check_ip_blocklist,
@@ -28,6 +29,14 @@ _LOGIN_TEMPLATE_CACHE: str | None = None
 
 def is_default_credentials() -> bool:
     return settings.admin_username == "admin" and settings.admin_password == "changeme"
+
+
+def is_models_setup_completed() -> bool:
+    try:
+        sys_settings = db.get_system_settings()
+        return sys_settings.get("models_setup_completed") == "1"
+    except Exception:
+        return False
 
 
 def get_dashboard_template_content() -> str:
@@ -64,7 +73,10 @@ def get_login_template_content() -> str:
 
 def render_dashboard_html() -> str:
     content = get_dashboard_template_content()
-    return Template(content).render(is_default_creds=is_default_credentials())
+    return Template(content).render(
+        is_default_creds=is_default_credentials(),
+        is_setup_completed=is_models_setup_completed(),
+    )
 
 
 def render_login_html() -> str:

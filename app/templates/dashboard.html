@@ -577,6 +577,277 @@
         </section>
     </main>
 
+    {% if not is_setup_completed %}
+    <!-- ========================================== -->
+    <!-- MODAL: INITIAL SYSTEM SETUP WIZARD        -->
+    <!-- ========================================== -->
+    <div id="setup-wizard-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 overflow-y-auto pointer-events-auto">
+        <div class="brutal-card w-full max-w-xl p-6 sm:p-8 space-y-5 bg-[#141417] border-2 border-cyan-500 shadow-2xl">
+            <div class="flex items-center gap-2.5 text-cyan-400 font-mono font-bold text-sm sm:text-base border-b border-[#27272a] pb-3">
+                <span class="text-xl">⚡</span>
+                <span>INITIAL SYSTEM SETUP: SELECT MODELS</span>
+            </div>
+            
+            <p class="text-xs text-zinc-300 font-mono leading-relaxed">
+                Please select the decision models you wish to use on this instance. The system will download model weights and load them into memory.
+            </p>
+
+            <div id="wizard-models-selection" class="space-y-3 font-mono">
+                <!-- Model 1: Laya -->
+                <label class="flex items-start gap-3 p-3 bg-[#18181b] border border-[#27272a] hover:border-cyan-500/50 cursor-pointer transition-colors">
+                    <input type="checkbox" name="wizard-model-cb" value="laya" checked class="mt-1 accent-cyan-400 w-4 h-4 cursor-pointer">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs text-white">Laya Multilingual</span>
+                            <span class="text-[10px] uppercase px-1.5 py-0.5 border border-cyan-500/40 text-cyan-400 bg-cyan-950/20">Default</span>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">High-accuracy multilingual routing &amp; decision model</p>
+                    </div>
+                </label>
+
+                <!-- Model 2: d3-lite -->
+                <label class="flex items-start gap-3 p-3 bg-[#18181b] border border-[#27272a] hover:border-cyan-500/50 cursor-pointer transition-colors">
+                    <input type="checkbox" name="wizard-model-cb" value="d3-lite" class="mt-1 accent-cyan-400 w-4 h-4 cursor-pointer">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs text-white">d3-lite (Decision 3.0)</span>
+                            <span class="text-[10px] uppercase px-1.5 py-0.5 border border-emerald-500/40 text-emerald-400 bg-emerald-950/20">Fast</span>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">Lightweight low-latency decision model</p>
+                    </div>
+                </label>
+
+                <!-- Model 3: kev -->
+                <label class="flex items-start gap-3 p-3 bg-[#18181b] border border-[#27272a] hover:border-cyan-500/50 cursor-pointer transition-colors">
+                    <input type="checkbox" name="wizard-model-cb" value="kev" class="mt-1 accent-cyan-400 w-4 h-4 cursor-pointer">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-xs text-white">Kev-0.8B (Kev 1.0)</span>
+                            <span class="text-[10px] uppercase px-1.5 py-0.5 border border-purple-500/40 text-purple-400 bg-purple-950/20">0.8B Reasoning</span>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">Advanced reasoning model with deep judgment</p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Primary Action Button -->
+            <div id="wizard-actions" class="flex items-center justify-end pt-2">
+                <button type="button" id="wizard-start-btn" class="brutal-btn px-5 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-black font-mono font-bold text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed">
+                    Download & Load Selected Models
+                </button>
+            </div>
+
+            <!-- Progress Area (hidden until submit) -->
+            <div id="wizard-progress-area" class="hidden space-y-4 pt-2 font-mono">
+                <!-- Status & Percentage -->
+                <div class="flex items-center justify-between text-xs">
+                    <span id="wizard-status-msg" class="text-cyan-300 truncate font-semibold">Initializing model setup...</span>
+                    <span id="wizard-percent-display" class="text-zinc-300 font-bold ml-2">0%</span>
+                </div>
+
+                <!-- Animated Progress Bar -->
+                <div class="w-full h-3 bg-[#0c0c0e] border border-[#27272a] overflow-hidden p-0.5">
+                    <div id="wizard-progress-bar" class="h-full bg-cyan-400 transition-all duration-300 ease-out" style="width: 0%"></div>
+                </div>
+
+                <!-- Mini Log Console Box -->
+                <div>
+                    <div class="text-[10px] uppercase tracking-wider text-zinc-400 mb-1">System Setup Logs</div>
+                    <pre id="wizard-log-console" class="p-3 bg-[#08080a] border border-[#27272a] text-zinc-300 font-mono text-[11px] leading-relaxed overflow-y-auto max-h-40 min-h-[90px] whitespace-pre-wrap"></pre>
+                </div>
+
+                <!-- Completion State -->
+                <div id="wizard-completion-container" class="hidden space-y-3 pt-2">
+                    <div class="p-3 bg-emerald-950/40 border border-emerald-500/60 text-xs font-mono text-emerald-300 flex items-center gap-2">
+                        <span>✅ All models successfully loaded and ready!</span>
+                    </div>
+                    <div class="flex justify-end pt-1">
+                        <button type="button" id="wizard-finish-btn" class="brutal-btn px-5 py-2.5 bg-emerald-400 hover:bg-emerald-300 text-black font-mono font-bold text-xs uppercase tracking-wider">
+                            Finish & Enter Dashboard →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="wizard-error-container" class="hidden p-3 bg-rose-950/40 border border-rose-500/60 text-xs font-mono text-rose-300 space-y-2">
+                    <div id="wizard-error-msg" class="font-bold">Setup encountered an error.</div>
+                    <div class="flex justify-end">
+                        <button type="button" id="wizard-retry-btn" class="brutal-btn px-3 py-1.5 bg-[#18181b] border border-rose-500 text-rose-200 text-xs font-mono hover:bg-rose-950/50">
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    (function() {
+        const modal = document.getElementById("setup-wizard-modal");
+        if (!modal) return;
+
+        const startBtn = document.getElementById("wizard-start-btn");
+        const checkboxes = document.querySelectorAll('input[name="wizard-model-cb"]');
+        const selectionArea = document.getElementById("wizard-models-selection");
+        const actionsArea = document.getElementById("wizard-actions");
+        const progressArea = document.getElementById("wizard-progress-area");
+        const progressBar = document.getElementById("wizard-progress-bar");
+        const percentDisplay = document.getElementById("wizard-percent-display");
+        const statusMsg = document.getElementById("wizard-status-msg");
+        const logConsole = document.getElementById("wizard-log-console");
+        const completionContainer = document.getElementById("wizard-completion-container");
+        const finishBtn = document.getElementById("wizard-finish-btn");
+        const errorContainer = document.getElementById("wizard-error-container");
+        const errorMsg = document.getElementById("wizard-error-msg");
+        const retryBtn = document.getElementById("wizard-retry-btn");
+
+        function getSelectedModels() {
+            return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+        }
+
+        function updateStartBtnState() {
+            const selected = getSelectedModels();
+            if (startBtn) {
+                startBtn.disabled = selected.length === 0;
+            }
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener("change", updateStartBtnState);
+        });
+        updateStartBtnState();
+
+        let evtSource = null;
+
+        function appendLog(text) {
+            if (!logConsole) return;
+            const ts = new Date().toLocaleTimeString();
+            logConsole.textContent += `[${ts}] ${text}\n`;
+            logConsole.scrollTop = logConsole.scrollHeight;
+        }
+
+        function connectStream() {
+            if (evtSource) {
+                evtSource.close();
+            }
+            evtSource = new EventSource("/api/admin/models/setup/stream");
+            evtSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    const progress = typeof data.progress === "number" ? data.progress : 0;
+                    if (progressBar) progressBar.style.width = `${progress}%`;
+                    if (percentDisplay) percentDisplay.textContent = `${progress}%`;
+                    if (statusMsg && data.message) statusMsg.textContent = data.message;
+                    if (data.message) appendLog(data.message);
+
+                    if (data.phase === "completed") {
+                        if (progressBar) progressBar.style.width = "100%";
+                        if (percentDisplay) percentDisplay.textContent = "100%";
+                        if (completionContainer) completionContainer.classList.remove("hidden");
+                        if (evtSource) {
+                            evtSource.close();
+                            evtSource = null;
+                        }
+                    } else if (data.phase === "error") {
+                        if (errorContainer) {
+                            errorContainer.classList.remove("hidden");
+                            if (errorMsg) errorMsg.textContent = data.message || "Model setup failed.";
+                        }
+                        if (evtSource) {
+                            evtSource.close();
+                            evtSource = null;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error parsing setup stream event", err);
+                }
+            };
+
+            evtSource.onerror = function(err) {
+                console.warn("Setup EventSource error/closed", err);
+            };
+        }
+
+        async function startSetup() {
+            const selected = getSelectedModels();
+            if (selected.length === 0) return;
+
+            checkboxes.forEach(cb => cb.disabled = true);
+            if (startBtn) startBtn.disabled = true;
+            if (actionsArea) actionsArea.classList.add("hidden");
+            if (selectionArea) selectionArea.classList.add("opacity-50", "pointer-events-none");
+            if (progressArea) progressArea.classList.remove("hidden");
+            if (errorContainer) errorContainer.classList.add("hidden");
+
+            appendLog("Connecting to real-time setup stream...");
+            connectStream();
+
+            try {
+                const res = await fetch("/api/admin/models/setup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ models: selected }),
+                });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.detail || `Setup failed with status ${res.status}`);
+                }
+                appendLog("Setup task submitted successfully.");
+            } catch (e) {
+                appendLog(`Error: ${e.message}`);
+                if (statusMsg) statusMsg.textContent = `Error: ${e.message}`;
+                if (errorContainer) {
+                    errorContainer.classList.remove("hidden");
+                    if (errorMsg) errorMsg.textContent = e.message;
+                }
+                if (evtSource) {
+                    evtSource.close();
+                    evtSource = null;
+                }
+            }
+        }
+
+        if (startBtn) {
+            startBtn.addEventListener("click", startSetup);
+        }
+
+        if (retryBtn) {
+            retryBtn.addEventListener("click", () => {
+                if (errorContainer) errorContainer.classList.add("hidden");
+                if (actionsArea) actionsArea.classList.remove("hidden");
+                if (selectionArea) selectionArea.classList.remove("opacity-50", "pointer-events-none");
+                checkboxes.forEach(cb => cb.disabled = false);
+                updateStartBtnState();
+            });
+        }
+
+        if (finishBtn) {
+            finishBtn.addEventListener("click", () => {
+                modal.remove();
+                if (window.loadOverview && typeof window.loadOverview === "function") {
+                    window.loadOverview();
+                } else {
+                    window.location.reload();
+                }
+            });
+        }
+
+        fetch("/api/admin/models/setup/status")
+            .then(r => r.json())
+            .then(st => {
+                if (st && st.is_running) {
+                    checkboxes.forEach(cb => cb.disabled = true);
+                    if (startBtn) startBtn.disabled = true;
+                    if (actionsArea) actionsArea.classList.add("hidden");
+                    if (selectionArea) selectionArea.classList.add("opacity-50", "pointer-events-none");
+                    if (progressArea) progressArea.classList.remove("hidden");
+                    connectStream();
+                }
+            })
+            .catch(() => {});
+    })();
+    </script>
+    {% endif %}
+
     {% if is_default_creds %}
     <!-- ========================================== -->
     <!-- MODAL: DEFAULT CREDENTIALS WARNING         -->
@@ -1041,6 +1312,7 @@
                 }
             });
         }
+        window.loadOverview = loadOverview;
 
         // --- Tab 2: API Keys ---
         async function loadKeys() {
