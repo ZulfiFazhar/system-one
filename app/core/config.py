@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     d3_lite_model_id: str = "vllm-sr/d3-lite"
     d3_lite_model_path: str = "models/d3-lite"
     d3_lite_device: str = "auto"
+    d3_lite_trust_remote_code: bool = True
 
     # Kev
     kev_model_id: str = "jaredpalmer/kev-0.8b"

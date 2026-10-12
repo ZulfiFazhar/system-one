@@ -22,6 +22,10 @@ async def systemone(req: SystemOneRequest, request: Request) -> SystemOneRespons
 
     if adapter is None:
         adapter = default_registry.get_adapter(model_name)
+        if adapter is not None:
+            if not hasattr(request.app.state, "models") or request.app.state.models is None:
+                request.app.state.models = {}
+            request.app.state.models[model_name] = adapter
 
     if adapter is None:
         raise HTTPException(

@@ -243,3 +243,60 @@ def test_systemone_multi_model_selection(client_no_auth):
     assert resp_bad.status_code == 400
     assert "not supported" in resp_bad.json()["detail"].lower()
 
+
+@pytest.mark.parametrize(
+    "model_alias",
+    ["vllm-sr/d3-lite", "d3_lite", "kev-0.8b", "jaredpalmer/kev-0.8b"],
+)
+def test_systemone_model_aliases(client_no_auth, model_alias):
+    resp = client_no_auth.post(
+        "/v1/systemone",
+        json={
+            "state": "test alias routing",
+            "model": model_alias,
+            "questions": {"q": {"type": "noul", "instructions": "test"}},
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.json()["model"] == model_alias
+    assert resp.json()["answers"]["q"]["type"] == "noul"
+
+
+def test_systemone_invalid_d3_lite_model(test_app, monkeypatch):
+    from app.services.models.d3_lite_adapter import D3LiteAdapter
+
+    invalid_adapter = D3LiteAdapter()
+    invalid_adapter.model = object()
+
+    if hasattr(test_app.state, "models") and test_app.state.models is not None:
+        monkeypatch.setitem(test_app.state.models, "d3-lite", invalid_adapter)
+
+    client = TestClient(test_app, raise_server_exceptions=False)
+    resp = client.post(
+        "/v1/systemone",
+        json={
+            "state": "test invalid d3 model",
+            "model": "d3-lite",
+            "questions": {"q": {"type": "noul", "instructions": "test"}},
+        },
+    )
+    assert resp.status_code == 500
+
+
+def test_systemone_lazy_load_registers_in_app_state(test_app, monkeypatch):
+    if hasattr(test_app.state, "models") and "kev" in test_app.state.models:
+        monkeypatch.delitem(test_app.state.models, "kev", raising=False)
+
+    client = TestClient(test_app)
+    resp = client.post(
+        "/v1/systemone",
+        json={
+            "state": "test lazy register",
+            "model": "kev",
+            "questions": {"q": {"type": "noul", "instructions": "test"}},
+        },
+    )
+    assert resp.status_code == 200
+    assert "kev" in test_app.state.models
+
+

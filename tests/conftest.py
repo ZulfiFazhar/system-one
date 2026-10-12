@@ -89,6 +89,9 @@ def test_app():
 
 @pytest.fixture(autouse=True)
 def mock_lazy_laya_load(monkeypatch):
+    from app.core.security import reset_rate_limits
+
+    reset_rate_limits()
     mock_router = create_mock_router()
 
     def mock_load(app_state):
@@ -101,6 +104,8 @@ def mock_lazy_laya_load(monkeypatch):
     monkeypatch.setattr(LayaAdapter, "load", mock_laya_load)
     monkeypatch.setattr(D3LiteAdapter, "load", mock_d3_load)
     monkeypatch.setattr(KevAdapter, "load", mock_kev_load)
+    yield
+    reset_rate_limits()
 
 
 @pytest.fixture

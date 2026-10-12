@@ -1,8 +1,9 @@
 import logging
-import os
+import threading
 from typing import Any
 
 from app.core.config import settings
+from app.services.laya_service import ensure_model_weights
 
 logger = logging.getLogger(__name__)
 
@@ -12,20 +13,19 @@ class LayaAdapter:
 
     def __init__(self):
         self.router: Any = None
+        self._lock = threading.Lock()
 
     def load(self) -> None:
         if self.router is not None:
             return
-        weights_path = os.path.join(settings.laya_model_path, "model.safetensors")
-        if not os.path.exists(weights_path):
-            logger.info("Auto-downloading Laya from %s", settings.laya_model_id)
-            from huggingface_hub import snapshot_download
+        with self._lock:
+            if self.router is not None:
+                return
+            ensure_model_weights()
+            import laya
 
-            snapshot_download(repo_id=settings.laya_model_id, local_dir=settings.laya_model_path)
-        import laya
-
-        device = None if settings.laya_device == "auto" else settings.laya_device
-        self.router = laya.load(settings.laya_model_path, device=device)
+            device = None if settings.laya_device == "auto" else settings.laya_device
+            self.router = laya.load(settings.laya_model_path, device=device)
 
     def predict(self, state: Any, questions: dict[str, Any]) -> dict[str, Any]:
         if self.router is None:
