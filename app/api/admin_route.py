@@ -1,12 +1,16 @@
+import asyncio
 import math
 import os
 import time
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from app.core import db
 from app.core.config import settings
 from app.core.security import refresh_security_caches, verify_admin_auth
+from app.services.setup_manager import default_setup_manager
 from app.dto.admin_dto import (
     BlocklistActionResponseDTO,
     BlocklistCreateDTO,
@@ -247,3 +251,41 @@ def remove_blocked_ip(ip_address: str) -> DeleteResponseDTO:
         )
     refresh_security_caches()
     return DeleteResponseDTO(success=True)
+
+
+class ModelsSetupRequestDTO(BaseModel):
+    models: list[str]
+
+
+@router.get("/models/setup/status")
+def get_setup_status() -> dict:
+    return default_setup_manager.get_status()
+
+
+@router.post("/models/setup")
+async def start_models_setup(body: ModelsSetupRequestDTO, request: Request) -> dict:
+    clean_models = [m.strip() for m in body.models if isinstance(m, str) and m.strip()]
+    if not clean_models:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one model must be selected",
+        )
+    if default_setup_manager._is_running:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Model setup is already in progress",
+        )
+    asyncio.create_task(default_setup_manager.start_setup(request.app.state, clean_models))
+    return {"status": "started", "models": clean_models}
+
+
+@router.get("/models/setup/stream")
+def stream_setup_events() -> StreamingResponse:
+    return StreamingResponse(
+        default_setup_manager.event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
