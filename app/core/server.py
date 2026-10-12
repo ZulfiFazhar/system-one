@@ -46,7 +46,11 @@ async def lifespan(app: FastAPI):
     should_preload = settings.laya_preload and not settings.laya_lazy_load
 
     if should_preload:
-        load_laya_model(app.state)
+        from app.services.models.registry import default_registry
+        default_registry.preload_all(app.state, settings.preload_models)
+        laya_adapter = getattr(app.state, "models", {}).get("laya")
+        if laya_adapter and hasattr(laya_adapter, "router"):
+            app.state.router = laya_adapter.router
     else:
         logger.info(
             "Lazy loading active (LAYA_LAZY_LOAD=true). Model will load upon first inference request."
@@ -54,7 +58,11 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    if hasattr(app.state, "router") and hasattr(app.state.router, "unload") and app.state.router:
+    if hasattr(app.state, "models") and app.state.models:
+        for adapter in app.state.models.values():
+            if hasattr(adapter, "unload"):
+                adapter.unload()
+    elif hasattr(app.state, "router") and hasattr(app.state.router, "unload") and app.state.router:
         app.state.router.unload()
 
 

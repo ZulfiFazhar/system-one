@@ -202,3 +202,44 @@ def test_lazy_loading(monkeypatch):
         )
         assert resp.status_code == 200
         assert getattr(app.state, "router", None) is not None
+
+
+def test_systemone_multi_model_selection(client_no_auth):
+    # Test d3-lite
+    resp_d3 = client_no_auth.post(
+        "/v1/systemone",
+        json={
+            "state": "urgent issue",
+            "model": "d3-lite",
+            "questions": {"q": {"type": "noul", "instructions": "test"}},
+        },
+    )
+    assert resp_d3.status_code == 200
+    assert resp_d3.json()["model"] == "d3-lite"
+    assert resp_d3.json()["answers"]["q"]["type"] == "noul"
+
+    # Test kev
+    resp_kev = client_no_auth.post(
+        "/v1/systemone",
+        json={
+            "state": "urgent issue",
+            "model": "kev",
+            "questions": {"q": {"type": "noul", "instructions": "test"}},
+        },
+    )
+    assert resp_kev.status_code == 200
+    assert resp_kev.json()["model"] == "kev"
+    assert resp_kev.json()["answers"]["q"]["type"] == "noul"
+
+    # Test unknown model returns 400 Bad Request
+    resp_bad = client_no_auth.post(
+        "/v1/systemone",
+        json={
+            "state": "urgent issue",
+            "model": "unsupported-model-xyz",
+            "questions": {"q": {"type": "noul", "instructions": "test"}},
+        },
+    )
+    assert resp_bad.status_code == 400
+    assert "not supported" in resp_bad.json()["detail"].lower()
+
