@@ -72,10 +72,43 @@ def init_db(db_path: str | None = None) -> None:
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('models_setup_completed', '0');
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('active_models', '');
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('admin_username', 'admin');
-            INSERT OR IGNORE INTO system_settings (key, value) VALUES ('admin_password', 'changeme');
             """
         )
+        # Seed default admin password if not present
+        existing_pwd = conn.execute(
+            "SELECT value FROM system_settings WHERE key = 'admin_password'"
+        ).fetchone()
+        if existing_pwd is None:
+            conn.execute(
+                "INSERT INTO system_settings (key, value) VALUES ('admin_password', ?)",
+                (hash_password("changeme"),),
+            )
     conn.close()
+
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_hex(16)
+    key = hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt.encode("utf-8"), 100_000
+    )
+    return f"pbkdf2:sha256:100000:{salt}:{key.hex()}"
+
+
+def verify_password(provided_password: str, stored_hash: str) -> bool:
+    if not stored_hash or not provided_password:
+        return False
+    if stored_hash.startswith("pbkdf2:sha256:"):
+        parts = stored_hash.split(":")
+        if len(parts) == 5:
+            _, _, iters, salt, key_hex = parts
+            key = hashlib.pbkdf2_hmac(
+                "sha256",
+                provided_password.encode("utf-8"),
+                salt.encode("utf-8"),
+                int(iters),
+            )
+            return secrets.compare_digest(key.hex(), key_hex)
+    return secrets.compare_digest(provided_password, stored_hash)
 
 
 def hash_key(raw_key: str) -> str:
@@ -524,6 +557,7 @@ def get_admin_credentials(db_path: str | None = None) -> tuple[str, str]:
 def update_admin_credentials(
     username: str, password: str, db_path: str | None = None
 ) -> None:
+    hashed_pwd = hash_password(password)
     conn = get_db_connection(db_path)
     with conn:
         conn.execute(
@@ -538,14 +572,30 @@ def update_admin_credentials(
             INSERT INTO system_settings (key, value) VALUES ('admin_password', ?)
             ON CONFLICT(key) DO UPDATE SET value=excluded.value
             """,
-            (password,),
+            (hashed_pwd,),
         )
     conn.close()
 
 
+def verify_admin_login(
+    provided_username: str, provided_password: str, db_path: str | None = None
+) -> bool:
+    if settings.admin_username != "admin" or settings.admin_password != "changeme":
+        return secrets.compare_digest(
+            provided_username, settings.admin_username
+        ) and secrets.compare_digest(provided_password, settings.admin_password)
+
+    user, stored_hash = get_admin_credentials(db_path)
+    if not secrets.compare_digest(provided_username, user):
+        return False
+    return verify_password(provided_password, stored_hash)
+
+
 def is_default_admin_credentials(db_path: str | None = None) -> bool:
-    user, pwd = get_admin_credentials(db_path)
-    return user == "admin" and pwd == "changeme"
+    if settings.admin_username != "admin" or settings.admin_password != "changeme":
+        return False
+    user, stored_hash = get_admin_credentials(db_path)
+    return user == "admin" and verify_password("changeme", stored_hash)
 
 
 def get_blocked_ips(db_path: str | None = None) -> list[dict]:

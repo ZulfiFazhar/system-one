@@ -678,12 +678,23 @@ print(response.json()["answers"])</pre>
                                     >
                                         convaiinnovations
                                     </span>
+                                    {% if loaded_models and 'laya' in loaded_models %}
                                     <span
-                                        class="inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                        class="model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                        data-model="laya"
                                     >
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>
                                         Active
                                     </span>
+                                    {% else %}
+                                    <span
+                                        class="model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400"
+                                        data-model="laya"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                                        Non Active
+                                    </span>
+                                    {% endif %}
                                 </div>
                                 <h3 class="text-xl font-bold text-white mb-2 tracking-tight">
                                     Laya Multilingual
@@ -733,12 +744,23 @@ print(response.json()["answers"])</pre>
                                     >
                                         vllm-sr
                                     </span>
+                                    {% if loaded_models and ('d3-lite' in loaded_models or 'vllm-sr/d3-lite' in loaded_models) %}
                                     <span
-                                        class="inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                        class="model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                        data-model="d3-lite"
                                     >
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>
                                         Active
                                     </span>
+                                    {% else %}
+                                    <span
+                                        class="model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400"
+                                        data-model="d3-lite"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                                        Non Active
+                                    </span>
+                                    {% endif %}
                                 </div>
                                 <h3 class="text-xl font-bold text-white mb-2 tracking-tight">
                                     d3-lite (Decision 3.0)
@@ -788,12 +810,23 @@ print(response.json()["answers"])</pre>
                                     >
                                         jaredpalmer
                                     </span>
+                                    {% if loaded_models and ('kev' in loaded_models or 'jaredpalmer/kev-0.8b' in loaded_models) %}
                                     <span
-                                        class="inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                        class="model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400"
+                                        data-model="kev"
                                     >
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>
                                         Active
                                     </span>
+                                    {% else %}
+                                    <span
+                                        class="model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400"
+                                        data-model="kev"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+                                        Non Active
+                                    </span>
+                                    {% endif %}
                                 </div>
                                 <h3 class="text-xl font-bold text-white mb-2 tracking-tight">
                                     Kev-0.8B (Kev 1.0)
@@ -1415,6 +1448,20 @@ print(response.json()["answers"])</pre>
                             if (text) text.textContent = isReady ? "System Ready" : data.status;
                             if (mobileDot) mobileDot.className = `w-2 h-2 rounded-full ${isReady ? "bg-emerald-500" : "bg-yellow-500"} inline-block`;
                             if (mobileText) mobileText.textContent = isReady ? "Ready" : data.status;
+
+                            if (data.loaded_models && Array.isArray(data.loaded_models)) {
+                                document.querySelectorAll(".model-status-badge").forEach(function(badge) {
+                                    const m = badge.dataset.model;
+                                    const isActive = data.loaded_models.includes(m) || (m === "d3-lite" && data.loaded_models.includes("vllm-sr/d3-lite")) || (m === "kev" && data.loaded_models.includes("jaredpalmer/kev-0.8b"));
+                                    if (isActive) {
+                                        badge.className = "model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400";
+                                        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-pulse"></span>Active';
+                                    } else {
+                                        badge.className = "model-status-badge inline-flex items-center gap-1.5 text-xs font-mono px-2 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400";
+                                        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span>Non Active';
+                                    }
+                                });
+                            }
                         } else {
                             throw new Error();
                         }

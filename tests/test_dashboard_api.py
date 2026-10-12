@@ -267,10 +267,11 @@ def test_admin_update_credentials_and_login(client, temp_db):
     assert resp.status_code == 200
     assert resp.json()["status"] == "success"
 
-    # 2. Verify stored in DB
-    user, pwd = db.get_admin_credentials(temp_db)
+    # 2. Verify stored in DB as hash
+    user, pwd_hash = db.get_admin_credentials(temp_db)
     assert user == "new_admin"
-    assert pwd == "new_super_password_123"
+    assert pwd_hash.startswith("pbkdf2:sha256:")
+    assert db.verify_password("new_super_password_123", pwd_hash)
     assert not db.is_default_admin_credentials(temp_db)
 
     # 3. Old credentials now fail

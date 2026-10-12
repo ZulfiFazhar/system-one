@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 import json
 import logging
 from typing import Any, AsyncGenerator
@@ -142,7 +143,7 @@ class ModelSetupManager:
                 )
                 await asyncio.sleep(0.01)
 
-                if asyncio.iscoroutinefunction(getattr(adapter, "load", None)):
+                if inspect.iscoroutinefunction(getattr(adapter, "load", None)):
                     await adapter.load()
                 else:
                     await asyncio.to_thread(adapter.load)

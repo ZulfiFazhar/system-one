@@ -106,10 +106,17 @@
                     <span class="px-2.5 py-0.5 border border-cyan-500/40 bg-cyan-950/40 text-cyan-400 text-xs font-mono">
                         {{ model.id }}
                     </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 text-xs font-mono">
+                    {% if is_active %}
+                    <span id="detail-model-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 text-xs font-mono" data-model="{{ model.name }}">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         Active
                     </span>
+                    {% else %}
+                    <span id="detail-model-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400 text-xs font-mono" data-model="{{ model.name }}">
+                        <span class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                        Non Active
+                    </span>
+                    {% endif %}
                 </div>
 
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -947,6 +954,30 @@
                         }
                     }
                 });
+                // Realtime Model Status Polling
+                async function checkModelActive() {
+                    try {
+                        const res = await fetch("/health");
+                        if (res.ok) {
+                            const data = await res.json();
+                            const badge = document.getElementById("detail-model-badge");
+                            if (badge && data.loaded_models) {
+                                const currentId = "{{ model.id }}";
+                                const currentName = "{{ model.name }}";
+                                const isActive = data.loaded_models.includes(currentId) || data.loaded_models.includes(currentName) || (currentName === "laya-multilingual" && data.loaded_models.includes("laya"));
+                                if (isActive) {
+                                    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 text-xs font-mono";
+                                    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>Active';
+                                } else {
+                                    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 border border-zinc-700 bg-zinc-900/60 text-zinc-400 text-xs font-mono";
+                                    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-zinc-500"></span>Non Active';
+                                }
+                            }
+                        }
+                    } catch (_) {}
+                }
+                checkModelActive();
+                setInterval(checkModelActive, 20000);
             })();
         </script>
     </body>

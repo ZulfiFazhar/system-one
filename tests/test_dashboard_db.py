@@ -42,6 +42,14 @@ def test_init_db_creates_tables_and_defaults(temp_db):
     assert settings_dict.get("public_rate_limit_requests") == "10"
     assert settings_dict.get("public_rate_limit_window_seconds") == "60"
 
+    # Verify admin password in db is hashed
+    assert settings_dict.get("admin_username") == "admin"
+    admin_pwd_hash = settings_dict.get("admin_password")
+    assert admin_pwd_hash is not None
+    assert admin_pwd_hash.startswith("pbkdf2:sha256:")
+    assert db.verify_password("changeme", admin_pwd_hash)
+    assert not db.verify_password("wrongpassword", admin_pwd_hash)
+
     # Idempotent init_db call
     db.init_db(temp_db)
     conn.close()

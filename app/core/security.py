@@ -177,11 +177,7 @@ def verify_admin_credentials(
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    expected_user, expected_pass = db.get_admin_credentials()
-    is_user_correct = secrets.compare_digest(credentials.username, expected_user)
-    is_pass_correct = secrets.compare_digest(credentials.password, expected_pass)
-
-    if not (is_user_correct and is_pass_correct):
+    if not db.verify_admin_login(credentials.username, credentials.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid admin credentials",

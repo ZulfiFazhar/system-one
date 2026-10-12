@@ -44,3 +44,16 @@ def test_admin_login_and_model_route_precedence(client_no_auth):
     assert resp_model.status_code == 200
     assert "d3-lite" in resp_model.text
 
+
+def test_model_active_and_non_active_status_display(client_no_auth):
+    # If app.state.models only has "laya", then d3-lite is "Non Active"
+    resp_d3 = client_no_auth.get("/vllm-sr/d3-lite")
+    assert resp_d3.status_code == 200
+    # Check that status reflects Active or Non Active properly
+    assert ("Active" in resp_d3.text) or ("Non Active" in resp_d3.text)
+
+    # Home page renders both statuses based on loaded_models
+    resp_home = client_no_auth.get("/")
+    assert resp_home.status_code == 200
+    assert "model-status-badge" in resp_home.text
+

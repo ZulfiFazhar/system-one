@@ -161,11 +161,7 @@ async def handle_login(request: Request) -> JSONResponse:
             except Exception:
                 pass
 
-    expected_user, expected_pass = db.get_admin_credentials()
-    is_user_valid = secrets.compare_digest(username, expected_user)
-    is_pass_valid = secrets.compare_digest(password, expected_pass)
-
-    if not (is_user_valid and is_pass_valid):
+    if not db.verify_admin_login(username, password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",
