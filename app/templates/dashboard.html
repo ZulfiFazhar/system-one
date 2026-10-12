@@ -105,7 +105,7 @@
                     <span class="font-extrabold text-lg tracking-tight font-sans text-white">System One</span>
                 </a>
                 <span class="text-xs px-2 py-0.5 border border-[#3f3f46] font-mono bg-[#18181b] text-zinc-300">
-                    Admin Dashboard
+                    Dashboard
                 </span>
                 <div id="header-health" class="hidden sm:inline-flex items-center gap-2 px-2 py-0.5 border border-[#27272a] text-xs font-mono bg-[#141417]">
                     <span id="header-health-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse inline-block"></span>
@@ -576,6 +576,37 @@
             </div>
         </section>
     </main>
+
+    {% if is_default_creds %}
+    <!-- ========================================== -->
+    <!-- MODAL: DEFAULT CREDENTIALS WARNING         -->
+    <!-- ========================================== -->
+    <div id="default-creds-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+        <div class="brutal-card w-full max-w-lg p-6 space-y-4 bg-[#141417] border-2 border-amber-500 shadow-2xl">
+            <div class="flex items-center gap-2.5 text-amber-400 font-mono font-bold text-sm border-b border-[#27272a] pb-3">
+                <span class="text-lg">⚠️</span>
+                <span>SECURITY WARNING: DEFAULT CREDENTIALS IN USE</span>
+            </div>
+            <p class="text-xs text-zinc-300 font-mono leading-relaxed">
+                You are currently accessing this dashboard using default credentials (<code class="bg-[#27272a] text-amber-300 px-1.5 py-0.5 rounded font-mono">admin</code> / <code class="bg-[#27272a] text-amber-300 px-1.5 py-0.5 rounded font-mono">changeme</code>).
+            </p>
+            <div class="p-3 bg-[#18181b] border border-[#27272a] text-xs font-mono text-zinc-400 leading-relaxed space-y-1">
+                <div class="text-zinc-200 font-semibold">Immediate Action Recommended:</div>
+                <p>Anyone with network access to this endpoint can manage API keys and modify system settings. Set <span class="text-amber-300">ADMIN_USERNAME</span> and <span class="text-amber-300">ADMIN_PASSWORD</span> in your environment (.env) to secure access.</p>
+            </div>
+            <div class="flex items-center justify-end pt-2">
+                <button type="button" id="dismiss-default-creds-btn" class="brutal-btn px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs uppercase tracking-wider">
+                    I Understand & Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("dismiss-default-creds-btn")?.addEventListener("click", () => {
+            document.getElementById("default-creds-modal")?.remove();
+        });
+    </script>
+    {% endif %}
 
     <!-- ========================================== -->
     <!-- MODAL: GENERATE API KEY                    -->
@@ -1726,11 +1757,11 @@
         if (logoutBtn) {
             logoutBtn.addEventListener("click", async () => {
                 try {
-                    await fetch("/admin/logout", { method: "POST" });
+                    await fetch("/logout", { method: "POST" });
                 } catch (e) {
                     console.error("Logout request error", e);
                 } finally {
-                    window.location.href = "/admin/login";
+                    window.location.href = "/login";
                 }
             });
         }

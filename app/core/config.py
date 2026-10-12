@@ -1,6 +1,5 @@
 from typing import ClassVar
 
-from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,8 +21,7 @@ class Settings(BaseSettings):
     default_model: str = "laya"
     preload_models: list[str] = ["laya", "d3-lite", "kev"]
 
-    # Laya
-    laya_api_key: SecretStr | None = None
+    # Laya (Hardcoded defaults)
     laya_model_id: str = "convaiinnovations/laya-multilingual"
     laya_model_path: str = "models/laya-multilingual"
     laya_device: str = "auto"

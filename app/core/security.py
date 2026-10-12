@@ -227,14 +227,6 @@ def verify_api_key(
                 check_key_rate_limit(row["id"], limit=row["rate_limit"], window=60)
             return
 
-        has_server_key = bool(settings.laya_api_key and settings.laya_api_key.get_secret_value())
-        if has_server_key:
-            expected_key = settings.laya_api_key.get_secret_value()
-            if secrets.compare_digest(token, expected_key):
-                if hasattr(request, "state"):
-                    request.state.api_key_id = None
-                return
-
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",

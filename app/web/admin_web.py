@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from jinja2 import Template
 
 from app.core.config import settings
 from app.core.security import (
@@ -25,6 +26,10 @@ LOGIN_TEMPLATE_PATH = (
 _LOGIN_TEMPLATE_CACHE: str | None = None
 
 
+def is_default_credentials() -> bool:
+    return settings.admin_username == "admin" and settings.admin_password == "changeme"
+
+
 def get_dashboard_template_content() -> str:
     global _DASHBOARD_TEMPLATE_CACHE
     if settings.is_development or _DASHBOARD_TEMPLATE_CACHE is None:
@@ -43,7 +48,7 @@ def get_login_template_content() -> str:
                 '<html lang="en">\n'
                 "<head>\n"
                 '    <meta charset="UTF-8">\n'
-                "    <title>Admin Sign In</title>\n"
+                "    <title>Dashboard Sign In</title>\n"
                 "</head>\n"
                 "<body>\n"
                 '    <form id="login-form">\n'
@@ -57,28 +62,61 @@ def get_login_template_content() -> str:
     return _LOGIN_TEMPLATE_CACHE
 
 
-@router.get("/admin", response_class=HTMLResponse)
-async def admin_dashboard(request: Request) -> Response:
+def render_dashboard_html() -> str:
+    content = get_dashboard_template_content()
+    return Template(content).render(is_default_creds=is_default_credentials())
+
+
+def render_login_html() -> str:
+    content = get_login_template_content()
+    return Template(content).render(is_default_creds=is_default_credentials())
+
+
+@router.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request) -> Response:
     if verify_admin_cookie(request) is None:
         return RedirectResponse(
-            url="/admin/login",
+            url="/login",
             status_code=status.HTTP_303_SEE_OTHER,
         )
-    return HTMLResponse(content=get_dashboard_template_content(), status_code=200)
+    return HTMLResponse(content=render_dashboard_html(), status_code=200)
+
+
+@router.get("/admin", response_class=HTMLResponse)
+async def admin_redirect() -> Response:
+    return RedirectResponse(
+        url="/dashboard",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request) -> Response:
+    if verify_admin_cookie(request) is not None:
+        return RedirectResponse(
+            url="/dashboard",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+    return HTMLResponse(content=render_login_html(), status_code=200)
 
 
 @router.get("/admin/login", response_class=HTMLResponse)
-async def admin_login_page(request: Request) -> Response:
-    if verify_admin_cookie(request) is not None:
-        return RedirectResponse(
-            url="/admin",
-            status_code=status.HTTP_303_SEE_OTHER,
-        )
-    return HTMLResponse(content=get_login_template_content(), status_code=200)
+async def admin_login_redirect() -> Response:
+    return RedirectResponse(
+        url="/login",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
-@router.post("/admin/login")
-async def admin_login(request: Request) -> JSONResponse:
+@router.get("/dashboard/login", response_class=HTMLResponse)
+async def dashboard_login_redirect() -> Response:
+    return RedirectResponse(
+        url="/login",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+async def handle_login(request: Request) -> JSONResponse:
     client_ip = request.client.host if request.client else "127.0.0.1"
     check_ip_blocklist(client_ip)
     check_rate_limit(client_ip)
@@ -121,7 +159,7 @@ async def admin_login(request: Request) -> JSONResponse:
         )
 
     token = create_admin_session_token(username)
-    res = JSONResponse(content={"success": True, "redirect": "/admin"})
+    res = JSONResponse(content={"success": True, "redirect": "/dashboard"})
     res.set_cookie(
         key="admin_session",
         value=token,
@@ -134,8 +172,27 @@ async def admin_login(request: Request) -> JSONResponse:
     return res
 
 
-@router.post("/admin/logout")
-async def admin_logout() -> JSONResponse:
-    res = JSONResponse(content={"success": True, "redirect": "/admin/login"})
+@router.post("/login")
+async def login_post(request: Request) -> JSONResponse:
+    return await handle_login(request)
+
+
+@router.post("/admin/login")
+async def admin_login_post(request: Request) -> JSONResponse:
+    return await handle_login(request)
+
+
+async def handle_logout() -> JSONResponse:
+    res = JSONResponse(content={"success": True, "redirect": "/login"})
     res.delete_cookie(key="admin_session", path="/")
     return res
+
+
+@router.post("/logout")
+async def logout_post() -> JSONResponse:
+    return await handle_logout()
+
+
+@router.post("/admin/logout")
+async def admin_logout_post() -> JSONResponse:
+    return await handle_logout()

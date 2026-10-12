@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBasicCredentials
-from pydantic import SecretStr
 
 from app.core.config import settings
 from app.core import db
@@ -215,19 +214,17 @@ def test_verify_api_key_db_rate_limited(temp_db):
     assert "API key rate limit exceeded" in exc_info.value.detail
 
 
-def test_verify_api_key_legacy_env(temp_db, monkeypatch):
-    monkeypatch.setattr(settings, "laya_api_key", SecretStr("legacy-secret-key"))
+def test_verify_api_key_generated_db(temp_db):
+    key_id, raw_key, prefix = db.create_api_key("gen-key", db_path=temp_db)
 
     req = make_request("127.0.0.1")
-    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="legacy-secret-key")
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=raw_key)
 
     verify_api_key(req, creds)
-    assert req.state.api_key_id is None
+    assert req.state.api_key_id == key_id
 
 
-def test_verify_api_key_invalid(temp_db, monkeypatch):
-    monkeypatch.setattr(settings, "laya_api_key", SecretStr("legacy-secret-key"))
-
+def test_verify_api_key_invalid(temp_db):
     req = make_request("127.0.0.1")
     creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="completely-wrong-key")
 

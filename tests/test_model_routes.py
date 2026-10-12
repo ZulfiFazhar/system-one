@@ -32,9 +32,13 @@ def test_model_detail_page_contents(client_no_auth):
 
 
 def test_admin_login_and_model_route_precedence(client_no_auth):
-    resp_login = client_no_auth.get("/admin/login")
+    resp_login = client_no_auth.get("/login")
     assert resp_login.status_code == 200
-    assert "Admin Sign In" in resp_login.text
+    assert "Dashboard Sign In" in resp_login.text
+
+    resp_redirect = client_no_auth.get("/admin/login", follow_redirects=True)
+    assert resp_redirect.status_code == 200
+    assert "Dashboard Sign In" in resp_redirect.text
 
     resp_model = client_no_auth.get("/vllm-sr/d3-lite")
     assert resp_model.status_code == 200

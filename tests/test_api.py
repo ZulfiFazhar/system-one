@@ -1,6 +1,5 @@
 import pytest
 from fastapi.testclient import TestClient
-from pydantic import SecretStr
 
 from app.core.server import create_application
 
@@ -148,33 +147,36 @@ def test_lifespan_lifecycle(test_app):
     assert test_app.state.router is not None
 
 
-def test_verify_api_key_constant_time(monkeypatch):
-    import secrets
-    from unittest.mock import MagicMock, patch
+def test_verify_api_key_db_lookup(monkeypatch):
+    from unittest.mock import MagicMock
 
     from fastapi import HTTPException
     from fastapi.security import HTTPAuthorizationCredentials
 
-    from app.core.config import settings
+    from app.core import db
     from app.core.security import verify_api_key
 
     mock_request = MagicMock()
     mock_request.client.host = "127.0.0.1"
 
-    monkeypatch.setattr(settings, "laya_api_key", SecretStr("secret-val"))
-    with patch("secrets.compare_digest", wraps=secrets.compare_digest) as mock_compare:
-        creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="secret-val")
-        verify_api_key(mock_request, creds)
-        mock_compare.assert_called_with("secret-val", "secret-val")
+    token = "secret-val-custom"
+    h = db.hash_key(token)
+    conn = db.get_db_connection()
+    with conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO api_keys (key_hash, key_prefix, name, is_active) VALUES (?, ?, ?, 1)",
+            (h, token[:8], "test-key-val"),
+        )
+    conn.close()
 
-        mock_compare.reset_mock()
-        with pytest.raises(HTTPException) as exc_info:
-            bad_creds = HTTPAuthorizationCredentials(
-                scheme="Bearer", credentials="wrong-val"
-            )
-            verify_api_key(mock_request, bad_creds)
-        assert exc_info.value.status_code == 401
-        mock_compare.assert_called_with("wrong-val", "secret-val")
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    verify_api_key(mock_request, creds)
+    assert getattr(mock_request.state, "api_key_id", None) is not None
+
+    with pytest.raises(HTTPException) as exc_info:
+        bad_creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials="wrong-val-custom")
+        verify_api_key(mock_request, bad_creds)
+    assert exc_info.value.status_code == 401
 
 
 def test_lazy_loading(monkeypatch):
@@ -183,7 +185,6 @@ def test_lazy_loading(monkeypatch):
     from app.core.server import create_application
 
     monkeypatch.setattr(settings, "laya_lazy_load", True)
-    monkeypatch.setattr(settings, "laya_api_key", None)
     app = create_application()
     with TestClient(app) as client:
         assert getattr(app.state, "router", None) is None

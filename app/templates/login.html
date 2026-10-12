@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System One | Admin Sign In</title>
+    <title>System One | Dashboard Sign In</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -84,14 +84,14 @@
                     <span class="font-extrabold text-base tracking-tight font-sans text-white">Zulvis System One</span>
                 </div>
                 <span class="text-xs px-2 py-0.5 border border-[#3f3f46] font-mono bg-[#141417] text-zinc-300">
-                    Admin
+                    Dashboard
                 </span>
             </div>
 
             <!-- Title & Subtitle -->
             <div class="mb-6">
-                <h1 class="text-xl font-bold font-sans tracking-tight text-white">Admin Console Authentication</h1>
-                <p class="text-xs text-zinc-400 font-mono mt-1.5 leading-relaxed">Enter administrative credentials to access the dashboard</p>
+                <h1 class="text-xl font-bold font-sans tracking-tight text-white">Dashboard Sign In</h1>
+                <p class="text-xs text-zinc-400 font-mono mt-1.5 leading-relaxed">Enter credentials to access the dashboard</p>
             </div>
 
             <!-- Error Banner -->
@@ -135,6 +135,20 @@
                     />
                 </div>
 
+                {% if is_default_creds %}
+                <!-- Default Credentials Hint -->
+                <div class="p-3 bg-[#141417] border border-[#3f3f46] text-xs font-mono text-zinc-300">
+                    <div class="flex items-center gap-1.5 text-amber-400 font-bold mb-1">
+                        <span>💡 Default Credentials Active</span>
+                    </div>
+                    <p class="text-zinc-400 text-xs">
+                        Username: <code class="text-zinc-100 bg-[#27272a] px-1 py-0.5 font-bold">admin</code>
+                        &nbsp;|&nbsp;
+                        Password: <code class="text-zinc-100 bg-[#27272a] px-1 py-0.5 font-bold">changeme</code>
+                    </p>
+                </div>
+                {% endif %}
+
                 <div class="pt-2">
                     <button
                         type="submit"
@@ -145,7 +159,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                         </svg>
-                        <span id="login-btn-text">Sign In to Console</span>
+                        <span id="login-btn-text">Sign In to Dashboard</span>
                     </button>
                 </div>
             </form>
@@ -205,7 +219,7 @@
                 setLoading(true);
 
                 try {
-                    const resp = await fetch("/admin/login", {
+                    const resp = await fetch("/login", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -218,7 +232,7 @@
 
                     if (resp.ok) {
                         const data = await resp.json();
-                        window.location.href = data.redirect || "/admin";
+                        window.location.href = data.redirect || "/dashboard";
                     } else {
                         let errorDetail = "Invalid username or password";
                         try {

@@ -2,7 +2,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
-from pydantic import SecretStr
 
 from app.core.config import settings
 from app.core.server import create_application
@@ -109,12 +108,21 @@ def mock_lazy_laya_load(monkeypatch):
 
 
 @pytest.fixture
-def client_no_auth(test_app, monkeypatch):
-    monkeypatch.setattr(settings, "laya_api_key", None)
+def client_no_auth(test_app):
     return TestClient(test_app)
 
 
 @pytest.fixture
-def client_with_auth(test_app, monkeypatch):
-    monkeypatch.setattr(settings, "laya_api_key", SecretStr("secret-token-123"))
+def client_with_auth(test_app):
+    from app.core import db
+
+    token = "secret-token-123"
+    h = db.hash_key(token)
+    conn = db.get_db_connection()
+    with conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO api_keys (key_hash, key_prefix, name, is_active) VALUES (?, ?, ?, 1)",
+            (h, token[:8], "test-key"),
+        )
+    conn.close()
     return TestClient(test_app)

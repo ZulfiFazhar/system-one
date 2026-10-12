@@ -30,18 +30,22 @@ def client(temp_db):
 
 
 def test_admin_ui_unauthenticated_redirects_to_login(client):
-    resp = client.get("/admin", follow_redirects=False)
+    resp = client.get("/dashboard", follow_redirects=False)
     assert resp.status_code == 303
-    assert resp.headers.get("location") == "/admin/login"
+    assert resp.headers.get("location") == "/login"
+
+    resp_admin = client.get("/admin", follow_redirects=False)
+    assert resp_admin.status_code == 303
+    assert resp_admin.headers.get("location") == "/dashboard"
 
 
 def test_admin_login_page_renders_html(client):
-    resp = client.get("/admin/login")
+    resp = client.get("/login")
     assert resp.status_code == 200
     assert "text/html" in resp.headers.get("content-type", "")
     html = resp.text
     assert "System One" in html
-    assert "Admin Console Authentication" in html
+    assert "Dashboard Sign In" in html
     assert "username-input" in html
     assert "password-input" in html
     assert "login-form" in html
@@ -50,14 +54,14 @@ def test_admin_login_page_renders_html(client):
 def test_admin_ui_authenticated_with_session_cookie(client):
     token = create_admin_session_token("admin")
     client.cookies["admin_session"] = token
-    resp = client.get("/admin")
+    resp = client.get("/dashboard")
     assert resp.status_code == 200
     assert "text/html" in resp.headers.get("content-type", "")
 
     html = resp.text
     # Core headings / titles & logout button
     assert "System One" in html
-    assert "Admin Dashboard" in html
+    assert "Dashboard" in html
     assert "logout-btn" in html
 
     # Tab navigation elements
