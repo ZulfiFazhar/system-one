@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 
 from app.core.config import settings
@@ -64,14 +64,7 @@ async def home() -> HTMLResponse:
 
 
 @router.get("/{creator}/{model_name}", response_class=HTMLResponse)
-async def model_detail(
-    creator: str, model_name: str, request: Request
-) -> Response:
-    if creator == "admin" and model_name == "login":
-        from app.web.admin_web import admin_login_page
-
-        return await admin_login_page(request)
-
+async def model_detail(creator: str, model_name: str) -> HTMLResponse:
     model = get_model_by_slug(creator, model_name)
     if not model:
         raise HTTPException(

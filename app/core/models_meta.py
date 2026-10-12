@@ -26,7 +26,7 @@ MODELS_CATALOG: dict[str, dict[str, Any]] = {
             {"metric": "Throughput", "value": "350 req/s", "note": "Standard 4-core worker"},
         ],
         "code_curl": (
-            'curl -X POST http://localhost:8000/v1/system-one \\\n'
+            'curl -X POST http://localhost:8000/v1/systemone \\\n'
             '  -H "Content-Type: application/json" \\\n'
             '  -H "Authorization: Bearer dev-key" \\\n'
             '  -d \'{\n'
@@ -41,7 +41,7 @@ MODELS_CATALOG: dict[str, dict[str, Any]] = {
         "code_python": (
             "import httpx\n\n"
             "response = httpx.post(\n"
-            '    "http://localhost:8000/v1/system-one",\n'
+            '    "http://localhost:8000/v1/systemone",\n'
             '    headers={"Authorization": "Bearer dev-key"},\n'
             "    json={\n"
             '        "model": "laya-multilingual",\n'
@@ -81,7 +81,7 @@ MODELS_CATALOG: dict[str, dict[str, Any]] = {
             {"metric": "Throughput", "value": "180 req/s", "note": "Batch evaluation"},
         ],
         "code_curl": (
-            'curl -X POST http://localhost:8000/v1/system-one \\\n'
+            'curl -X POST http://localhost:8000/v1/systemone \\\n'
             '  -H "Content-Type: application/json" \\\n'
             '  -H "Authorization: Bearer dev-key" \\\n'
             '  -d \'{\n'
@@ -96,7 +96,7 @@ MODELS_CATALOG: dict[str, dict[str, Any]] = {
         "code_python": (
             "import httpx\n\n"
             "response = httpx.post(\n"
-            '    "http://localhost:8000/v1/system-one",\n'
+            '    "http://localhost:8000/v1/systemone",\n'
             '    headers={"Authorization": "Bearer dev-key"},\n'
             "    json={\n"
             '        "model": "d3-lite",\n'
@@ -136,7 +136,7 @@ MODELS_CATALOG: dict[str, dict[str, Any]] = {
             {"metric": "Throughput", "value": "240 req/s", "note": "Single-node worker"},
         ],
         "code_curl": (
-            'curl -X POST http://localhost:8000/v1/system-one \\\n'
+            'curl -X POST http://localhost:8000/v1/systemone \\\n'
             '  -H "Content-Type: application/json" \\\n'
             '  -H "Authorization: Bearer dev-key" \\\n'
             '  -d \'{\n'
@@ -150,7 +150,7 @@ MODELS_CATALOG: dict[str, dict[str, Any]] = {
         "code_python": (
             "import httpx\n\n"
             "response = httpx.post(\n"
-            '    "http://localhost:8000/v1/system-one",\n'
+            '    "http://localhost:8000/v1/systemone",\n'
             '    headers={"Authorization": "Bearer dev-key"},\n'
             "    json={\n"
             '        "model": "kev-0.8b",\n'
