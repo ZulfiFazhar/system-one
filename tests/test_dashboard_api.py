@@ -255,3 +255,35 @@ def test_blocklist_endpoints(client, temp_db):
     # Delete non-existent
     del_404 = client.delete("/api/admin/blocklist/192.168.1.50", auth=ADMIN_AUTH)
     assert del_404.status_code == 404
+
+
+def test_admin_update_credentials_and_login(client, temp_db):
+    # 1. Update credentials via PUT /api/admin/credentials
+    resp = client.put(
+        "/api/admin/credentials",
+        json={"username": "new_admin", "password": "new_super_password_123"},
+        auth=ADMIN_AUTH,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "success"
+
+    # 2. Verify stored in DB
+    user, pwd = db.get_admin_credentials(temp_db)
+    assert user == "new_admin"
+    assert pwd == "new_super_password_123"
+    assert not db.is_default_admin_credentials(temp_db)
+
+    # 3. Old credentials now fail
+    old_login = client.post(
+        "/login",
+        json={"username": "admin", "password": "changeme"},
+    )
+    assert old_login.status_code == 401
+
+    # 4. New credentials succeed
+    new_login = client.post(
+        "/login",
+        json={"username": "new_admin", "password": "new_super_password_123"},
+    )
+    assert new_login.status_code == 200
+    assert new_login.json()["success"] is True

@@ -5,13 +5,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
     )
 
-    app_name: str = "System One (Laya) API"
+    app_name: str = "System One API"
     environment: str = "development"
     version: str = "0.1.0"
 

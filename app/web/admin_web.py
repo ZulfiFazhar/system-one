@@ -28,7 +28,7 @@ _LOGIN_TEMPLATE_CACHE: str | None = None
 
 
 def is_default_credentials() -> bool:
-    return settings.admin_username == "admin" and settings.admin_password == "changeme"
+    return db.is_default_admin_credentials()
 
 
 def is_models_setup_completed() -> bool:
@@ -161,8 +161,9 @@ async def handle_login(request: Request) -> JSONResponse:
             except Exception:
                 pass
 
-    is_user_valid = secrets.compare_digest(username, settings.admin_username)
-    is_pass_valid = secrets.compare_digest(password, settings.admin_password)
+    expected_user, expected_pass = db.get_admin_credentials()
+    is_user_valid = secrets.compare_digest(username, expected_user)
+    is_pass_valid = secrets.compare_digest(password, expected_pass)
 
     if not (is_user_valid and is_pass_valid):
         raise HTTPException(

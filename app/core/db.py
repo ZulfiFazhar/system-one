@@ -71,6 +71,8 @@ def init_db(db_path: str | None = None) -> None:
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('public_rate_limit_window_seconds', '60');
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('models_setup_completed', '0');
             INSERT OR IGNORE INTO system_settings (key, value) VALUES ('active_models', '');
+            INSERT OR IGNORE INTO system_settings (key, value) VALUES ('admin_username', 'admin');
+            INSERT OR IGNORE INTO system_settings (key, value) VALUES ('admin_password', 'changeme');
             """
         )
     conn.close()
@@ -494,11 +496,56 @@ def update_system_settings(
                 """
                 INSERT INTO system_settings (key, value)
                 VALUES (?, ?)
-                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                ON CONFLICT(key) DO UPDATE SET value=excluded.value
                 """,
-                (str(k), str(v)),
+                (k, str(v)),
             )
     conn.close()
+
+
+def get_admin_credentials(db_path: str | None = None) -> tuple[str, str]:
+    if settings.admin_username != "admin" or settings.admin_password != "changeme":
+        return settings.admin_username, settings.admin_password
+
+    conn = get_db_connection(db_path)
+    try:
+        rows = dict(
+            conn.execute(
+                "SELECT key, value FROM system_settings WHERE key IN ('admin_username', 'admin_password')"
+            ).fetchall()
+        )
+        user = rows.get("admin_username", "admin")
+        pwd = rows.get("admin_password", "changeme")
+        return user, pwd
+    finally:
+        conn.close()
+
+
+def update_admin_credentials(
+    username: str, password: str, db_path: str | None = None
+) -> None:
+    conn = get_db_connection(db_path)
+    with conn:
+        conn.execute(
+            """
+            INSERT INTO system_settings (key, value) VALUES ('admin_username', ?)
+            ON CONFLICT(key) DO UPDATE SET value=excluded.value
+            """,
+            (username,),
+        )
+        conn.execute(
+            """
+            INSERT INTO system_settings (key, value) VALUES ('admin_password', ?)
+            ON CONFLICT(key) DO UPDATE SET value=excluded.value
+            """,
+            (password,),
+        )
+    conn.close()
+
+
+def is_default_admin_credentials(db_path: str | None = None) -> bool:
+    user, pwd = get_admin_credentials(db_path)
+    return user == "admin" and pwd == "changeme"
 
 
 def get_blocked_ips(db_path: str | None = None) -> list[dict]:

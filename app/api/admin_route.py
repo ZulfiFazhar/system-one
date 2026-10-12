@@ -15,6 +15,7 @@ from app.dto.admin_dto import (
     BlocklistActionResponseDTO,
     BlocklistCreateDTO,
     BlocklistItemDTO,
+    CredentialsUpdateDTO,
     DeleteResponseDTO,
     HealthDTO,
     HourlyBucketDTO,
@@ -217,6 +218,12 @@ def update_settings(body: SettingsUpdateDTO) -> dict[str, str]:
     )
     refresh_security_caches()
     return db.get_system_settings()
+
+
+@router.put("/credentials", response_model=dict[str, str])
+def update_credentials(body: CredentialsUpdateDTO) -> dict[str, str]:
+    db.update_admin_credentials(body.username, body.password)
+    return {"status": "success", "username": body.username}
 
 
 @router.get("/blocklist", response_model=list[BlocklistItemDTO])

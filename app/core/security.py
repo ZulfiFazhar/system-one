@@ -177,8 +177,9 @@ def verify_admin_credentials(
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    is_user_correct = secrets.compare_digest(credentials.username, settings.admin_username)
-    is_pass_correct = secrets.compare_digest(credentials.password, settings.admin_password)
+    expected_user, expected_pass = db.get_admin_credentials()
+    is_user_correct = secrets.compare_digest(credentials.username, expected_user)
+    is_pass_correct = secrets.compare_digest(credentials.password, expected_pass)
 
     if not (is_user_correct and is_pass_correct):
         raise HTTPException(

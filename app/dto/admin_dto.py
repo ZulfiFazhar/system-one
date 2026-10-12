@@ -109,6 +109,11 @@ class SettingsUpdateDTO(BaseModel):
     rate_limit_window_seconds: int = Field(..., gt=0)
 
 
+class CredentialsUpdateDTO(BaseModel):
+    username: str = Field(..., min_length=1, max_length=64)
+    password: str = Field(..., min_length=1, max_length=128)
+
+
 class BlocklistCreateDTO(BaseModel):
     ip_address: str = Field(..., min_length=1, max_length=64)
     reason: str = Field("", max_length=256)
